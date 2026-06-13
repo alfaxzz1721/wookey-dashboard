@@ -16,29 +16,23 @@
     --text:      #e8eaf2;
     --muted:     #5a6070;
     --shopee:    #EE4D2D;
-    --shopee2:   #ff7c5c;
     --green:     #10b981;
     --red:       #ef4444;
 
-    --c-gmv:        #f59e0b;
-    --c-pesanan:    #10b981;
-    --c-klik:       #3b82f6;
-    --c-pengunjung: #8b5cf6;
-    --c-ctr:        #ec4899;
-    --c-ctor:       #06b6d4;
-    --c-aov:        #f97316;
-    --c-konversi:   #a3e635;
+    --c-gmv:      #f59e0b;
+    --c-order:    #10b981;
+    --c-click:    #3b82f6;
+    --c-watch:    #8b5cf6;
+    --c-show:     #64748b;
+    --c-ctr:      #ec4899;
+    --c-ctor:     #06b6d4;
+    --c-aov:      #f97316;
+    --c-err:      #e879f9;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 
-  /* ── Header ── */
   .header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -60,46 +54,49 @@
     padding: 5px 12px;
     border-radius: 4px;
   }
-  .header-title {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .header-sub {
-    font-size: 12px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    margin-left: auto;
-  }
-  .last-update {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-  }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
 
-  /* ── Main ── */
   .main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
 
-  /* ── Toolbar ── */
+  /* KPI */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .kpi-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .kpi-value { font-size: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+  .kpi-delta { font-size: 11px; color: var(--muted); }
+  .kpi-delta.up { color: var(--green); }
+  .kpi-delta.down { color: var(--red); }
+
+  /* Toolbar */
   .toolbar {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 16px;
     flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
   }
-  .toolbar-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    color: var(--muted);
-    margin-right: 4px;
-  }
+  .toolbar-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-right: 4px; }
   .toggle {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
+    padding: 5px 11px;
     border-radius: 20px;
     border: 1.5px solid var(--border);
     background: transparent;
@@ -115,96 +112,31 @@
     color: var(--text);
     background: color-mix(in srgb, var(--accent) 15%, transparent);
   }
-  .toggle .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-  }
+  .toggle .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 
-  /* ── KPI Cards ── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .kpi {
-    background: var(--surface);
+  /* Date filter */
+  .date-filter { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .date-filter input {
+    background: var(--surface2);
     border: 1px solid var(--border);
-    border-top: 3px solid var(--accent);
-    border-radius: 8px;
-    padding: 16px 18px;
-  }
-  .kpi-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-  .kpi-value {
-    font-size: 22px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
+    border-radius: 6px;
     color: var(--text);
-    margin-bottom: 4px;
-  }
-  .kpi-delta {
-    font-size: 11px;
-    color: var(--muted);
-  }
-  .kpi-delta.up { color: var(--green); }
-  .kpi-delta.down { color: var(--red); }
-
-  /* ── Chart ── */
-  .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin-bottom: 16px;
-  }
-  .chart-title {
     font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    margin-bottom: 16px;
+    padding: 5px 8px;
+    font-family: 'JetBrains Mono', monospace;
   }
-  .chart-wrap { position: relative; height: 300px; }
+  .date-filter span { color: var(--muted); font-size: 12px; }
 
-  /* ── Loading ── */
-  .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 300px;
-    color: var(--muted);
-    gap: 12px;
-    font-size: 14px;
-  }
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid var(--border);
-    border-top-color: var(--shopee);
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-  }
+  /* Chart */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 320px; }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
 
-  .error {
-    background: #2d1515;
-    border: 1px solid #5c2020;
-    border-radius: 8px;
-    padding: 16px;
-    color: #f87171;
-    font-size: 13px;
-    margin-bottom: 16px;
-  }
-
-  /* ── Responsive ── */
   @media (max-width: 768px) {
     .main { padding: 16px; }
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -231,20 +163,21 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <span class="toolbar-label">Tampilkan:</span>
+    <button class="toggle" data-metric="Live Show PV" style="--accent:var(--c-show)"><span class="dot"></span>Live Show PV</button>
+    <button class="toggle active" data-metric="Live Watch PV" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
+    <button class="toggle active" data-metric="Click Product" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
+    <button class="toggle active" data-metric="Order Number" style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
     <button class="toggle active" data-metric="GMV" style="--accent:var(--c-gmv)"><span class="dot"></span>GMV</button>
-    <button class="toggle active" data-metric="Total Pesanan" style="--accent:var(--c-pesanan)"><span class="dot"></span>Pesanan</button>
-    <button class="toggle active" data-metric="Produk Diklik" style="--accent:var(--c-klik)"><span class="dot"></span>Klik Produk</button>
-    <button class="toggle active" data-metric="Total Pengunjung" style="--accent:var(--c-pengunjung)"><span class="dot"></span>Pengunjung</button>
-    <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
+    <button class="toggle" data-metric="ERR" style="--accent:var(--c-err)"><span class="dot"></span>ERR</button>
     <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
+    <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
     <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
-    <button class="toggle" data-metric="Konversi %" style="--accent:var(--c-konversi)"><span class="dot"></span>Konversi</button>
 
-    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <div class="date-filter">
       <span class="toolbar-label">Periode:</span>
-      <input type="date" id="date-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
-      <span style="color:var(--muted);font-size:12px;">s/d</span>
-      <input type="date" id="date-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+      <input type="date" id="date-from">
+      <span>s/d</span>
+      <input type="date" id="date-to">
       <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
       <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted)">Reset</button>
     </div>
@@ -253,38 +186,35 @@
   <!-- Chart -->
   <div class="chart-card">
     <div class="chart-title">Tren Harian</div>
-    <div class="chart-wrap">
-      <canvas id="mainChart"></canvas>
-    </div>
+    <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
   </div>
 </div>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────────
-const SHEET_ID  = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+const SHEET_ID   = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
 const SHEET_NAME = 'Shopee Stats Harian';
-const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const API_URL    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
-// ── Metric config ─────────────────────────────────────────────────────────────
 const METRICS = {
-  'GMV':             { color: '#f59e0b', format: 'rp',     axis: 'y1' },
-  'Total Pesanan':   { color: '#10b981', format: 'number', axis: 'y2' },
-  'Produk Diklik':   { color: '#3b82f6', format: 'number', axis: 'y2' },
-  'Total Pengunjung':{ color: '#8b5cf6', format: 'number', axis: 'y2' },
-  'CTR':             { color: '#ec4899', format: 'pct',    axis: 'y3' },
-  'CTOR':            { color: '#06b6d4', format: 'pct',    axis: 'y3' },
-  'AOV':             { color: '#f97316', format: 'rp',     axis: 'y1' },
-  'Konversi %':      { color: '#a3e635', format: 'pct',    axis: 'y3' },
+  'Live Show PV':  { color: '#64748b', format: 'number', axis: 'y2' },
+  'Live Watch PV': { color: '#8b5cf6', format: 'number', axis: 'y2' },
+  'Click Product': { color: '#3b82f6', format: 'number', axis: 'y2' },
+  'Order Number':  { color: '#10b981', format: 'number', axis: 'y2' },
+  'GMV':           { color: '#f59e0b', format: 'rp',     axis: 'y1' },
+  'ERR':           { color: '#e879f9', format: 'pct',    axis: 'y3' },
+  'CTOR':          { color: '#06b6d4', format: 'pct',    axis: 'y3' },
+  'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
+  'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
 };
 
-const KPI_METRICS = [
-  { key: 'GMV',              label: 'GMV',        accent: '#f59e0b' },
-  { key: 'Total Pesanan',    label: 'Pesanan',    accent: '#10b981' },
-  { key: 'Total Pengunjung', label: 'Pengunjung', accent: '#8b5cf6' },
-  { key: 'AOV',              label: 'AOV',        accent: '#f97316' },
+const KPI_LIST = [
+  { key: 'Live Show PV',  label: 'Live Show PV',  accent: '#64748b' },
+  { key: 'Live Watch PV', label: 'Live Watch PV', accent: '#8b5cf6' },
+  { key: 'Click Product', label: 'Click Product', accent: '#3b82f6' },
+  { key: 'Order Number',  label: 'Order Number',  accent: '#10b981' },
+  { key: 'GMV',           label: 'GMV',           accent: '#f59e0b' },
 ];
 
-// ── Format ────────────────────────────────────────────────────────────────────
 function fmtRp(v) {
   if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(1) + 'M';
   if (v >= 1e6) return 'Rp ' + (v/1e6).toFixed(1) + 'jt';
@@ -302,62 +232,51 @@ function fmt(v, type) {
   return fmtNum(v);
 }
 
-// ── Fetch data dari Google Sheets ─────────────────────────────────────────────
 async function fetchData() {
-  const res = await fetch(API_URL);
+  const res  = await fetch(API_URL);
   const text = await res.text();
   const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
-
   const cols = json.table.cols.map(c => c.label);
-  const rows = json.table.rows.map(row => {
+  return json.table.rows.map(row => {
     const obj = {};
-    cols.forEach((col, i) => {
-      const cell = row.c[i];
-      obj[col] = cell ? cell.v : null;
-    });
+    cols.forEach((col, i) => { const cell = row.c[i]; obj[col] = cell ? cell.v : 0; });
+    // Hitung ERR = Live Watch PV / Live Show PV
+    const showPV  = obj['Live Show PV'] || 0;
+    const watchPV = obj['Live Watch PV'] || 0;
+    obj['ERR'] = showPV > 0 ? watchPV / showPV : 0;
     return obj;
-  });
-
-  return rows.filter(r => r['Tanggal']);
+  }).filter(r => r['Tanggal']);
 }
 
-// ── Render KPI ────────────────────────────────────────────────────────────────
 function renderKPI(data) {
   const last = data[data.length - 1];
   const prev = data.length > 1 ? data[data.length - 2] : null;
-
-  const container = document.getElementById('kpi-grid');
-  container.innerHTML = KPI_METRICS.map(k => {
-    const val = last[k.key] || 0;
+  document.getElementById('kpi-grid').innerHTML = KPI_LIST.map(k => {
+    const val  = last[k.key] || 0;
     const type = METRICS[k.key]?.format || 'number';
-    let delta = '';
+    let delta  = '';
     if (prev && prev[k.key]) {
-      const diff = ((val - prev[k.key]) / prev[k.key]) * 100;
-      const cls = diff >= 0 ? 'up' : 'down';
+      const diff = ((val - prev[k.key]) / Math.abs(prev[k.key])) * 100;
+      const cls  = diff >= 0 ? 'up' : 'down';
       const sign = diff >= 0 ? '▲' : '▼';
-      delta = `<div class="kpi-delta ${cls}">${sign} ${Math.abs(diff).toFixed(1)}% vs hari sebelumnya</div>`;
+      delta = `<div class="kpi-delta ${cls}">${sign} ${Math.abs(diff).toFixed(1)}% vs hari sblm</div>`;
     }
-    return `
-      <div class="kpi" style="--accent:${k.accent}">
-        <div class="kpi-label">${k.label}</div>
-        <div class="kpi-value">${fmt(val, type)}</div>
-        ${delta}
-      </div>`;
+    return `<div class="kpi" style="--accent:${k.accent}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${fmt(val, type)}</div>
+      ${delta}
+    </div>`;
   }).join('');
 }
 
-// ── Render Chart ──────────────────────────────────────────────────────────────
 let chartInstance = null;
-
-function getActiveMetrics() {
-  return [...document.querySelectorAll('.toggle.active[data-metric]')]
-    .map(b => b.dataset.metric);
+function getActive() {
+  return [...document.querySelectorAll('.toggle.active[data-metric]')].map(b => b.dataset.metric);
 }
 
 function renderChart(data) {
-  const labels = data.map(d => d['Tanggal']);
-  const active = getActiveMetrics();
-
+  const labels  = data.map(d => d['Tanggal']);
+  const active  = getActive();
   const datasets = active.map(key => {
     const m = METRICS[key];
     return {
@@ -378,32 +297,8 @@ function renderChart(data) {
   const hasY2 = active.some(k => METRICS[k]?.axis === 'y2');
   const hasY3 = active.some(k => METRICS[k]?.axis === 'y3');
 
-  const scales = {
-    x: {
-      ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } },
-      grid: { color: '#252836' }
-    },
-    y1: {
-      display: hasY1, position: 'left',
-      ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) },
-      grid: { color: '#252836' }
-    },
-    y2: {
-      display: hasY2, position: hasY1 ? 'right' : 'left',
-      ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) },
-      grid: { display: !hasY1, color: '#252836' }
-    },
-    y3: {
-      display: hasY3, position: 'right',
-      ticks: { color: '#ec4899', font: { size: 10 }, callback: v => fmtPct(v) },
-      grid: { display: false }
-    }
-  };
-
   if (chartInstance) chartInstance.destroy();
-
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  chartInstance = new Chart(ctx, {
+  chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
     type: 'line',
     data: { labels, datasets },
     options: {
@@ -413,12 +308,8 @@ function renderChart(data) {
       plugins: {
         legend: { labels: { color: '#e8eaf2', font: { size: 12 }, boxWidth: 12 } },
         tooltip: {
-          backgroundColor: '#13151f',
-          borderColor: '#252836',
-          borderWidth: 1,
-          titleColor: '#e8eaf2',
-          bodyColor: '#9ca3af',
-          padding: 12,
+          backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
+          titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
           callbacks: {
             label: ctx => {
               const type = METRICS[ctx.dataset.label]?.format || 'number';
@@ -427,12 +318,16 @@ function renderChart(data) {
           }
         }
       },
-      scales
+      scales: {
+        x: { ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
+        y1: { display: hasY1, position: 'left', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
+        y2: { display: hasY2, position: hasY1 ? 'right' : 'left', ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: !hasY1, color: '#252836' } },
+        y3: { display: hasY3, position: 'right', ticks: { color: '#e879f9', font: { size: 10 }, callback: v => fmtPct(v) }, grid: { display: false } },
+      }
     }
   });
 }
 
-// ── Toggle ────────────────────────────────────────────────────────────────────
 let globalData = [];
 let filteredData = [];
 
@@ -443,69 +338,51 @@ document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
   });
 });
 
-// ── Date Filter ───────────────────────────────────────────────────────────────
 function applyFilter() {
   const from = document.getElementById('date-from').value;
   const to   = document.getElementById('date-to').value;
-
   filteredData = globalData.filter(d => {
-    const date = d['Tanggal'];
-    if (from && date < from) return false;
-    if (to   && date > to)   return false;
+    if (from && d['Tanggal'] < from) return false;
+    if (to   && d['Tanggal'] > to)   return false;
     return true;
   });
-
   if (!filteredData.length) {
-    document.getElementById('error-container').innerHTML =
-      '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
+    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
     return;
   }
-
   document.getElementById('error-container').innerHTML = '';
   renderKPI(filteredData);
   renderChart(filteredData);
-
   const dates = filteredData.map(d => d['Tanggal']);
-  document.getElementById('date-range').textContent =
-    `${dates[0]} — ${dates[dates.length - 1]} · ${dates.length} hari`;
+  document.getElementById('date-range').textContent = `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
 }
 
 function resetFilter() {
-  document.getElementById('date-from').value = '';
-  document.getElementById('date-to').value   = '';
+  document.getElementById('date-from').value = globalData[0]?.['Tanggal'] || '';
+  document.getElementById('date-to').value   = globalData[globalData.length-1]?.['Tanggal'] || '';
   filteredData = [...globalData];
   renderKPI(filteredData);
   renderChart(filteredData);
   const dates = filteredData.map(d => d['Tanggal']);
-  document.getElementById('date-range').textContent =
-    `${dates[0]} — ${dates[dates.length - 1]} · ${dates.length} hari`;
+  document.getElementById('date-range').textContent = `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
 async function init() {
   try {
     globalData = await fetchData();
-
     if (!globalData.length) {
-      document.getElementById('error-container').innerHTML =
-        '<div class="error">⚠️ Tidak ada data ditemukan di Google Sheets.</div>';
+      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>';
       return;
     }
-
     filteredData = [...globalData];
     renderKPI(filteredData);
     renderChart(filteredData);
-
     const dates = globalData.map(d => d['Tanggal']);
-    // Set default date filter
     document.getElementById('date-from').value = dates[0];
-    document.getElementById('date-to').value   = dates[dates.length - 1];
-    document.getElementById('date-range').textContent =
-      `${dates[0]} — ${dates[dates.length - 1]} · ${dates.length} hari`;
-
+    document.getElementById('date-to').value   = dates[dates.length-1];
+    document.getElementById('date-range').textContent = `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
   } catch(err) {
-    document.getElementById('error-container').innerHTML =
-      `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
     console.error(err);
   }
 }
