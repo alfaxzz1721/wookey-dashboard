@@ -77,6 +77,20 @@
   .kpi-value { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px; }
   .kpi-delta { font-size: 9px; color: var(--muted); }
   .kpi-delta.up { color: var(--green); }
+  .kpi-full {
+    font-size: 9px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 2px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all .2s;
+  }
+  .kpi:hover .kpi-full {
+    opacity: 1;
+    max-height: 20px;
+  }
   .kpi-delta.down { color: var(--red); }
 
   /* Toolbar */
@@ -169,8 +183,8 @@
     <button class="toggle active" data-metric="Order Number" style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
     <button class="toggle active" data-metric="GMV" style="--accent:var(--c-gmv)"><span class="dot"></span>GMV</button>
     <button class="toggle" data-metric="ERR" style="--accent:var(--c-err)"><span class="dot"></span>ERR</button>
-    <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
     <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
+    <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
     <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
 
     <div class="date-filter">
@@ -214,8 +228,8 @@ const KPI_LIST = [
   { key: 'Order Number',  label: 'Order Number',  accent: '#10b981' },
   { key: 'GMV',           label: 'GMV',           accent: '#f59e0b' },
   { key: 'ERR',           label: 'ERR',           accent: '#e879f9' },
-  { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
   { key: 'CTR',           label: 'CTR',           accent: '#ec4899' },
+  { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
   { key: 'AOV',           label: 'AOV',           accent: '#f97316' },
 ];
 
@@ -263,7 +277,7 @@ function calcKPI(data) {
   // Kalkulasi rasio dari total
   const err  = totalShowPV  > 0 ? totalWatchPV / totalShowPV  : 0;
   const ctor = totalClick   > 0 ? totalOrder   / totalClick   : 0;
-  const ctr  = totalWatchPV > 0 ? totalClick   / totalWatchPV : 0;
+  const ctr  = totalWatchPV > 0 ? totalClick   / totalWatchPV : 0; // CTR = Click Product / Live Watch PV
   const aov  = totalOrder   > 0 ? totalGMV     / totalOrder   : 0;
 
   return {
@@ -289,9 +303,23 @@ function renderKPI(data) {
     const sublabel = isRatio
       ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
       : `<div class="kpi-delta">Total ${days} hari</div>`;
+    const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
+    const isMoney  = ['GMV','AOV'].includes(k.key);
+    // Traffic metrics: show full number, no abbreviation
+    const displayVal = isVolume
+      ? Math.round(val).toLocaleString('id-ID')
+      : fmt(val, type);
+    // Money metrics: show abbreviated + full number on hover
+    const fullVal = isMoney
+      ? `title="Detail: Rp ${Math.round(val).toLocaleString('id-ID')}"`
+      : '';
+    const tooltip = isMoney
+      ? `<div class="kpi-full">Rp ${Math.round(val).toLocaleString('id-ID')}</div>`
+      : '';
     return `<div class="kpi" style="--accent:${k.accent}">
       <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${fmt(val, type)}</div>
+      <div class="kpi-value" ${fullVal}>${displayVal}</div>
+      ${tooltip}
       ${sublabel}
     </div>`;
   }).join('');
