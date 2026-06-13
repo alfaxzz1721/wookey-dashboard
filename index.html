@@ -252,23 +252,47 @@ async function fetchData() {
   }).filter(r => r['Tanggal']);
 }
 
+function calcKPI(data) {
+  // SUM untuk metrik volume
+  const totalShowPV  = data.reduce((s, d) => s + (d['Live Show PV']  || 0), 0);
+  const totalWatchPV = data.reduce((s, d) => s + (d['Live Watch PV'] || 0), 0);
+  const totalClick   = data.reduce((s, d) => s + (d['Click Product'] || 0), 0);
+  const totalOrder   = data.reduce((s, d) => s + (d['Order Number']  || 0), 0);
+  const totalGMV     = data.reduce((s, d) => s + (d['GMV']           || 0), 0);
+
+  // Kalkulasi rasio dari total
+  const err  = totalShowPV  > 0 ? totalWatchPV / totalShowPV  : 0;
+  const ctor = totalClick   > 0 ? totalOrder   / totalClick   : 0;
+  const ctr  = totalWatchPV > 0 ? totalClick   / totalWatchPV : 0;
+  const aov  = totalOrder   > 0 ? totalGMV     / totalOrder   : 0;
+
+  return {
+    'Live Show PV':  totalShowPV,
+    'Live Watch PV': totalWatchPV,
+    'Click Product': totalClick,
+    'Order Number':  totalOrder,
+    'GMV':           totalGMV,
+    'ERR':           err,
+    'CTOR':          ctor,
+    'CTR':           ctr,
+    'AOV':           aov,
+  };
+}
+
 function renderKPI(data) {
-  const last = data[data.length - 1];
-  const prev = data.length > 1 ? data[data.length - 2] : null;
+  const kpi = calcKPI(data);
+  const days = data.length;
   document.getElementById('kpi-grid').innerHTML = KPI_LIST.map(k => {
-    const val  = last[k.key] || 0;
+    const val  = kpi[k.key] || 0;
     const type = METRICS[k.key]?.format || 'number';
-    let delta  = '';
-    if (prev && prev[k.key]) {
-      const diff = ((val - prev[k.key]) / Math.abs(prev[k.key])) * 100;
-      const cls  = diff >= 0 ? 'up' : 'down';
-      const sign = diff >= 0 ? '▲' : '▼';
-      delta = `<div class="kpi-delta ${cls}">${sign} ${Math.abs(diff).toFixed(1)}% vs hari sblm</div>`;
-    }
+    const isRatio = ['ERR','CTOR','CTR','AOV'].includes(k.key);
+    const sublabel = isRatio
+      ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
+      : `<div class="kpi-delta">Total ${days} hari</div>`;
     return `<div class="kpi" style="--accent:${k.accent}">
       <div class="kpi-label">${k.label}</div>
       <div class="kpi-value">${fmt(val, type)}</div>
-      ${delta}
+      ${sublabel}
     </div>`;
   }).join('');
 }
