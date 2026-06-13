@@ -189,17 +189,32 @@
 
     <div class="date-filter">
       <span class="toolbar-label">Periode:</span>
+      <select id="quick-select" onchange="quickSelect(this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;">
+        <option value="">-- Pilih --</option>
+        <option value="yesterday">Kemarin</option>
+        <option value="7days">7 Hari Terakhir</option>
+        <option value="30days">30 Hari Terakhir</option>
+      </select>
+      <span style="color:var(--muted);font-size:11px;">atau</span>
       <input type="date" id="date-from">
-      <span>s/d</span>
+      <span style="color:var(--muted);font-size:12px;">s/d</span>
       <input type="date" id="date-to">
       <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
       <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted)">Reset</button>
     </div>
   </div>
 
+  <!-- Group By -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <span class="toolbar-label">Tampilkan per:</span>
+    <button class="toggle active" data-group="day" onclick="setGroup('day')">Per Hari</button>
+    <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
+    <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
+  </div>
+
   <!-- Chart -->
   <div class="chart-card">
-    <div class="chart-title">Tren Harian</div>
+    <div class="chart-title" id="chart-title">Tren Harian</div>
     <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
   </div>
 </div>
@@ -331,6 +346,7 @@ function getActive() {
 }
 
 function renderChart(data) {
+  data = groupData(data, currentGroup);
   const labels  = data.map(d => d['Tanggal']);
   const active  = getActive();
   const datasets = active.map(key => {
@@ -421,6 +437,81 @@ function resetFilter() {
   renderChart(filteredData);
   const dates = filteredData.map(d => d['Tanggal']);
   document.getElementById('date-range').textContent = `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+}
+
+// ── Quick Select ─────────────────────────────────────────────────────────────
+function quickSelect(val) {
+  if (!val || !globalData.length) return;
+  const dates = globalData.map(d => d['Tanggal']).sort();
+  const last  = dates[dates.length - 1];
+
+  let from = last;
+  if (val === 'yesterday') {
+    from = last;
+  } else if (val === '7days') {
+    const d = new Date(last);
+    d.setDate(d.getDate() - 6);
+    from = d.toISOString().split('T')[0];
+  } else if (val === '30days') {
+    const d = new Date(last);
+    d.setDate(d.getDate() - 29);
+    from = d.toISOString().split('T')[0];
+  }
+
+  document.getElementById('date-from').value = from;
+  document.getElementById('date-to').value   = last;
+  applyFilter();
+}
+
+// ── Group By ──────────────────────────────────────────────────────────────────
+let currentGroup = 'day';
+
+function setGroup(group) {
+  currentGroup = group;
+  document.querySelectorAll('[data-group]').forEach(b => {
+    b.classList.toggle('active', b.dataset.group === group);
+  });
+  const titles = { day: 'Tren Harian', week: 'Tren Mingguan', month: 'Tren Bulanan' };
+  document.getElementById('chart-title').textContent = titles[group];
+  if (filteredData.length) renderChart(filteredData);
+}
+
+function groupData(data, group) {
+  if (group === 'day') return data;
+
+  const grouped = {};
+  data.forEach(d => {
+    let key;
+    const date = new Date(d['Tanggal']);
+    if (group === 'week') {
+      // Minggu ke berapa (ISO week)
+      const startOfYear = new Date(date.getFullYear(), 0, 1);
+      const week = Math.ceil(((date - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+      key = `${date.getFullYear()}-W${String(week).padStart(2,'0')}`;
+    } else if (group === 'month') {
+      key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    }
+
+    if (!grouped[key]) {
+      grouped[key] = {
+        'Tanggal': key,
+        'Live Show PV': 0, 'Live Watch PV': 0,
+        'Click Product': 0, 'Order Number': 0, 'GMV': 0,
+      };
+    }
+    ['Live Show PV','Live Watch PV','Click Product','Order Number','GMV'].forEach(k => {
+      grouped[key][k] = (grouped[key][k] || 0) + (d[k] || 0);
+    });
+  });
+
+  // Hitung rasio dari total
+  return Object.values(grouped).map(g => {
+    g['ERR']  = g['Live Show PV']  > 0 ? g['Live Watch PV'] / g['Live Show PV']  : 0;
+    g['CTR']  = g['Live Watch PV'] > 0 ? g['Click Product'] / g['Live Watch PV'] : 0;
+    g['CTOR'] = g['Click Product'] > 0 ? g['Order Number']  / g['Click Product'] : 0;
+    g['AOV']  = g['Order Number']  > 0 ? g['GMV']           / g['Order Number']  : 0;
+    return g;
+  });
 }
 
 async function init() {
