@@ -239,6 +239,15 @@
     <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
     <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
     <button class="toggle" data-metric="Konversi %" style="--accent:var(--c-konversi)"><span class="dot"></span>Konversi</button>
+
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span class="toolbar-label">Periode:</span>
+      <input type="date" id="date-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+      <span style="color:var(--muted);font-size:12px;">s/d</span>
+      <input type="date" id="date-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+      <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+      <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted)">Reset</button>
+    </div>
   </div>
 
   <!-- Chart -->
@@ -425,12 +434,52 @@ function renderChart(data) {
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
 let globalData = [];
+let filteredData = [];
+
 document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
   btn.addEventListener('click', () => {
     btn.classList.toggle('active');
-    if (globalData.length) renderChart(globalData);
+    if (filteredData.length) renderChart(filteredData);
   });
 });
+
+// ── Date Filter ───────────────────────────────────────────────────────────────
+function applyFilter() {
+  const from = document.getElementById('date-from').value;
+  const to   = document.getElementById('date-to').value;
+
+  filteredData = globalData.filter(d => {
+    const date = d['Tanggal'];
+    if (from && date < from) return false;
+    if (to   && date > to)   return false;
+    return true;
+  });
+
+  if (!filteredData.length) {
+    document.getElementById('error-container').innerHTML =
+      '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
+    return;
+  }
+
+  document.getElementById('error-container').innerHTML = '';
+  renderKPI(filteredData);
+  renderChart(filteredData);
+
+  const dates = filteredData.map(d => d['Tanggal']);
+  document.getElementById('date-range').textContent =
+    `${dates[0]} — ${dates[dates.length - 1]} · ${dates.length} hari`;
+}
+
+function resetFilter() {
+  document.getElementById('date-from').value = '';
+  document.getElementById('date-to').value   = '';
+  filteredData = [...globalData];
+  renderKPI(filteredData);
+  renderChart(filteredData);
+  const dates = filteredData.map(d => d['Tanggal']);
+  document.getElementById('date-range').textContent =
+    `${dates[0]} — ${dates[dates.length - 1]} · ${dates.length} hari`;
+}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function init() {
@@ -443,10 +492,14 @@ async function init() {
       return;
     }
 
-    renderKPI(globalData);
-    renderChart(globalData);
+    filteredData = [...globalData];
+    renderKPI(filteredData);
+    renderChart(filteredData);
 
     const dates = globalData.map(d => d['Tanggal']);
+    // Set default date filter
+    document.getElementById('date-from').value = dates[0];
+    document.getElementById('date-to').value   = dates[dates.length - 1];
     document.getElementById('date-range').textContent =
       `${dates[0]} — ${dates[dates.length - 1]} · ${dates.length} hari`;
 
