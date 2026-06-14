@@ -192,6 +192,7 @@
       <button class="toggle active" data-group="day" onclick="setGroup('day')">Per Hari</button>
       <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
       <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
+      <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
     </div>
   </div>
 
@@ -214,9 +215,18 @@
 
     <!-- Per Bulan -->
     <div id="filter-month" style="display:none;align-items:center;gap:8px;">
-      <select id="month-select" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;">
-      </select>
+      <select id="month-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;"></select>
+      <span style="color:var(--muted);font-size:12px;">s/d</span>
+      <select id="month-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;"></select>
       <button onclick="applyFilterMonth()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+    </div>
+
+    <!-- Custom -->
+    <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
+      <input type="date" id="custom-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+      <span style="color:var(--muted);font-size:12px;">s/d</span>
+      <input type="date" id="custom-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+      <button onclick="applyFilterCustom()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
     </div>
 
     <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
@@ -429,9 +439,10 @@ function setGroup(group) {
   });
 
   // Tampilkan filter yang sesuai
-  document.getElementById('filter-day').style.display   = group === 'day'   ? 'flex' : 'none';
-  document.getElementById('filter-week').style.display  = group === 'week'  ? 'flex' : 'none';
-  document.getElementById('filter-month').style.display = group === 'month' ? 'flex' : 'none';
+  document.getElementById('filter-day').style.display    = group === 'day'    ? 'flex' : 'none';
+  document.getElementById('filter-week').style.display   = group === 'week'   ? 'flex' : 'none';
+  document.getElementById('filter-month').style.display  = group === 'month'  ? 'flex' : 'none';
+  document.getElementById('filter-custom').style.display = group === 'custom' ? 'flex' : 'none';
 
   const titles = { day: 'Tren Harian', week: 'Tren Mingguan', month: 'Tren Bulanan' };
   document.getElementById('chart-title').textContent = titles[group];
@@ -515,11 +526,9 @@ function applyFilterWeek() {
 
 // ── Filter Per Bulan ─────────────────────────────────────────────────────────
 function buildMonthOptions() {
-  const select = document.getElementById('month-select');
-  select.innerHTML = '';
-  const months = {};
   const BULAN = ['Januari','Februari','Maret','April','Mei','Juni',
                  'Juli','Agustus','September','Oktober','November','Desember'];
+  const months = {};
 
   globalData.forEach(d => {
     const date = new Date(d['Tanggal']);
@@ -527,24 +536,58 @@ function buildMonthOptions() {
     if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
   });
 
-  Object.entries(months).sort().forEach(([key, label]) => {
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = label;
-    select.appendChild(opt);
+  const entries = Object.entries(months).sort();
+
+  ['month-from', 'month-to'].forEach(id => {
+    const select = document.getElementById(id);
+    select.innerHTML = '';
+    entries.forEach(([key, label]) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = label;
+      select.appendChild(opt);
+    });
   });
 
-  // Default ke bulan terakhir
-  if (select.options.length) select.selectedIndex = select.options.length - 1;
+  // Default: from = bulan pertama, to = bulan terakhir
+  const fromSel = document.getElementById('month-from');
+  const toSel   = document.getElementById('month-to');
+  if (fromSel.options.length) fromSel.selectedIndex = 0;
+  if (toSel.options.length)   toSel.selectedIndex   = toSel.options.length - 1;
 }
 
 function applyFilterMonth() {
-  const month = document.getElementById('month-select').value;
-  if (!month) return;
+  const from = document.getElementById('month-from').value;
+  const to   = document.getElementById('month-to').value;
+  if (!from || !to) return;
 
-  filteredData = globalData.filter(d => d['Tanggal'].startsWith(month));
+  // Dari awal bulan "from" sampai akhir bulan "to"
+  const fromDate = from + '-01';
+  const toDateObj = new Date(to + '-01');
+  toDateObj.setMonth(toDateObj.getMonth() + 1);
+  toDateObj.setDate(toDateObj.getDate() - 1);
+  const toDate = toDateObj.toISOString().split('T')[0];
+
+  filteredData = globalData.filter(d => d['Tanggal'] >= fromDate && d['Tanggal'] <= toDate);
   if (!filteredData.length) {
-    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk bulan ini.</div>';
+    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
+    return;
+  }
+  document.getElementById('error-container').innerHTML = '';
+  renderKPI(filteredData);
+  renderChart(filteredData);
+  updateDateRange(filteredData);
+}
+
+// ── Filter Custom ─────────────────────────────────────────────────────────────
+function applyFilterCustom() {
+  const from = document.getElementById('custom-from').value;
+  const to   = document.getElementById('custom-to').value;
+  if (!from || !to) return;
+
+  filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  if (!filteredData.length) {
+    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
     return;
   }
   document.getElementById('error-container').innerHTML = '';
@@ -560,9 +603,10 @@ function resetFilter() {
   renderChart(filteredData);
   updateDateRange(filteredData);
 
-  // Reset input values
   const dates = globalData.map(d => d['Tanggal']).sort();
   document.getElementById('date-single').value = dates[dates.length - 1] || '';
+  document.getElementById('custom-from').value = dates[0] || '';
+  document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
 }
 
 function updateDateRange(data) {
@@ -625,6 +669,8 @@ async function init() {
     renderChart(filteredData);
     const dates = globalData.map(d => d['Tanggal']).sort();
     document.getElementById('date-single').value = dates[dates.length - 1] || '';
+    document.getElementById('custom-from').value = dates[0] || '';
+    document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
     buildWeekOptions();
     buildMonthOptions();
     updateDateRange(filteredData);
