@@ -33,10 +33,86 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 
+  /* ── Layout ── */
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 200;
+    overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-brand .logo { font-size: 10px; padding: 4px 10px; }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
+
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-section-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .15s;
+    margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--shopee);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+
+  /* ── Content Area ── */
+  .content-area {
+    margin-left: 220px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
   .header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 16px 32px;
+    padding: 14px 28px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -57,7 +133,7 @@
   .header-title { font-size: 16px; font-weight: 600; }
   .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
 
-  .main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+  .main { padding: 24px 28px; max-width: 1400px; }
 
   /* KPI */
   .kpi-grid {
@@ -152,6 +228,8 @@
   .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
 
   @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content-area { margin-left: 0; }
     .main { padding: 16px; }
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     .header { padding: 12px 16px; }
@@ -160,13 +238,67 @@
 </head>
 <body>
 
-<div class="header">
-  <span class="logo">Shopee</span>
-  <span class="header-title">Wookey Weight — Performance Dashboard</span>
-  <span class="header-sub" id="date-range">Memuat...</span>
-</div>
+<div class="app-layout">
 
-<div class="main">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="logo">S</span>
+      <div>
+        <div class="sidebar-brand-name">Wookey Weight</div>
+        <div class="sidebar-brand-sub">Official Store</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analytics</div>
+      <a class="sidebar-item active" href="#">
+        <span class="sidebar-icon">📊</span>
+        Overview
+        <span class="sidebar-badge">Live</span>
+      </a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;">
+        <span class="sidebar-icon">📦</span>
+        Produk
+        <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
+      </a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;">
+        <span class="sidebar-icon">🎯</span>
+        Marketing
+        <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
+      </a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;">
+        <span class="sidebar-icon">👥</span>
+        Pelanggan
+        <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Data</div>
+      <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank">
+        <span class="sidebar-icon">📋</span>
+        Google Sheets
+      </a>
+      <a class="sidebar-item" href="https://drive.google.com" target="_blank">
+        <span class="sidebar-icon">📁</span>
+        Google Drive
+      </a>
+    </div>
+
+    <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Auto-update setiap hari 13:00</div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content-area">
+    <div class="header">
+      <span class="header-title">Overview</span>
+      <span class="header-sub" id="date-range">Memuat...</span>
+    </div>
+
+    <div class="main">
   <div id="error-container"></div>
 
   <!-- KPI -->
@@ -236,6 +368,8 @@
   <div class="chart-card">
     <div class="chart-title" id="chart-title">Tren Harian</div>
     <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+  </div>
+    </div>
   </div>
 </div>
 
