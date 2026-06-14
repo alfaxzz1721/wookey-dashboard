@@ -444,7 +444,7 @@ function setGroup(group) {
   document.getElementById('filter-month').style.display  = group === 'month'  ? 'flex' : 'none';
   document.getElementById('filter-custom').style.display = group === 'custom' ? 'flex' : 'none';
 
-  const titles = { day: 'Tren Harian', week: 'Tren Mingguan', month: 'Tren Bulanan' };
+  const titles = { day: 'Tren Harian', week: 'Tren Mingguan', month: 'Tren Bulanan', custom: 'Tren Custom' };
   document.getElementById('chart-title').textContent = titles[group];
 
   // Reset ke semua data
@@ -620,7 +620,7 @@ function updateDateRange(data) {
 }
 
 function groupData(data, group) {
-  if (group === 'day') return data;
+  if (group === 'day' || group === 'custom') return data;
 
   const grouped = {};
   data.forEach(d => {
