@@ -402,12 +402,17 @@ function renderKontribusi(data) {
     const pct = grandTotal > 0 ? (gmv / grandTotal * 100).toFixed(1) : '0.0';
     const isSelected = selectedSources.has(sumber);
     return `<div class="kontribusi-card ${isSelected ? 'selected' : ''}" 
-                 style="--accent:${cfg.color}" 
-                 onclick="toggleSource('${sumber}')">
+                 style="--accent:${cfg.color}">
       <div class="kontribusi-label">${cfg.icon} ${sumber}</div>
       <div class="kontribusi-pct">${pct}%</div>
-      <div class="kontribusi-gmv">${fmtRp(gmv)}</div>
-      <div class="kontribusi-hint">${isSelected ? '✓ Ditampilkan' : 'Klik untuk tampilkan'}</div>
+      <div class="kontribusi-gmv" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);margin-bottom:8px;">Rp ${Math.round(gmv).toLocaleString('id-ID')}</div>
+      <button onclick="toggleSource('${sumber}')" style="
+        width:100%;padding:5px 0;border-radius:5px;border:1.5px solid ${cfg.color};
+        background:${isSelected ? cfg.color + 'cc' : 'transparent'};
+        color:${isSelected ? '#fff' : cfg.color};
+        font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+        transition:all .15s;
+      ">${isSelected ? '✓ Ditampilkan' : '+ Tampilkan'}</button>
     </div>`;
   }).join('');
 }
