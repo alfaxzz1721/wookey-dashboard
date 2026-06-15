@@ -472,7 +472,7 @@ function renderKPI(data) {
   document.getElementById('kpi-grid').innerHTML = KPI_LIST.map(k => {
     const val  = kpi[k.key] || 0;
     const type = METRICS[k.key]?.format || 'number';
-    const isRatio = ['ERR','CTOR','CTR','AOV'].includes(k.key);
+    const isRatio = ['ERR','CTOR','CTR','AOV','ARPU'].includes(k.key);
     const sublabel = isRatio
       ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
       : `<div class="kpi-delta">Total ${days} hari</div>`;
