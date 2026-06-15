@@ -323,14 +323,14 @@
   <!-- Toolbar Periode -->
   <div class="toolbar">
     <span class="toolbar-label">Tampilkan per:</span>
+    <button class="toggle" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+    <button class="toggle" onclick="quickSelect('7days')" style="--accent:#94a3b8">7 Hari</button>
+    <button class="toggle" onclick="quickSelect('30days')" style="--accent:#94a3b8">30 Hari</button>
+    <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
     <button class="toggle active" data-group="day" onclick="setGroup('day')">Per Hari</button>
     <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
     <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
     <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
-    <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
-    <button class="toggle" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
-    <button class="toggle" onclick="quickSelect('7days')" style="--accent:#94a3b8">7 Hari</button>
-    <button class="toggle" onclick="quickSelect('30days')" style="--accent:#94a3b8">30 Hari</button>
   </div>
 
   <!-- Period Filter -->
