@@ -477,7 +477,7 @@ function renderKPI(data) {
       ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
       : `<div class="kpi-delta">Total ${days} hari</div>`;
     const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
-    const isMoney  = ['GMV','AOV'].includes(k.key);
+    const isMoney  = ['GMV'].includes(k.key);
     const isARPU   = k.key === 'ARPU';
     // Traffic metrics: show full number, no abbreviation
     const displayVal = isVolume
