@@ -256,21 +256,19 @@
         <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
 
         <div class="date-filter">
-          <span class="toolbar-label">Periode:</span>
-          <select id="group-select" onchange="setGroup(this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;">
-            <option value="day">Per Hari</option>
-            <option value="week">Per Minggu</option>
-            <option value="month">Per Bulan</option>
-            <option value="custom">Custom</option>
-          </select>
+          <span class="toolbar-label">Tampilkan per:</span>
+          <button class="toggle active" data-group="day" onclick="setGroup('day')">Per Hari</button>
+          <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
+          <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
+          <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
         </div>
       </div>
 
       <!-- Period Filter -->
       <div id="period-filter">
-        <span class="toolbar-label">Filter:</span>
+        <span class="toolbar-label">Periode:</span>
         <div id="filter-day" style="display:flex;align-items:center;gap:8px;">
-          <input type="date" id="date-single">
+          <input type="date" id="date-single" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
           <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
         </div>
         <div id="filter-week" style="display:none;align-items:center;gap:8px;">
@@ -498,7 +496,7 @@ function renderChart(data) {
 
   if (chartInstance) chartInstance.destroy();
   chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
-    type: 'line',
+    type: 'bar',
     data: { labels: dates, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -519,9 +517,14 @@ function renderChart(data) {
         }
       },
       scales: {
-        x: { offset: true, ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
-        y1: { display: hasY1, position: 'left', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
-        y2: { display: hasY2, position: hasY1 ? 'right' : 'left', ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: !hasY1, color: '#252836' } },
+        x: { 
+          offset: true, 
+          ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, 
+          grid: { color: '#252836' },
+          stacked: true,
+        },
+        y1: { display: hasY1, position: 'left', stacked: true, ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
+        y2: { display: hasY2, position: hasY1 ? 'right' : 'left', stacked: true, ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: !hasY1, color: '#252836' } },
         y3: { display: hasY3, position: 'right', ticks: { color: '#e879f9', font: { size: 10 }, callback: v => fmtPct(v) }, grid: { display: false } },
       }
     }
@@ -531,6 +534,9 @@ function renderChart(data) {
 // ── Filter & Group ────────────────────────────────────────────────────────────
 function setGroup(group) {
   currentGroup = group;
+  document.querySelectorAll('[data-group]').forEach(b => {
+    b.classList.toggle('active', b.dataset.group === group);
+  });
   document.getElementById('filter-day').style.display    = group === 'day'    ? 'flex' : 'none';
   document.getElementById('filter-week').style.display   = group === 'week'   ? 'flex' : 'none';
   document.getElementById('filter-month').style.display  = group === 'month'  ? 'flex' : 'none';
