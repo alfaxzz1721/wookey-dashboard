@@ -448,6 +448,8 @@ function calcKPI(data) {
   const ctor = totalClick   > 0 ? totalOrder   / totalClick   : 0;
   const ctr  = totalWatchPV > 0 ? totalClick   / totalWatchPV : 0; // CTR = Click Product / Live Watch PV
   const aov  = totalOrder   > 0 ? totalGMV     / totalOrder   : 0;
+  const totalPembeli = data.reduce((s, d) => s + (Number(d['Pembeli']) || 0), 0);
+  const arpu = totalPembeli > 0 ? totalGMV / totalPembeli : 0;
 
   return {
     'Live Show PV':  totalShowPV,
@@ -459,6 +461,7 @@ function calcKPI(data) {
     'CTOR':          ctor,
     'CTR':           ctr,
     'AOV':           aov,
+    'ARPU':          arpu,
   };
 }
 
