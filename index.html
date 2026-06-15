@@ -387,6 +387,7 @@ const METRICS = {
   'CTOR':          { color: '#06b6d4', format: 'pct',    axis: 'y3' },
   'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
   'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
+  'ARPU':          { color: '#34d399', format: 'rp',     axis: 'y1' },
 };
 
 const KPI_LIST = [
@@ -481,7 +482,9 @@ function renderKPI(data) {
     // Traffic metrics: show full number, no abbreviation
     const displayVal = isVolume
       ? Math.round(val).toLocaleString('id-ID')
-      : fmt(val, type);
+      : isARPU
+        ? 'Rp ' + Math.round(val).toLocaleString('id-ID')
+        : fmt(val, type);
     // Money metrics: show abbreviated + full number on hover
     const fullVal = isMoney
       ? `title="Detail: Rp ${Math.round(val).toLocaleString('id-ID')}"`
