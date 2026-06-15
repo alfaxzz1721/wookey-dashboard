@@ -327,6 +327,10 @@
     <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
     <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
     <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
+    <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
+    <button class="toggle" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+    <button class="toggle" onclick="quickSelect('7days')" style="--accent:#94a3b8">7 Hari</button>
+    <button class="toggle" onclick="quickSelect('30days')" style="--accent:#94a3b8">30 Hari</button>
   </div>
 
   <!-- Period Filter -->
@@ -602,6 +606,42 @@ function setGroup(group) {
 }
 
 // ── Filter Per Hari ──────────────────────────────────────────────────────────
+// ── Quick Select ─────────────────────────────────────────────────────────────
+function quickSelect(val) {
+  if (!globalData.length) return;
+  const dates = [...new Set(globalData.map(d => d['Tanggal']))].sort();
+  const last  = dates[dates.length - 1];
+  let from = last;
+
+  if (val === 'yesterday') {
+    from = last;
+  } else if (val === '7days') {
+    const d = new Date(last);
+    d.setDate(d.getDate() - 6);
+    from = d.toISOString().split('T')[0];
+  } else if (val === '30days') {
+    const d = new Date(last);
+    d.setDate(d.getDate() - 29);
+    from = d.toISOString().split('T')[0];
+  }
+
+  // Switch to Per Hari mode
+  setGroup('day');
+  document.getElementById('date-single').value = from === last && val === 'yesterday' ? last : from;
+
+  if (val === 'yesterday') {
+    filteredData = globalData.filter(d => d['Tanggal'] === last);
+  } else {
+    filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
+  }
+
+  if (!filteredData.length) return;
+  document.getElementById('error-container').innerHTML = '';
+  renderKPI(filteredData);
+  renderChart(filteredData);
+  updateDateRange(filteredData);
+}
+
 function applyFilterDay() {
   const date = document.getElementById('date-single').value;
   if (!date) return;
