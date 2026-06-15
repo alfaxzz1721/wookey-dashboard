@@ -323,9 +323,9 @@
   <!-- Toolbar Periode -->
   <div class="toolbar">
     <span class="toolbar-label">Tampilkan per:</span>
-    <button class="toggle" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
-    <button class="toggle" onclick="quickSelect('7days')" style="--accent:#94a3b8">7 Hari</button>
-    <button class="toggle" onclick="quickSelect('30days')" style="--accent:#94a3b8">30 Hari</button>
+    <button class="toggle" data-quick="yesterday" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+    <button class="toggle" data-quick="7days" onclick="quickSelect('7days')" style="--accent:#94a3b8">7 Hari</button>
+    <button class="toggle" data-quick="30days" onclick="quickSelect('30days')" style="--accent:#94a3b8">30 Hari</button>
     <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
     <button class="toggle active" data-group="day" onclick="setGroup('day')">Per Hari</button>
     <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
@@ -585,9 +585,14 @@ document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
 // ── Group By ──────────────────────────────────────────────────────────────────
 function setGroup(group) {
   currentGroup = group;
+  // Deactivate quick select buttons
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  // Activate correct group button
   document.querySelectorAll('[data-group]').forEach(b => {
     b.classList.toggle('active', b.dataset.group === group);
   });
+  // Show period filter box
+  document.getElementById('period-filter').style.display = 'flex';
 
   // Tampilkan filter yang sesuai
   document.getElementById('filter-day').style.display    = group === 'day'    ? 'flex' : 'none';
@@ -625,10 +630,15 @@ function quickSelect(val) {
     from = d.toISOString().split('T')[0];
   }
 
-  // Switch to Per Hari mode
-  setGroup('day');
-  document.getElementById('date-single').value = from === last && val === 'yesterday' ? last : from;
+  // Set active state - deactivate group buttons, activate quick button
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-quick="${val}"]`).classList.add('active');
 
+  // Hide period filter box for quick selects
+  document.getElementById('period-filter').style.display = 'none';
+
+  // Filter data
   if (val === 'yesterday') {
     filteredData = globalData.filter(d => d['Tanggal'] === last);
   } else {
@@ -636,6 +646,7 @@ function quickSelect(val) {
   }
 
   if (!filteredData.length) return;
+  currentGroup = 'day';
   document.getElementById('error-container').innerHTML = '';
   renderKPI(filteredData);
   renderChart(filteredData);
