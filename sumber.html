@@ -237,6 +237,18 @@
     <div class="main">
       <div id="error-container"></div>
 
+      <!-- Total GMV Banner -->
+      <div id="total-gmv-banner" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 24px;margin-bottom:16px;display:flex;align-items:center;gap:24px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Total GMV Semua Sumber</div>
+          <div id="total-gmv-value" style="font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#f59e0b;">Memuat...</div>
+        </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Detail</div>
+          <div id="total-gmv-detail" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;">-</div>
+        </div>
+      </div>
+
       <!-- Kontribusi Cards -->
       <div class="kontribusi-grid" id="kontribusi-grid">
         <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data...</div>
@@ -375,6 +387,10 @@ let chartInstance = null;
 function renderKontribusi(data) {
   const totalGMV = {};
   const grandTotal = data.reduce((s, d) => s + (d['GMV'] || 0), 0);
+
+  // Update total GMV banner
+  document.getElementById('total-gmv-value').textContent = fmtRp(grandTotal);
+  document.getElementById('total-gmv-detail').textContent = 'Rp ' + Math.round(grandTotal).toLocaleString('id-ID');
 
   Object.keys(SUMBER_CONFIG).forEach(s => totalGMV[s] = 0);
   data.forEach(d => {
