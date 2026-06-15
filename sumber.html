@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wookey Weight — Sumber Penjualan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #13151f;
+    --surface2:  #1a1d2a;
+    --border:    #252836;
+    --text:      #e8eaf2;
+    --muted:     #5a6070;
+    --shopee:    #EE4D2D;
+    --green:     #10b981;
+    --red:       #ef4444;
+
+    --c-hp:   #3b82f6;
+    --c-live: #f59e0b;
+    --c-vid:  #10b981;
+    --c-aff:  #e879f9;
+
+    --c-gmv:   #f59e0b;
+    --c-order: #10b981;
+    --c-click: #3b82f6;
+    --c-watch: #8b5cf6;
+    --c-show:  #64748b;
+    --c-ctr:   #ec4899;
+    --c-ctor:  #06b6d4;
+    --c-aov:   #f97316;
+    --c-err:   #e879f9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  .app-layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 220px; min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; height: 100vh;
+    z-index: 200; overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo { background: var(--shopee); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-section-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .content-area { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  .header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
+
+  .main { padding: 24px 28px; }
+
+  /* Kontribusi Cards */
+  .kontribusi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .kontribusi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .kontribusi-card:hover { background: var(--surface2); }
+  .kontribusi-card.selected {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .kontribusi-label { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .kontribusi-pct { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent); margin-bottom: 4px; }
+  .kontribusi-gmv { font-size: 12px; color: var(--muted); }
+  .kontribusi-hint { font-size: 9px; color: var(--muted); margin-top: 6px; }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px;
+  }
+  .kpi-label { font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .kpi-value { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px; }
+  .kpi-sub { font-size: 9px; color: var(--muted); }
+  .kpi-full { font-size: 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 2px; opacity: 0; max-height: 0; overflow: hidden; transition: all .2s; }
+  .kpi:hover .kpi-full { opacity: 1; max-height: 20px; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+  }
+  .toolbar-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-right: 4px; }
+  .toggle {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 11px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); font-size: 12px; font-weight: 500;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: all .15s;
+  }
+  .toggle.active { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+  .toggle .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .date-filter { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .date-filter input, .date-filter select {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 12px;
+    padding: 5px 8px; font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+  }
+
+  /* Period Filter */
+  #period-filter {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+  }
+
+  /* Chart */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 320px; }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content-area { margin-left: 0; }
+    .main { padding: 16px; }
+    .kontribusi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="logo">S</span>
+      <div>
+        <div class="sidebar-brand-name">Wookey Weight</div>
+        <div class="sidebar-brand-sub">Official Store</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analytics</div>
+      <a class="sidebar-item" href="index.html">
+        <span class="sidebar-icon">📊</span>
+        Overview
+      </a>
+      <a class="sidebar-item active" href="sumber.html">
+        <span class="sidebar-icon">🎯</span>
+        Sumber Penjualan
+      </a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;">
+        <span class="sidebar-icon">📦</span>
+        Produk
+        <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
+      </a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;">
+        <span class="sidebar-icon">📣</span>
+        Marketing
+        <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Data</div>
+      <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank">
+        <span class="sidebar-icon">📋</span>
+        Google Sheets
+      </a>
+      <a class="sidebar-item" href="https://drive.google.com" target="_blank">
+        <span class="sidebar-icon">📁</span>
+        Google Drive
+      </a>
+    </div>
+    <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Auto-update setiap hari 13:00</div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content-area">
+    <div class="header">
+      <span class="header-title">Sumber Penjualan</span>
+      <span class="header-sub" id="date-range">Memuat...</span>
+    </div>
+
+    <div class="main">
+      <div id="error-container"></div>
+
+      <!-- Kontribusi Cards -->
+      <div class="kontribusi-grid" id="kontribusi-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data...</div>
+      </div>
+
+      <!-- Metric Toggle -->
+      <div class="toolbar">
+        <span class="toolbar-label">Metrik:</span>
+        <button class="toggle" data-metric="Live Show PV" style="--accent:var(--c-show)"><span class="dot"></span>Live Show PV</button>
+        <button class="toggle active" data-metric="Live Watch PV" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
+        <button class="toggle active" data-metric="Click Product" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
+        <button class="toggle active" data-metric="Order Number" style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
+        <button class="toggle active" data-metric="GMV" style="--accent:var(--c-gmv)"><span class="dot"></span>GMV</button>
+        <button class="toggle" data-metric="ERR" style="--accent:var(--c-err)"><span class="dot"></span>ERR</button>
+        <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
+        <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
+        <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
+
+        <div class="date-filter">
+          <span class="toolbar-label">Periode:</span>
+          <select id="group-select" onchange="setGroup(this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;">
+            <option value="day">Per Hari</option>
+            <option value="week">Per Minggu</option>
+            <option value="month">Per Bulan</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Period Filter -->
+      <div id="period-filter">
+        <span class="toolbar-label">Filter:</span>
+        <div id="filter-day" style="display:flex;align-items:center;gap:8px;">
+          <input type="date" id="date-single">
+          <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-week" style="display:none;align-items:center;gap:8px;">
+          <select id="week-select" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-month" style="display:none;align-items:center;gap:8px;">
+          <select id="month-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <select id="month-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
+          <input type="date" id="custom-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <input type="date" id="custom-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <button onclick="applyFilter()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card">
+        <div class="chart-title" id="chart-title">Tren Harian — Semua Sumber</div>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID    = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+const SHEET_NAME  = 'Shopee Sumber Penjualan';
+const API_URL     = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const SUMBER_CONFIG = {
+  'Halaman Produk': { color: '#3b82f6', icon: '🛍️', watchLabel: 'Jumlah Produk Dilihat' },
+  'Live Penjual':   { color: '#f59e0b', icon: '📺', watchLabel: 'Live Ditonton' },
+  'Video Penjual':  { color: '#10b981', icon: '🎬', watchLabel: 'Video Ditonton' },
+  'Affiliate':      { color: '#e879f9', icon: '🤝', watchLabel: 'Konten Ditonton' },
+};
+
+const METRICS = {
+  'Live Show PV':  { color: '#64748b', format: 'number', axis: 'y2' },
+  'Live Watch PV': { color: '#8b5cf6', format: 'number', axis: 'y2' },
+  'Click Product': { color: '#3b82f6', format: 'number', axis: 'y2' },
+  'Order Number':  { color: '#10b981', format: 'number', axis: 'y2' },
+  'GMV':           { color: '#f59e0b', format: 'rp',     axis: 'y1' },
+  'ERR':           { color: '#e879f9', format: 'pct',    axis: 'y3' },
+  'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
+  'CTOR':          { color: '#06b6d4', format: 'pct',    axis: 'y3' },
+  'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
+};
+
+const COL_MAP = {
+  'Tanggal': 0, 'Sumber': 1, 'GMV': 2, 'Order Number': 3, 'Click Product': 4,
+  'Live Watch PV': 5, 'Live Show PV': 6, 'ERR': 7, 'CTR': 8, 'CTOR': 9, 'AOV': 10
+};
+
+// Format helpers
+function fmtRp(v) {
+  if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(1) + 'M';
+  if (v >= 1e6) return 'Rp ' + (v/1e6).toFixed(1) + 'jt';
+  return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+}
+function fmtNum(v) {
+  if (v >= 1e6) return (v/1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return (v/1e3).toFixed(1) + 'K';
+  return Math.round(v).toLocaleString('id-ID');
+}
+function fmtPct(v) { return (v * 100).toFixed(2) + '%'; }
+function fmt(v, type) {
+  if (type === 'rp') return fmtRp(v);
+  if (type === 'pct') return fmtPct(v);
+  return fmtNum(v);
+}
+
+// Fetch data
+async function fetchData() {
+  const res  = await fetch(API_URL);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(row => {
+    const obj = {};
+    cols.forEach((col, i) => { const cell = row.c[i]; obj[col] = cell ? cell.v : 0; });
+    return obj;
+  }).filter(r => r['Tanggal'] && r['Sumber']);
+}
+
+// State
+let globalData   = [];
+let filteredData = [];
+let selectedSources = new Set(['Halaman Produk', 'Live Penjual', 'Video Penjual', 'Affiliate']);
+let currentGroup = 'day';
+let chartInstance = null;
+
+// ── Kontribusi Cards ──────────────────────────────────────────────────────────
+function renderKontribusi(data) {
+  const totalGMV = {};
+  const grandTotal = data.reduce((s, d) => s + (d['GMV'] || 0), 0);
+
+  Object.keys(SUMBER_CONFIG).forEach(s => totalGMV[s] = 0);
+  data.forEach(d => {
+    if (totalGMV[d['Sumber']] !== undefined) totalGMV[d['Sumber']] += (d['GMV'] || 0);
+  });
+
+  document.getElementById('kontribusi-grid').innerHTML = Object.entries(SUMBER_CONFIG).map(([sumber, cfg]) => {
+    const gmv = totalGMV[sumber] || 0;
+    const pct = grandTotal > 0 ? (gmv / grandTotal * 100).toFixed(1) : '0.0';
+    const isSelected = selectedSources.has(sumber);
+    return `<div class="kontribusi-card ${isSelected ? 'selected' : ''}" 
+                 style="--accent:${cfg.color}" 
+                 onclick="toggleSource('${sumber}')">
+      <div class="kontribusi-label">${cfg.icon} ${sumber}</div>
+      <div class="kontribusi-pct">${pct}%</div>
+      <div class="kontribusi-gmv">${fmtRp(gmv)}</div>
+      <div class="kontribusi-hint">${isSelected ? '✓ Ditampilkan' : 'Klik untuk tampilkan'}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSource(sumber) {
+  if (selectedSources.has(sumber)) {
+    if (selectedSources.size === 1) return; // Minimal 1 sumber
+    selectedSources.delete(sumber);
+  } else {
+    selectedSources.add(sumber);
+  }
+  renderKontribusi(filteredData);
+  renderKPI(filteredData);
+  renderChart(filteredData);
+  updateChartTitle();
+}
+
+// ── KPI Cards ─────────────────────────────────────────────────────────────────
+function renderKPI(data) {
+  const selected = data.filter(d => selectedSources.has(d['Sumber']));
+  const days = [...new Set(selected.map(d => d['Tanggal']))].length;
+
+  const totGMV   = selected.reduce((s, d) => s + (d['GMV'] || 0), 0);
+  const totOrder = selected.reduce((s, d) => s + (d['Order Number'] || 0), 0);
+  const totClick = selected.reduce((s, d) => s + (d['Click Product'] || 0), 0);
+  const totWatch = selected.reduce((s, d) => s + (d['Live Watch PV'] || 0), 0);
+  const ctr  = totWatch > 0 ? totClick / totWatch : 0;
+  const ctor = totClick > 0 ? totOrder / totClick : 0;
+  const aov  = totOrder > 0 ? totGMV / totOrder  : 0;
+
+  const kpis = [
+    { key: 'Live Show PV',  val: 0,        type: 'number', accent: '#64748b' },
+    { key: 'Live Watch PV', val: totWatch,  type: 'number', accent: '#8b5cf6' },
+    { key: 'Click Product', val: totClick,  type: 'number', accent: '#3b82f6' },
+    { key: 'Order Number',  val: totOrder,  type: 'number', accent: '#10b981' },
+    { key: 'GMV',           val: totGMV,    type: 'rp',     accent: '#f59e0b' },
+    { key: 'ERR',           val: 0,         type: 'pct',    accent: '#e879f9' },
+    { key: 'CTR',           val: ctr,       type: 'pct',    accent: '#ec4899' },
+    { key: 'CTOR',          val: ctor,      type: 'pct',    accent: '#06b6d4' },
+    { key: 'AOV',           val: aov,       type: 'rp',     accent: '#f97316' },
+  ];
+
+  const isVolume = k => ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k);
+  const isMoney  = k => ['GMV','AOV'].includes(k);
+
+  document.getElementById('kpi-grid').innerHTML = kpis.map(k => {
+    const displayVal = isVolume(k.key)
+      ? Math.round(k.val).toLocaleString('id-ID')
+      : fmt(k.val, k.type);
+    const fullVal = isMoney(k.key)
+      ? `<div class="kpi-full">Rp ${Math.round(k.val).toLocaleString('id-ID')}</div>` : '';
+    return `<div class="kpi" style="--accent:${k.accent}">
+      <div class="kpi-label">${k.key}</div>
+      <div class="kpi-value">${displayVal}</div>
+      ${fullVal}
+      <div class="kpi-sub">Total ${days} hari</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function getActiveMetrics() {
+  return [...document.querySelectorAll('.toggle.active[data-metric]')].map(b => b.dataset.metric);
+}
+
+function renderChart(data) {
+  const selected = data.filter(d => selectedSources.has(d['Sumber']));
+  const dates    = [...new Set(selected.map(d => d['Tanggal']))].sort();
+  const activeMetrics = getActiveMetrics();
+
+  const datasets = [];
+  selectedSources.forEach(sumber => {
+    const cfg = SUMBER_CONFIG[sumber];
+    activeMetrics.forEach(metric => {
+      const m = METRICS[metric];
+      // Buat warna berdasarkan kombinasi sumber + metrik
+      const baseColor = cfg.color;
+      const dataPoints = dates.map(date => {
+        const row = selected.find(d => d['Tanggal'] === date && d['Sumber'] === sumber);
+        return row ? (row[metric] || 0) : 0;
+      });
+
+      datasets.push({
+        label: `${sumber} — ${metric}`,
+        data: dataPoints,
+        borderColor: baseColor,
+        backgroundColor: baseColor + '22',
+        pointBackgroundColor: baseColor,
+        pointRadius: dates.length === 1 ? 6 : 3,
+        pointHoverRadius: 7,
+        tension: 0.3,
+        yAxisID: m.axis,
+        fill: false,
+        borderDash: metric === 'GMV' ? [] : [4, 2],
+      });
+    });
+  });
+
+  const hasY1 = activeMetrics.some(k => METRICS[k]?.axis === 'y1');
+  const hasY2 = activeMetrics.some(k => METRICS[k]?.axis === 'y2');
+  const hasY3 = activeMetrics.some(k => METRICS[k]?.axis === 'y3');
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
+    type: 'line',
+    data: { labels: dates, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#e8eaf2', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
+          titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
+          callbacks: {
+            label: ctx => {
+              const parts = ctx.dataset.label.split(' — ');
+              const metric = parts[1];
+              const type = METRICS[metric]?.format || 'number';
+              return ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y, type)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { offset: true, ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
+        y1: { display: hasY1, position: 'left', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
+        y2: { display: hasY2, position: hasY1 ? 'right' : 'left', ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: !hasY1, color: '#252836' } },
+        y3: { display: hasY3, position: 'right', ticks: { color: '#e879f9', font: { size: 10 }, callback: v => fmtPct(v) }, grid: { display: false } },
+      }
+    }
+  });
+}
+
+// ── Filter & Group ────────────────────────────────────────────────────────────
+function setGroup(group) {
+  currentGroup = group;
+  document.getElementById('filter-day').style.display    = group === 'day'    ? 'flex' : 'none';
+  document.getElementById('filter-week').style.display   = group === 'week'   ? 'flex' : 'none';
+  document.getElementById('filter-month').style.display  = group === 'month'  ? 'flex' : 'none';
+  document.getElementById('filter-custom').style.display = group === 'custom' ? 'flex' : 'none';
+  filteredData = [...globalData];
+  renderAll();
+}
+
+function applyFilter() {
+  const dates = globalData.map(d => d['Tanggal']).sort();
+  let from, to;
+
+  if (currentGroup === 'day') {
+    from = to = document.getElementById('date-single').value;
+  } else if (currentGroup === 'week') {
+    const monday = document.getElementById('week-select').value;
+    from = monday;
+    const sun = new Date(monday); sun.setDate(sun.getDate() + 6);
+    to = sun.toISOString().split('T')[0];
+  } else if (currentGroup === 'month') {
+    from = document.getElementById('month-from').value + '-01';
+    const toMonthDate = new Date(document.getElementById('month-to').value + '-01');
+    toMonthDate.setMonth(toMonthDate.getMonth() + 1);
+    toMonthDate.setDate(toMonthDate.getDate() - 1);
+    to = toMonthDate.toISOString().split('T')[0];
+  } else {
+    from = document.getElementById('custom-from').value;
+    to   = document.getElementById('custom-to').value;
+  }
+
+  filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  if (!filteredData.length) {
+    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
+    return;
+  }
+  document.getElementById('error-container').innerHTML = '';
+  renderAll();
+  updateDateRange();
+}
+
+function resetFilter() {
+  filteredData = [...globalData];
+  const dates = globalData.map(d => d['Tanggal']).sort();
+  document.getElementById('date-single').value  = dates[dates.length-1] || '';
+  document.getElementById('custom-from').value  = dates[0] || '';
+  document.getElementById('custom-to').value    = dates[dates.length-1] || '';
+  renderAll();
+  updateDateRange();
+}
+
+function renderAll() {
+  renderKontribusi(filteredData);
+  renderKPI(filteredData);
+  renderChart(filteredData);
+  updateChartTitle();
+}
+
+function updateChartTitle() {
+  const sources = [...selectedSources].join(', ');
+  document.getElementById('chart-title').textContent = `Tren — ${sources}`;
+}
+
+function updateDateRange() {
+  const dates = [...new Set(filteredData.map(d => d['Tanggal']))].sort();
+  if (!dates.length) return;
+  document.getElementById('date-range').textContent =
+    dates.length === 1 ? `${dates[0]} · 1 hari` : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+}
+
+function buildWeekOptions() {
+  const select = document.getElementById('week-select');
+  const weeks  = {};
+  globalData.forEach(d => {
+    const date = new Date(d['Tanggal']);
+    const day  = date.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
+    const mon  = new Date(date); mon.setDate(date.getDate() + diff);
+    const sun  = new Date(mon);  sun.setDate(mon.getDate() + 6);
+    const key  = mon.toISOString().split('T')[0];
+    if (!weeks[key]) {
+      const f = d => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      weeks[key] = `${f(mon)} – ${f(sun)}`;
+    }
+  });
+  Object.entries(weeks).sort().forEach(([key, label]) => {
+    const opt = document.createElement('option');
+    opt.value = key; opt.textContent = label;
+    select.appendChild(opt);
+  });
+  if (select.options.length) select.selectedIndex = select.options.length - 1;
+}
+
+function buildMonthOptions() {
+  const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const months = {};
+  globalData.forEach(d => {
+    const date = new Date(d['Tanggal']);
+    const key  = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
+  });
+  const entries = Object.entries(months).sort();
+  ['month-from','month-to'].forEach(id => {
+    const sel = document.getElementById(id);
+    entries.forEach(([key, label]) => {
+      const opt = document.createElement('option');
+      opt.value = key; opt.textContent = label;
+      sel.appendChild(opt);
+    });
+  });
+  const fromSel = document.getElementById('month-from');
+  const toSel   = document.getElementById('month-to');
+  if (fromSel.options.length) fromSel.selectedIndex = 0;
+  if (toSel.options.length)   toSel.selectedIndex   = toSel.options.length - 1;
+}
+
+// Metric toggles
+document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('active');
+    if (filteredData.length) {
+      renderKPI(filteredData);
+      renderChart(filteredData);
+    }
+  });
+});
+
+// Init
+async function init() {
+  try {
+    globalData = await fetchData();
+    if (!globalData.length) {
+      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>';
+      return;
+    }
+    filteredData = [...globalData];
+
+    const dates = [...new Set(globalData.map(d => d['Tanggal']))].sort();
+    document.getElementById('date-single').value = dates[dates.length-1] || '';
+    document.getElementById('custom-from').value = dates[0] || '';
+    document.getElementById('custom-to').value   = dates[dates.length-1] || '';
+
+    buildWeekOptions();
+    buildMonthOptions();
+    renderAll();
+    updateDateRange();
+  } catch(err) {
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
+    console.error(err);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
