@@ -112,7 +112,7 @@
   /* KPI Grid */
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(9, 1fr);
     gap: 10px;
     margin-bottom: 16px;
   }
@@ -265,7 +265,6 @@
         <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
         <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
         <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
-        <button class="toggle" data-metric="ARPU" style="--accent:#34d399"><span class="dot" style="background:#34d399"></span>ARPU</button>
       </div>
 
       <!-- Toolbar Periode -->
@@ -343,7 +342,6 @@ const METRICS = {
   'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
   'CTOR':          { color: '#06b6d4', format: 'pct',    axis: 'y3' },
   'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
-  'ARPU':          { color: '#34d399', format: 'rp',     axis: 'y1' },
 };
 
 const COL_MAP = {
@@ -462,15 +460,12 @@ function renderKPI(data) {
   ];
 
   const isVolume = k => ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k);
-  const isMoney  = k => ['GMV','AOV'].includes(k);
-  const isARPU   = k => k === 'ARPU';
+  const isMoney  = k => ['GMV'].includes(k);
 
   document.getElementById('kpi-grid').innerHTML = kpis.map(k => {
     const displayVal = isVolume(k.key)
       ? Math.round(k.val).toLocaleString('id-ID')
-      : isARPU(k.key)
-        ? 'Rp ' + Math.round(k.val).toLocaleString('id-ID')
-        : fmt(k.val, k.type);
+      : fmt(k.val, k.type);
     const fullVal = isMoney(k.key)
       ? `<div class="kpi-full">Rp ${Math.round(k.val).toLocaleString('id-ID')}</div>` : '';
     return `<div class="kpi" style="--accent:${k.accent}">
