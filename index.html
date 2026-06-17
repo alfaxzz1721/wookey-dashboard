@@ -448,6 +448,32 @@ async function fetchData() {
   }).filter(r => r['Tanggal']);
 }
 
+async function fetchAdsData() {
+  try {
+    const res  = await fetch(API_ADS_URL);
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+    const cols = json.table.cols.map(c => c.label);
+    return json.table.rows.map(row => {
+      const obj = {};
+      cols.forEach((col, i) => { const cell = row.c[i]; obj[col] = cell ? cell.v : 0; });
+      return obj;
+    }).filter(r => r['Tanggal']);
+  } catch(e) {
+    console.warn('Ads data tidak tersedia:', e);
+    return [];
+  }
+}
+
+function getAdsForDate(tanggal) {
+  const row = globalAdsData.find(d => d['Tanggal'] === tanggal);
+  return row ? (row['Total Biaya Iklan'] || 0) : 0;
+}
+
+function getTotalAds(data) {
+  return data.reduce((s, d) => s + getAdsForDate(d['Tanggal']), 0);
+}
+
 function calcKPI(data) {
   // SUM untuk metrik volume
   const totalShowPV  = data.reduce((s, d) => s + (d['Live Show PV']  || 0), 0);
