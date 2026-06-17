@@ -138,7 +138,7 @@
   /* KPI */
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(12, 1fr);
     gap: 10px;
     margin-bottom: 20px;
   }
@@ -318,6 +318,8 @@
     <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
     <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
     <button class="toggle" data-metric="ARPU" style="--accent:#34d399"><span class="dot" style="background:#34d399"></span>ARPU</button>
+    <button class="toggle" data-metric="Biaya Iklan" style="--accent:#f43f5e"><span class="dot" style="background:#f43f5e"></span>Biaya Iklan</button>
+    <button class="toggle" data-metric="ROI" style="--accent:#a78bfa"><span class="dot" style="background:#a78bfa"></span>ROI</button>
   </div>
 
   <!-- Toolbar Periode -->
@@ -394,6 +396,8 @@ const METRICS = {
   'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
   'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
   'ARPU':          { color: '#34d399', format: 'rp',     axis: 'y1' },
+  'Biaya Iklan':   { color: '#f43f5e', format: 'rp',     axis: 'y1' },
+  'ROI':           { color: '#a78bfa', format: 'number',  axis: 'y2' },
 };
 
 const KPI_LIST = [
@@ -407,6 +411,8 @@ const KPI_LIST = [
   { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
   { key: 'AOV',           label: 'AOV',           accent: '#f97316' },
   { key: 'ARPU',          label: 'ARPU',          accent: '#34d399' },
+  { key: 'Biaya Iklan',   label: 'Biaya Iklan',   accent: '#f43f5e' },
+  { key: 'ROI',           label: 'ROI',            accent: '#a78bfa' },
 ];
 
 function fmtRp(v) {
@@ -469,6 +475,8 @@ function calcKPI(data) {
     'CTR':           ctr,
     'AOV':           aov,
     'ARPU':          arpu,
+    'Biaya Iklan':   0,   // diisi dari ads data
+    'ROI':           0,   // diisi dari ads data
   };
 }
 
@@ -484,7 +492,7 @@ function renderKPI(data) {
       : `<div class="kpi-delta">Total ${days} hari</div>`;
     const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
     const isMoney  = ['GMV'].includes(k.key);
-    const isARPU   = k.key === 'ARPU';
+    const isARPU   = k.key === 'ARPU' || k.key === 'Biaya Iklan';
     // Traffic metrics: show full number, no abbreviation
     const displayVal = isVolume
       ? Math.round(val).toLocaleString('id-ID')
@@ -843,6 +851,9 @@ function groupData(data, group) {
     ['Live Show PV','Live Watch PV','Click Product','Order Number','GMV','Pembeli'].forEach(k => {
       grouped[key][k] = (grouped[key][k] || 0) + (d[k] || 0);
     });
+    // Tambah Biaya Iklan dari ads data
+    const biayaHarian = getAdsForDate(d['Tanggal']);
+    grouped[key]['_biayaIklan'] = (grouped[key]['_biayaIklan'] || 0) + biayaHarian;
   });
 
   // Hitung rasio dari total
@@ -858,7 +869,7 @@ function groupData(data, group) {
 
 async function init() {
   try {
-    globalData = await fetchData();
+    [globalData, globalAdsData] = await Promise.all([fetchData(), fetchAdsData()]);
     if (!globalData.length) {
       document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>';
       return;
