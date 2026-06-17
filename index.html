@@ -439,11 +439,18 @@ async function fetchData() {
   const cols = json.table.cols.map(c => c.label);
   return json.table.rows.map(row => {
     const obj = {};
-    cols.forEach((col, i) => { const cell = row.c[i]; obj[col] = cell ? cell.v : 0; });
+    cols.forEach((col, i) => {
+      const cell = row.c[i];
+      if (!cell) { obj[col] = 0; return; }
+      // Konversi nilai ke number untuk kolom numerik
+      obj[col] = cell.v !== null && cell.v !== undefined ? cell.v : 0;
+    });
     // Hitung ERR = Live Watch PV / Live Show PV
     const showPV  = obj['Live Show PV'] || 0;
     const watchPV = obj['Live Watch PV'] || 0;
     obj['ERR'] = showPV > 0 ? watchPV / showPV : 0;
+    // Pastikan Biaya Iklan terbaca
+    obj['Biaya Iklan'] = Number(obj['Biaya Iklan']) || 0;
     return obj;
   }).filter(r => r['Tanggal']);
 }
@@ -925,6 +932,14 @@ async function init() {
     document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
     buildWeekOptions();
     buildMonthOptions();
+
+    // Set active state ke Kemarin
+    document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+    const yBtn = document.querySelector('[data-quick="yesterday"]');
+    if (yBtn) yBtn.classList.add('active');
+    document.getElementById('period-filter').style.display = 'none';
+
     updateDateRange(filteredData);
   } catch(err) {
     document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
