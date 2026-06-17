@@ -543,8 +543,8 @@ function renderKPI(data) {
       ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
       : `<div class="kpi-delta">Total ${days} hari</div>`;
     const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
-    const isMoney  = ['GMV'].includes(k.key);
-    const isARPU   = k.key === 'ARPU' || k.key === 'Biaya Iklan';
+    const isMoney  = ['GMV', 'Biaya Iklan'].includes(k.key);
+    const isARPU   = k.key === 'ARPU';
     // Traffic metrics: show full number, no abbreviation
     const displayVal = isVolume
       ? Math.round(val).toLocaleString('id-ID')
@@ -907,11 +907,12 @@ function groupData(data, group) {
 
   // Hitung rasio dari total
   return Object.values(grouped).map(g => {
-    g['ERR']  = g['Live Show PV']  > 0 ? g['Live Watch PV'] / g['Live Show PV']  : 0;
-    g['CTR']  = g['Live Watch PV'] > 0 ? g['Click Product'] / g['Live Watch PV'] : 0;
-    g['CTOR'] = g['Click Product'] > 0 ? g['Order Number']  / g['Click Product'] : 0;
-    g['AOV']  = g['Order Number']  > 0 ? g['GMV']           / g['Order Number']  : 0;
-    g['ARPU'] = g['Pembeli']       > 0 ? g['GMV']           / g['Pembeli']       : 0;
+    g['ERR']       = g['Live Show PV']  > 0 ? g['Live Watch PV'] / g['Live Show PV']  : 0;
+    g['CTR']       = g['Live Watch PV'] > 0 ? g['Click Product'] / g['Live Watch PV'] : 0;
+    g['CTOR']      = g['Click Product'] > 0 ? g['Order Number']  / g['Click Product'] : 0;
+    g['AOV']       = g['Order Number']  > 0 ? g['GMV']           / g['Order Number']  : 0;
+    g['ARPU']      = g['Pembeli']       > 0 ? g['GMV']           / g['Pembeli']       : 0;
+    g['ROI']       = g['Biaya Iklan']   > 0 ? Math.round(g['GMV'] / g['Biaya Iklan'] * 100) / 100 : 0;
     return g;
   });
 }
