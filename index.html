@@ -878,7 +878,16 @@ function updateDateRange(data) {
 }
 
 function groupData(data, group) {
-  if (group === 'day' || group === 'custom') return data;
+  if (group === 'day' || group === 'custom') {
+    // Hitung ROI per baris untuk mode per hari
+    return data.map(d => {
+      const biaya = Number(d['Biaya Iklan']) || 0;
+      const gmv   = Number(d['GMV']) || 0;
+      return Object.assign({}, d, {
+        'ROI': biaya > 0 ? Math.round(gmv / biaya * 100) / 100 : 0
+      });
+    });
+  }
 
   const grouped = {};
   data.forEach(d => {
