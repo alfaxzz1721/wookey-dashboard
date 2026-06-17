@@ -456,7 +456,24 @@ async function fetchAdsData() {
     const cols = json.table.cols.map(c => c.label);
     return json.table.rows.map(row => {
       const obj = {};
-      cols.forEach((col, i) => { const cell = row.c[i]; obj[col] = cell ? cell.v : 0; });
+      cols.forEach((col, i) => {
+        const cell = row.c[i];
+        if (!cell) { obj[cols[i]] = 0; return; }
+        // Tanggal dari gviz bisa berupa string atau Date
+        if (i === 0) {
+          let v = cell.v || cell.f || '';
+          // Format gviz: "Date(2026,5,16)" → "2026-06-16"
+          const dm = String(v).match(/Date\((\d+),(\d+),(\d+)\)/);
+          if (dm) {
+            const y = dm[1], m = String(parseInt(dm[2])+1).padStart(2,'0'), d = String(dm[3]).padStart(2,'0');
+            obj[cols[i]] = y + '-' + m + '-' + d;
+          } else {
+            obj[cols[i]] = String(v);
+          }
+        } else {
+          obj[cols[i]] = cell.v || 0;
+        }
+      });
       return obj;
     }).filter(r => r['Tanggal']);
   } catch(e) {
