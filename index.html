@@ -118,11 +118,12 @@
   .platform-logo { font-size: 16px; }
 
   /* KPI */
-  .kpi-grid {
+  .kpi-row {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 10px; margin-bottom: 20px;
+    gap: 10px; margin-bottom: 10px;
   }
+  .kpi-row-top    { grid-template-columns: repeat(5, 1fr); }
+  .kpi-row-bottom { grid-template-columns: repeat(7, 1fr); margin-bottom: 20px; }
   .kpi {
     background: var(--surface); border: 1px solid var(--border);
     border-top: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px;
@@ -169,7 +170,8 @@
     .sidebar { display: none; }
     .content-area { margin-left: 0; }
     .main { padding: 16px; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi-row-top    { grid-template-columns: repeat(2, 1fr); }
+    .kpi-row-bottom { grid-template-columns: repeat(2, 1fr); }
     .header { padding: 12px 16px; }
   }
 </style>
@@ -250,9 +252,10 @@
       </div>
 
       <!-- KPI -->
-      <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi-row kpi-row-top" id="kpi-top">
         <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data...</div>
       </div>
+      <div class="kpi-row kpi-row-bottom" id="kpi-bottom"></div>
 
       <!-- Toolbar Metrik -->
       <div class="toolbar" id="toolbar-metrics">
@@ -352,20 +355,28 @@ const METRICS = {
   'ROI':           { color: '#a78bfa', format: 'number', axis: 'y2' },
 };
 
-const KPI_LIST = [
+// Tingkat atas: metrik finansial utama
+const KPI_TOP = [
+  { key: 'GMV',         label: 'GMV',         accent: '#f59e0b' },
+  { key: 'AOV',         label: 'AOV',         accent: '#f97316' },
+  { key: 'ARPU',        label: 'ARPU',        accent: '#34d399' },
+  { key: 'Biaya Iklan', label: 'Biaya Iklan', accent: '#f43f5e' },
+  { key: 'ROI',         label: 'ROI',         accent: '#a78bfa' },
+];
+
+// Tingkat bawah: metrik traffic & konversi
+const KPI_BOTTOM = [
   { key: 'Live Show PV',  label: 'Live Show PV',  accent: '#64748b' },
   { key: 'Live Watch PV', label: 'Live Watch PV', accent: '#8b5cf6' },
   { key: 'Click Product', label: 'Click Product', accent: '#3b82f6' },
   { key: 'Order Number',  label: 'Order Number',  accent: '#10b981' },
-  { key: 'GMV',           label: 'GMV',           accent: '#f59e0b' },
   { key: 'ERR',           label: 'ERR',           accent: '#e879f9' },
   { key: 'CTR',           label: 'CTR',           accent: '#ec4899' },
   { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
-  { key: 'AOV',           label: 'AOV',           accent: '#f97316' },
-  { key: 'ARPU',          label: 'ARPU',          accent: '#34d399' },
-  { key: 'Biaya Iklan',   label: 'Biaya Iklan',   accent: '#f43f5e' },
-  { key: 'ROI',           label: 'ROI',           accent: '#a78bfa' },
 ];
+
+// Untuk backward compat (chart toolbar dll)
+const KPI_LIST = [...KPI_TOP, ...KPI_BOTTOM];
 
 function fmtRp(v) {
   if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(1) + 'M';
@@ -448,7 +459,8 @@ function setPlatform(platform) {
   document.querySelector('.logo').style.background = src.color;
 
   // Load data
-  document.getElementById('kpi-grid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data ' + src.label + '...</div>';
+  document.getElementById('kpi-top').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data ' + src.label + '...</div>';
+  document.getElementById('kpi-bottom').innerHTML = '';
   loadPlatform(platform).then(data => {
     globalData   = data;
     filteredData = [...data];
@@ -469,7 +481,8 @@ function setPlatform(platform) {
     updateDateRange(filteredData);
   }).catch(err => {
     document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data ${src.label}: ${err.message}</div>`;
-    document.getElementById('kpi-grid').innerHTML = '';
+    document.getElementById('kpi-top').innerHTML = '';
+    document.getElementById('kpi-bottom').innerHTML = '';
   });
 }
 
@@ -497,33 +510,47 @@ function calcKPI(data) {
   };
 }
 
+function makeKpiCard(k, kpi, days, hasAds) {
+  if (!hasAds && ['Biaya Iklan','ROI'].includes(k.key)) {
+    return `<div class="kpi" style="--accent:${k.accent};opacity:.3">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value" style="color:var(--muted)">—</div>
+      <div class="kpi-delta">Tidak tersedia</div>
+    </div>`;
+  }
+  const val  = kpi[k.key] || 0;
+  const type = METRICS[k.key]?.format || 'number';
+  const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
+  const isMoney  = ['GMV','Biaya Iklan'].includes(k.key);
+  const isARPU   = k.key === 'ARPU';
+  const displayVal = isVolume
+    ? Math.round(val).toLocaleString('id-ID')
+    : isARPU ? 'Rp ' + Math.round(val).toLocaleString('id-ID')
+    : fmt(val, type);
+  const fullVal = isMoney
+    ? `<div class="kpi-full">Rp ${Math.round(val).toLocaleString('id-ID')}</div>` : '';
+  const sub = ['ERR','CTOR','CTR','AOV','ARPU'].includes(k.key)
+    ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
+    : `<div class="kpi-delta">Total ${days} hari</div>`;
+  return `<div class="kpi" style="--accent:${k.accent}">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${displayVal}</div>
+    ${fullVal}${sub}
+  </div>`;
+}
+
 function renderKPI(data) {
   const kpi  = calcKPI(data);
   const days = data.length;
   const src  = SOURCES[currentPlatform];
-  document.getElementById('kpi-grid').innerHTML = KPI_LIST
-    .filter(k => src.hasAds || !['Biaya Iklan','ROI'].includes(k.key))
-    .map(k => {
-      const val  = kpi[k.key] || 0;
-      const type = METRICS[k.key]?.format || 'number';
-      const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
-      const isMoney  = ['GMV','Biaya Iklan'].includes(k.key);
-      const isARPU   = k.key === 'ARPU';
-      const displayVal = isVolume
-        ? Math.round(val).toLocaleString('id-ID')
-        : isARPU ? 'Rp ' + Math.round(val).toLocaleString('id-ID')
-        : fmt(val, type);
-      const fullVal = isMoney
-        ? `<div class="kpi-full">Rp ${Math.round(val).toLocaleString('id-ID')}</div>` : '';
-      const sub = ['ERR','CTOR','CTR','AOV','ARPU'].includes(k.key)
-        ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
-        : `<div class="kpi-delta">Total ${days} hari</div>`;
-      return `<div class="kpi" style="--accent:${k.accent}">
-        <div class="kpi-label">${k.label}</div>
-        <div class="kpi-value">${displayVal}</div>
-        ${fullVal}${sub}
-      </div>`;
-    }).join('');
+
+  // Tingkat atas: GMV, AOV, ARPU, Biaya Iklan, ROI
+  document.getElementById('kpi-top').innerHTML =
+    KPI_TOP.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
+
+  // Tingkat bawah: Live Show PV, Live Watch PV, Click Product, Order Number, ERR, CTR, CTOR
+  document.getElementById('kpi-bottom').innerHTML =
+    KPI_BOTTOM.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
 }
 
 let chartInstance = null;
