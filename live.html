@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wookey Weight — Live Streaming</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #13151f;
+    --surface2:  #1a1d2a;
+    --border:    #252836;
+    --text:      #e8eaf2;
+    --muted:     #5a6070;
+    --shopee:    #EE4D2D;
+    --green:     #10b981;
+    --red:       #ef4444;
+    --live:      #ef4444;
+
+    --c-gmv:      #f59e0b;
+    --c-order:    #10b981;
+    --c-click:    #3b82f6;
+    --c-watch:    #8b5cf6;
+    --c-show:     #64748b;
+    --c-ctr:      #ec4899;
+    --c-ctor:     #06b6d4;
+    --c-aov:      #f97316;
+    --c-err:      #e879f9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px; min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 200; overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-brand .logo { font-size: 10px; padding: 4px 10px; }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-section-label {
+    font-size: 9px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0 8px; margin-bottom: 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    cursor: pointer; text-decoration: none; transition: all .15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+  .sidebar-badge {
+    margin-left: auto; background: var(--live); color: white;
+    font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
+  }
+
+  /* Content */
+  .content-area { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    background: var(--shopee); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; padding: 5px 12px; border-radius: 4px;
+  }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--live);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(.8); }
+  }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
+
+  .main { padding: 24px 28px; max-width: 1400px; }
+
+  /* KPI */
+  .kpi-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 10px; margin-bottom: 20px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px;
+  }
+  .kpi-label { font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .kpi-value { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px; }
+  .kpi-sub { font-size: 9px; color: var(--muted); }
+  .kpi-full {
+    font-size: 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 2px; opacity: 0; max-height: 0; overflow: hidden; transition: all .2s;
+  }
+  .kpi:hover .kpi-full { opacity: 1; max-height: 20px; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+    flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+  }
+  .toolbar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 2px; white-space: nowrap; }
+  .toggle {
+    display: flex; align-items: center; gap: 6px; padding: 5px 11px;
+    border-radius: 20px; border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); font-size: 12px; font-weight: 500;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: all .15s;
+  }
+  .toggle.active {
+    border-color: var(--accent); color: var(--text);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .toggle .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* Chart */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 320px; }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
+  .info-banner {
+    background: color-mix(in srgb, var(--shopee) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--shopee) 30%, transparent);
+    border-radius: 8px; padding: 10px 16px; font-size: 12px;
+    color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content-area { margin-left: 0; }
+    .main { padding: 16px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="logo">S</span>
+      <div>
+        <div class="sidebar-brand-name">Wookey Weight</div>
+        <div class="sidebar-brand-sub">Official Store</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analytics</div>
+      <a class="sidebar-item" href="index.html">
+        <span class="sidebar-icon">📊</span>
+        Overview
+      </a>
+      <a class="sidebar-item" href="sumber.html">
+        <span class="sidebar-icon">🎯</span>
+        Sumber Penjualan
+      </a>
+      <a class="sidebar-item active" href="#">
+        <span class="sidebar-icon">🔴</span>
+        Live Streaming
+        <span class="sidebar-badge">Live</span>
+      </a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;">
+        <span class="sidebar-icon">📦</span>
+        Produk
+        <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
+      </a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;">
+        <span class="sidebar-icon">📣</span>
+        Marketing
+        <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Data</div>
+      <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank">
+        <span class="sidebar-icon">📋</span>
+        Google Sheets
+      </a>
+      <a class="sidebar-item" href="https://drive.google.com" target="_blank">
+        <span class="sidebar-icon">📁</span>
+        Google Drive
+      </a>
+    </div>
+
+    <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Auto-update setiap hari 08:00</div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content-area">
+    <div class="header">
+      <span class="logo">S</span>
+      <div class="live-dot"></div>
+      <span class="header-title">Live Streaming — Shopee</span>
+      <span class="header-sub" id="date-range">Memuat...</span>
+    </div>
+
+    <div class="main">
+      <div id="error-container"></div>
+
+      <div class="info-banner">
+        🔴 Data live streaming Shopee — diisi manual oleh admin · ERR = 0 (Shopee tidak menyediakan data Impresi)
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data...</div>
+      </div>
+
+      <!-- Toolbar Metrik -->
+      <div class="toolbar">
+        <span class="toolbar-label">Tampilkan:</span>
+        <button class="toggle active" data-metric="GMV"           style="--accent:var(--c-gmv)">  <span class="dot"></span>GMV</button>
+        <button class="toggle active" data-metric="Order Number"  style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
+        <button class="toggle active" data-metric="Click Product" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
+        <button class="toggle active" data-metric="Live Watch PV" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
+        <button class="toggle"        data-metric="Live Show PV"  style="--accent:var(--c-show)"> <span class="dot"></span>Live Show PV</button>
+        <button class="toggle"        data-metric="ERR"           style="--accent:var(--c-err)">  <span class="dot"></span>ERR</button>
+        <button class="toggle"        data-metric="CTR"           style="--accent:var(--c-ctr)">  <span class="dot"></span>CTR</button>
+        <button class="toggle"        data-metric="CTOR"          style="--accent:var(--c-ctor)"> <span class="dot"></span>CTOR</button>
+        <button class="toggle"        data-metric="AOV"           style="--accent:var(--c-aov)">  <span class="dot"></span>AOV</button>
+      </div>
+
+      <!-- Toolbar Periode -->
+      <div class="toolbar">
+        <span class="toolbar-label">Periode:</span>
+        <button class="toggle" data-quick="yesterday" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+        <button class="toggle" data-quick="7days"     onclick="quickSelect('7days')"     style="--accent:#94a3b8">7 Hari</button>
+        <button class="toggle" data-quick="30days"    onclick="quickSelect('30days')"    style="--accent:#94a3b8">30 Hari</button>
+        <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
+        <button class="toggle active" data-group="day"    onclick="setGroup('day')">Per Hari</button>
+        <button class="toggle"        data-group="week"   onclick="setGroup('week')">Per Minggu</button>
+        <button class="toggle"        data-group="month"  onclick="setGroup('month')">Per Bulan</button>
+        <button class="toggle"        data-group="custom" onclick="setGroup('custom')">Custom</button>
+      </div>
+
+      <!-- Period Filter -->
+      <div id="period-filter" style="display:none;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;">
+        <span class="toolbar-label">Pilih Periode:</span>
+        <div id="filter-day" style="display:flex;align-items:center;gap:8px;">
+          <input type="date" id="date-single" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <button onclick="applyFilterDay()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-week" style="display:none;align-items:center;gap:8px;">
+          <select id="week-select" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="applyFilterWeek()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-month" style="display:none;align-items:center;gap:8px;">
+          <select id="month-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <select id="month-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="applyFilterMonth()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
+          <input type="date" id="custom-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <input type="date" id="custom-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <button onclick="applyFilterCustom()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card">
+        <div class="chart-title" id="chart-title">Tren Harian — Live Streaming Shopee</div>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID   = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+const SHEET_NAME = 'Shopee Live Harian';
+const API_URL    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const METRICS = {
+  'GMV':           { color: '#f59e0b', format: 'rp',     axis: 'y1' },
+  'Order Number':  { color: '#10b981', format: 'number', axis: 'y2' },
+  'Click Product': { color: '#3b82f6', format: 'number', axis: 'y2' },
+  'Live Watch PV': { color: '#8b5cf6', format: 'number', axis: 'y2' },
+  'Live Show PV':  { color: '#64748b', format: 'number', axis: 'y2' },
+  'ERR':           { color: '#e879f9', format: 'pct',    axis: 'y3' },
+  'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
+  'CTOR':          { color: '#06b6d4', format: 'pct',    axis: 'y3' },
+  'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
+};
+
+const KPI_LIST = [
+  { key: 'GMV',           label: 'GMV',           accent: '#f59e0b' },
+  { key: 'Order Number',  label: 'Order Number',  accent: '#10b981' },
+  { key: 'Click Product', label: 'Click Product', accent: '#3b82f6' },
+  { key: 'Live Watch PV', label: 'Live Watch PV', accent: '#8b5cf6' },
+  { key: 'Live Show PV',  label: 'Live Show PV',  accent: '#64748b' },
+  { key: 'ERR',           label: 'ERR',           accent: '#e879f9' },
+  { key: 'CTR',           label: 'CTR',           accent: '#ec4899' },
+  { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
+  { key: 'AOV',           label: 'AOV',           accent: '#f97316' },
+];
+
+function fmtRp(v) {
+  if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(1) + 'M';
+  if (v >= 1e6) return 'Rp ' + (v/1e6).toFixed(1) + 'jt';
+  return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+}
+function fmtNum(v) {
+  if (v >= 1e6) return (v/1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return (v/1e3).toFixed(1) + 'K';
+  return Math.round(v).toLocaleString('id-ID');
+}
+function fmtPct(v) {
+  // Nilai sudah dalam % (misal 12.07), bukan desimal
+  return Number(v).toFixed(2) + '%';
+}
+function fmt(v, type) {
+  if (type === 'rp')  return fmtRp(v);
+  if (type === 'pct') return fmtPct(v);
+  return fmtNum(v);
+}
+
+async function fetchData() {
+  const res  = await fetch(API_URL);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+  const cols = json.table.cols.map(c => c.label);
+
+  return json.table.rows.map(row => {
+    const obj = {};
+    cols.forEach((col, i) => {
+      const cell = row.c[i];
+      if (!cell || cell.v === null || cell.v === undefined) {
+        obj[col] = 0;
+        return;
+      }
+      // Kolom Tanggal
+      if (i === 0) {
+        const dm = String(cell.v).match(/Date\((\d+),(\d+),(\d+)\)/);
+        if (dm) {
+          const y = dm[1];
+          const m = String(parseInt(dm[2]) + 1).padStart(2, '0');
+          const d = String(dm[3]).padStart(2, '0');
+          obj[col] = `${y}-${m}-${d}`;
+        } else {
+          obj[col] = String(cell.f || cell.v || '');
+        }
+      } else {
+        obj[col] = Number(cell.v) || 0;
+      }
+    });
+    return obj;
+  }).filter(r => r['Tanggal'] && r['Tanggal'] !== '0');
+}
+
+function calcKPI(data) {
+  const totalGMV     = data.reduce((s, d) => s + (d['GMV']           || 0), 0);
+  const totalOrder   = data.reduce((s, d) => s + (d['Order Number']  || 0), 0);
+  const totalClick   = data.reduce((s, d) => s + (d['Click Product'] || 0), 0);
+  const totalWatch   = data.reduce((s, d) => s + (d['Live Watch PV'] || 0), 0);
+  const totalShow    = data.reduce((s, d) => s + (d['Live Show PV']  || 0), 0);
+
+  // ERR, CTR, CTOR, AOV dari total (bukan rata-rata)
+  const err  = totalShow  > 0 ? (totalWatch / totalShow)  * 100 : 0;
+  const ctr  = totalWatch > 0 ? (totalClick / totalWatch) * 100 : 0;
+  const ctor = totalClick > 0 ? (totalOrder / totalClick) * 100 : 0;
+  const aov  = totalOrder > 0 ? totalGMV / totalOrder : 0;
+
+  return { 'GMV': totalGMV, 'Order Number': totalOrder, 'Click Product': totalClick,
+           'Live Watch PV': totalWatch, 'Live Show PV': totalShow,
+           'ERR': err, 'CTR': ctr, 'CTOR': ctor, 'AOV': aov };
+}
+
+function renderKPI(data) {
+  const kpi  = calcKPI(data);
+  const days = data.length;
+  document.getElementById('kpi-grid').innerHTML = KPI_LIST.map(k => {
+    const val  = kpi[k.key] || 0;
+    const type = METRICS[k.key]?.format || 'number';
+    const isPct    = type === 'pct';
+    const isMoney  = ['GMV'].includes(k.key);
+    const isVolume = ['Order Number','Click Product','Live Watch PV','Live Show PV'].includes(k.key);
+
+    const displayVal = isVolume
+      ? Math.round(val).toLocaleString('id-ID')
+      : fmt(val, type);
+
+    const fullVal = isMoney
+      ? `<div class="kpi-full">Rp ${Math.round(val).toLocaleString('id-ID')}</div>`
+      : '';
+    const sub = isPct
+      ? `<div class="kpi-sub">Kalkulasi ${days} hari</div>`
+      : `<div class="kpi-sub">Total ${days} hari</div>`;
+
+    return `<div class="kpi" style="--accent:${k.accent}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${displayVal}</div>
+      ${fullVal}
+      ${sub}
+    </div>`;
+  }).join('');
+}
+
+let chartInstance = null;
+function getActive() {
+  return [...document.querySelectorAll('.toggle.active[data-metric]')].map(b => b.dataset.metric);
+}
+
+function groupData(data, group) {
+  if (group === 'day' || group === 'custom') return data;
+
+  const grouped = {};
+  data.forEach(d => {
+    const date = new Date(d['Tanggal']);
+    let key;
+    if (group === 'week') {
+      const day  = date.getDay();
+      const diff = (day === 0 ? -6 : 1 - day);
+      const mon  = new Date(date);
+      mon.setDate(date.getDate() + diff);
+      key = mon.toISOString().split('T')[0];
+    } else {
+      key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    }
+
+    if (!grouped[key]) {
+      grouped[key] = { 'Tanggal': key, 'GMV': 0, 'Order Number': 0,
+        'Click Product': 0, 'Live Watch PV': 0, 'Live Show PV': 0 };
+    }
+    ['GMV','Order Number','Click Product','Live Watch PV','Live Show PV'].forEach(k => {
+      grouped[key][k] += (Number(d[k]) || 0);
+    });
+  });
+
+  return Object.values(grouped).map(g => {
+    g['ERR']  = g['Live Show PV']  > 0 ? (g['Live Watch PV'] / g['Live Show PV'])  * 100 : 0;
+    g['CTR']  = g['Live Watch PV'] > 0 ? (g['Click Product'] / g['Live Watch PV']) * 100 : 0;
+    g['CTOR'] = g['Click Product'] > 0 ? (g['Order Number']  / g['Click Product']) * 100 : 0;
+    g['AOV']  = g['Order Number']  > 0 ? g['GMV'] / g['Order Number'] : 0;
+    return g;
+  }).sort((a, b) => a['Tanggal'].localeCompare(b['Tanggal']));
+}
+
+function renderChart(data) {
+  const grouped = groupData(data, currentGroup);
+  const labels  = grouped.map(d => d['Tanggal']);
+  const active  = getActive();
+
+  const datasets = active.map(key => {
+    const m = METRICS[key];
+    return {
+      label: key,
+      data: grouped.map(d => d[key] || 0),
+      borderColor: m.color,
+      backgroundColor: m.color + '18',
+      pointBackgroundColor: m.color,
+      pointRadius: 4, pointHoverRadius: 7,
+      tension: 0.3, yAxisID: m.axis, fill: false,
+    };
+  });
+
+  const hasY1 = active.some(k => METRICS[k]?.axis === 'y1');
+  const hasY2 = active.some(k => METRICS[k]?.axis === 'y2');
+  const hasY3 = active.some(k => METRICS[k]?.axis === 'y3');
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#e8eaf2', font: { size: 12 }, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
+          titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
+          callbacks: {
+            label: ctx => {
+              const type = METRICS[ctx.dataset.label]?.format || 'number';
+              return ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y, type)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, grid: { color: '#252836' }, offset: true },
+        y1: { display: hasY1, position: 'left', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
+        y2: { display: hasY2, position: hasY1 ? 'right' : 'left', ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: !hasY1, color: '#252836' } },
+        y3: { display: hasY3, position: 'right', ticks: { color: '#e879f9', font: { size: 10 }, callback: v => v.toFixed(1) + '%' }, grid: { display: false } },
+      }
+    }
+  });
+}
+
+let globalData = [], filteredData = [], currentGroup = 'day';
+
+document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('active');
+    if (filteredData.length) renderChart(filteredData);
+  });
+});
+
+function setGroup(group) {
+  currentGroup = group;
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.toggle('active', b.dataset.group === group));
+  document.getElementById('period-filter').style.display = 'flex';
+  ['day','week','month','custom'].forEach(g => {
+    document.getElementById('filter-' + g).style.display = g === group ? 'flex' : 'none';
+  });
+  const titles = { day: 'Tren Harian', week: 'Tren Mingguan', month: 'Tren Bulanan', custom: 'Tren Custom' };
+  document.getElementById('chart-title').textContent = titles[group] + ' — Live Streaming Shopee';
+  filteredData = [...globalData];
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+}
+
+function quickSelect(val) {
+  if (!globalData.length) return;
+  const dates = [...new Set(globalData.map(d => d['Tanggal']))].sort();
+  const last  = dates[dates.length - 1];
+  let from = last;
+
+  if (val === '7days') {
+    const d = new Date(last); d.setDate(d.getDate() - 6); from = d.toISOString().split('T')[0];
+  } else if (val === '30days') {
+    const d = new Date(last); d.setDate(d.getDate() - 29); from = d.toISOString().split('T')[0];
+  }
+
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-quick="${val}"]`).classList.add('active');
+  document.getElementById('period-filter').style.display = 'none';
+
+  filteredData = val === 'yesterday'
+    ? globalData.filter(d => d['Tanggal'] === last)
+    : globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
+
+  if (!filteredData.length) return;
+  currentGroup = 'day';
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+}
+
+function applyFilterDay() {
+  const date = document.getElementById('date-single').value;
+  if (!date) return;
+  filteredData = globalData.filter(d => d['Tanggal'] === date);
+  if (!filteredData.length) {
+    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk tanggal ini.</div>';
+    return;
+  }
+  document.getElementById('error-container').innerHTML = '';
+  renderKPI(filteredData); renderChart(filteredData);
+  document.getElementById('date-range').textContent = date + ' · 1 hari';
+}
+
+function buildWeekOptions() {
+  const select = document.getElementById('week-select');
+  select.innerHTML = '';
+  const weeks = {};
+  globalData.forEach(d => {
+    const date = new Date(d['Tanggal']);
+    const day  = date.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
+    const mon  = new Date(date); mon.setDate(date.getDate() + diff);
+    const sun  = new Date(mon);  sun.setDate(mon.getDate() + 6);
+    const key  = mon.toISOString().split('T')[0];
+    if (!weeks[key]) {
+      const f = d => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      weeks[key] = `${f(mon)} – ${f(sun)}`;
+    }
+  });
+  Object.entries(weeks).sort().forEach(([key, label]) => {
+    const opt = document.createElement('option');
+    opt.value = key; opt.textContent = label; select.appendChild(opt);
+  });
+  if (select.options.length) select.selectedIndex = select.options.length - 1;
+}
+
+function applyFilterWeek() {
+  const monday = document.getElementById('week-select').value;
+  const sun = new Date(monday); sun.setDate(sun.getDate() + 6);
+  const sundayStr = sun.toISOString().split('T')[0];
+  filteredData = globalData.filter(d => d['Tanggal'] >= monday && d['Tanggal'] <= sundayStr);
+  if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk minggu ini.</div>'; return; }
+  document.getElementById('error-container').innerHTML = '';
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+}
+
+function buildMonthOptions() {
+  const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const months = {};
+  globalData.forEach(d => {
+    const date = new Date(d['Tanggal']);
+    const key  = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
+  });
+  const entries = Object.entries(months).sort();
+  ['month-from','month-to'].forEach(id => {
+    const sel = document.getElementById(id); sel.innerHTML = '';
+    entries.forEach(([key, label]) => { const o = document.createElement('option'); o.value = key; o.textContent = label; sel.appendChild(o); });
+  });
+  const f = document.getElementById('month-from'); const t = document.getElementById('month-to');
+  if (f.options.length) f.selectedIndex = 0;
+  if (t.options.length) t.selectedIndex = t.options.length - 1;
+}
+
+function applyFilterMonth() {
+  const from = document.getElementById('month-from').value;
+  const to   = document.getElementById('month-to').value;
+  const fromDate = from + '-01';
+  const toObj = new Date(to + '-01'); toObj.setMonth(toObj.getMonth() + 1); toObj.setDate(toObj.getDate() - 1);
+  const toDate = toObj.toISOString().split('T')[0];
+  filteredData = globalData.filter(d => d['Tanggal'] >= fromDate && d['Tanggal'] <= toDate);
+  if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>'; return; }
+  document.getElementById('error-container').innerHTML = '';
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+}
+
+function applyFilterCustom() {
+  const from = document.getElementById('custom-from').value;
+  const to   = document.getElementById('custom-to').value;
+  if (!from || !to) return;
+  filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>'; return; }
+  document.getElementById('error-container').innerHTML = '';
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+}
+
+function resetFilter() {
+  filteredData = [...globalData];
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+}
+
+function updateDateRange(data) {
+  const dates = data.map(d => d['Tanggal']).sort();
+  if (!dates.length) return;
+  document.getElementById('date-range').textContent = dates.length === 1
+    ? dates[0] + ' · 1 hari'
+    : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+}
+
+async function init() {
+  try {
+    globalData = await fetchData();
+    if (!globalData.length) {
+      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data di sheet "Shopee Live Harian".</div>';
+      document.getElementById('kpi-grid').innerHTML = '';
+      return;
+    }
+    filteredData = [...globalData];
+    renderKPI(filteredData);
+    renderChart(filteredData);
+
+    const dates = globalData.map(d => d['Tanggal']).sort();
+    document.getElementById('date-single').value = dates[dates.length - 1] || '';
+    document.getElementById('custom-from').value = dates[0] || '';
+    document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
+    buildWeekOptions();
+    buildMonthOptions();
+
+    // Default: tampilkan Kemarin
+    document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+    const yBtn = document.querySelector('[data-quick="yesterday"]');
+    if (yBtn) { yBtn.classList.add('active'); quickSelect('yesterday'); }
+
+    updateDateRange(filteredData);
+  } catch(err) {
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
+    document.getElementById('kpi-grid').innerHTML = '';
+    console.error(err);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
