@@ -44,7 +44,48 @@
     display: flex; flex-direction: column;
     position: fixed; top: 0; left: 0;
     height: 100vh; z-index: 200; overflow-y: auto;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
   }
+  .sidebar.collapsed {
+    transform: translateX(-220px);
+  }
+  .sidebar-toggle {
+    position: fixed; top: 14px; left: 16px;
+    z-index: 300;
+    width: 32px; height: 32px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    color: var(--muted);
+    transition: all .15s;
+    flex-direction: column; gap: 4px; padding: 8px;
+  }
+  .sidebar-toggle:hover { background: var(--surface); color: var(--text); }
+  .sidebar-toggle .bar {
+    width: 14px; height: 1.5px;
+    background: currentColor; border-radius: 2px;
+    transition: all .25s;
+  }
+  /* Tombol tutup di dalam sidebar */
+  .sidebar-close {
+    position: absolute; top: 14px; right: 10px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    border-radius: 6px; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
+  /* Overlay saat sidebar terbuka di mobile */
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 199;
+  }
+  .sidebar-overlay.show { display: block; }
   .sidebar-brand {
     padding: 20px 16px 16px;
     border-bottom: 1px solid var(--border);
@@ -75,7 +116,8 @@
   }
 
   /* Content */
-  .content-area { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .content-area { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; transition: margin-left .25s cubic-bezier(.4,0,.2,1); }
+  .content-area.expanded { margin-left: 0; }
   .header {
     background: var(--surface); border-bottom: 1px solid var(--border);
     padding: 14px 28px; display: flex; align-items: center; gap: 16px;
@@ -164,9 +206,10 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
 
-  @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .content-area { margin-left: 0; }
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-220px); }
+    .sidebar.open { transform: translateX(0); }
+    .content-area { margin-left: 0 !important; }
     .main { padding: 16px; }
     .kpi-row-top    { grid-template-columns: repeat(2, 1fr); }
     .kpi-row-bottom { grid-template-columns: repeat(2, 1fr); }
@@ -178,7 +221,10 @@
 <div class="app-layout">
 
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="toggleSidebar()" title="Tutup sidebar">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
     <div class="sidebar-brand">
       <span class="logo">S</span>
       <div>
@@ -230,8 +276,20 @@
 
   <!-- Content -->
   <div class="content-area">
+    <!-- Tombol buka sidebar (tampil saat sidebar collapsed) -->
+    <button class="sidebar-toggle" id="sidebar-open-btn" onclick="toggleSidebar()" title="Buka sidebar">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <div class="header">
-      <span class="logo">S</span>
+      <button onclick="toggleSidebar()" style="background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:var(--muted);flex-shrink:0;transition:all .15s;" title="Toggle sidebar" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
+      </button>
+      <span class="logo" id="header-logo">S</span>
       <span class="header-title">Overview</span>
       <span class="header-sub" id="date-range">Memuat...</span>
     </div>
@@ -816,6 +874,30 @@ function updateDateRange(data) {
   document.getElementById('date-range').textContent = dates.length === 1
     ? dates[0] + ' · 1 hari'
     : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+}
+
+// ── Sidebar Toggle ────────────────────────────────────
+function toggleSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const content  = document.querySelector('.content-area');
+  const overlay  = document.getElementById('sidebar-overlay');
+  const openBtn  = document.getElementById('sidebar-open-btn');
+
+  const isCollapsed = sidebar.classList.contains('collapsed');
+
+  if (isCollapsed) {
+    // Buka
+    sidebar.classList.remove('collapsed');
+    content.classList.remove('expanded');
+    overlay.classList.remove('show');
+    openBtn.style.display = 'none';
+  } else {
+    // Tutup
+    sidebar.classList.add('collapsed');
+    content.classList.add('expanded');
+    if (window.innerWidth < 900) overlay.classList.add('show');
+    openBtn.style.display = 'flex';
+  }
 }
 
 // Init
