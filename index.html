@@ -16,6 +16,7 @@
     --text:      #e8eaf2;
     --muted:     #5a6070;
     --shopee:    #EE4D2D;
+    --tiktok:    #ff0050;
     --green:     #10b981;
     --red:       #ef4444;
 
@@ -33,189 +34,126 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 
-  /* ── Layout ── */
   .app-layout { display: flex; min-height: 100vh; }
 
-  /* ── Sidebar ── */
+  /* Sidebar */
   .sidebar {
-    width: 220px;
-    min-width: 220px;
+    width: 220px; min-width: 220px;
     background: var(--surface);
     border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 200;
-    overflow-y: auto;
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 200; overflow-y: auto;
   }
   .sidebar-brand {
     padding: 20px 16px 16px;
     border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
   }
   .sidebar-brand .logo { font-size: 10px; padding: 4px 10px; }
   .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
   .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
-
   .sidebar-section { padding: 16px 12px 8px; }
   .sidebar-section-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 8px;
-    margin-bottom: 4px;
+    font-size: 9px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0 8px; margin-bottom: 4px;
   }
   .sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    text-decoration: none;
-    transition: all .15s;
-    margin-bottom: 2px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    cursor: pointer; text-decoration: none; transition: all .15s; margin-bottom: 2px;
   }
   .sidebar-item:hover { background: var(--surface2); color: var(--text); }
   .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
   .sidebar-item.active .sidebar-icon { color: var(--shopee); }
   .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
   .sidebar-badge {
-    margin-left: auto;
-    background: var(--shopee);
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
+    margin-left: auto; background: var(--shopee); color: white;
+    font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
   }
 
-  /* ── Content Area ── */
-  .content-area {
-    margin-left: 220px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
+  /* Content */
+  .content-area { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
   .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
   }
   .logo {
-    background: var(--shopee);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    padding: 5px 12px;
-    border-radius: 4px;
+    background: var(--shopee); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; padding: 5px 12px; border-radius: 4px;
   }
   .header-title { font-size: 16px; font-weight: 600; }
   .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
 
   .main { padding: 24px 28px; max-width: 1400px; }
 
+  /* Platform Toggle */
+  .platform-toggle {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px; margin-bottom: 20px;
+    width: fit-content;
+  }
+  .platform-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 18px; border-radius: 7px;
+    font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer;
+    transition: all .2s; color: var(--muted); background: transparent;
+    font-family: 'Inter', sans-serif;
+  }
+  .platform-btn.active-shopee {
+    background: var(--shopee); color: white;
+  }
+  .platform-btn.active-tiktok {
+    background: var(--tiktok); color: white;
+  }
+  .platform-btn:not(.active-shopee):not(.active-tiktok):hover {
+    background: var(--surface); color: var(--text);
+  }
+  .platform-logo { font-size: 16px; }
+
   /* KPI */
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 10px; margin-bottom: 20px;
   }
   .kpi {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--accent);
-    border-radius: 8px;
-    padding: 14px 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px;
   }
   .kpi-label { font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
   .kpi-value { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px; }
   .kpi-delta { font-size: 9px; color: var(--muted); }
-  .kpi-delta.up { color: var(--green); }
   .kpi-full {
-    font-size: 9px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 2px;
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: all .2s;
+    font-size: 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 2px; opacity: 0; max-height: 0; overflow: hidden; transition: all .2s;
   }
-  .kpi:hover .kpi-full {
-    opacity: 1;
-    max-height: 20px;
-  }
-  .kpi-delta.down { color: var(--red); }
+  .kpi:hover .kpi-full { opacity: 1; max-height: 20px; }
 
   /* Toolbar */
   .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+    flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
   }
   .toolbar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 2px; white-space: nowrap; }
   .toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 11px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 500;
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    transition: all .15s;
+    display: flex; align-items: center; gap: 6px; padding: 5px 11px;
+    border-radius: 20px; border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); font-size: 12px; font-weight: 500;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: all .15s;
   }
   .toggle.active {
-    border-color: var(--accent);
-    color: var(--text);
+    border-color: var(--accent); color: var(--text);
     background: color-mix(in srgb, var(--accent) 15%, transparent);
   }
   .toggle .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-
-  /* Date filter */
-  .date-filter { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-  .date-filter input {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-size: 12px;
-    padding: 5px 8px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .date-filter span { color: var(--muted); font-size: 12px; }
 
   /* Chart */
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
@@ -237,7 +175,6 @@
 </style>
 </head>
 <body>
-
 <div class="app-layout">
 
   <!-- Sidebar -->
@@ -249,7 +186,6 @@
         <div class="sidebar-brand-sub">Official Store</div>
       </div>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-section-label">Analytics</div>
       <a class="sidebar-item active" href="#">
@@ -276,7 +212,6 @@
         <span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span>
       </a>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-section-label">Data</div>
       <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank">
@@ -288,106 +223,119 @@
         Google Drive
       </a>
     </div>
-
     <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
-      <div style="font-size:10px;color:var(--muted);text-align:center;">Auto-update setiap hari 13:00</div>
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Auto-update setiap hari 10:00</div>
     </div>
   </aside>
 
   <!-- Content -->
   <div class="content-area">
     <div class="header">
+      <span class="logo">S</span>
       <span class="header-title">Overview</span>
       <span class="header-sub" id="date-range">Memuat...</span>
     </div>
 
     <div class="main">
-  <div id="error-container"></div>
+      <div id="error-container"></div>
 
-  <!-- KPI -->
-  <div class="kpi-grid" id="kpi-grid">
-    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data...</div>
-  </div>
+      <!-- Platform Toggle -->
+      <div class="platform-toggle">
+        <button class="platform-btn active-shopee" id="btn-shopee" onclick="setPlatform('shopee')">
+          <span class="platform-logo">🛍️</span> Shopee
+        </button>
+        <button class="platform-btn" id="btn-tiktok" onclick="setPlatform('tiktok')">
+          <span class="platform-logo">🎵</span> TikTok Shop
+        </button>
+      </div>
 
-  <!-- Toolbar Metrik -->
-  <div class="toolbar">
-    <span class="toolbar-label">Tampilkan:</span>
-    <button class="toggle" data-metric="Live Show PV" style="--accent:var(--c-show)"><span class="dot"></span>Live Show PV</button>
-    <button class="toggle active" data-metric="Live Watch PV" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
-    <button class="toggle active" data-metric="Click Product" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
-    <button class="toggle active" data-metric="Order Number" style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
-    <button class="toggle active" data-metric="GMV" style="--accent:var(--c-gmv)"><span class="dot"></span>GMV</button>
-    <button class="toggle" data-metric="ERR" style="--accent:var(--c-err)"><span class="dot"></span>ERR</button>
-    <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
-    <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
-    <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
-    <button class="toggle" data-metric="ARPU" style="--accent:#34d399"><span class="dot" style="background:#34d399"></span>ARPU</button>
-    <button class="toggle" data-metric="Biaya Iklan" style="--accent:#f43f5e"><span class="dot" style="background:#f43f5e"></span>Biaya Iklan</button>
-    <button class="toggle" data-metric="ROI" style="--accent:#a78bfa"><span class="dot" style="background:#a78bfa"></span>ROI</button>
-  </div>
+      <!-- KPI -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data...</div>
+      </div>
 
-  <!-- Toolbar Periode -->
-  <div class="toolbar">
-    <span class="toolbar-label">Tampilkan per:</span>
-    <button class="toggle" data-quick="yesterday" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
-    <button class="toggle" data-quick="7days" onclick="quickSelect('7days')" style="--accent:#94a3b8">7 Hari</button>
-    <button class="toggle" data-quick="30days" onclick="quickSelect('30days')" style="--accent:#94a3b8">30 Hari</button>
-    <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
-    <button class="toggle active" data-group="day" onclick="setGroup('day')">Per Hari</button>
-    <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
-    <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
-    <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
-  </div>
+      <!-- Toolbar Metrik -->
+      <div class="toolbar" id="toolbar-metrics">
+        <span class="toolbar-label">Tampilkan:</span>
+        <button class="toggle" data-metric="Live Show PV" style="--accent:var(--c-show)"><span class="dot"></span>Live Show PV</button>
+        <button class="toggle active" data-metric="Live Watch PV" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
+        <button class="toggle active" data-metric="Click Product" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
+        <button class="toggle active" data-metric="Order Number" style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
+        <button class="toggle active" data-metric="GMV" style="--accent:var(--c-gmv)"><span class="dot"></span>GMV</button>
+        <button class="toggle" data-metric="ERR" style="--accent:var(--c-err)"><span class="dot"></span>ERR</button>
+        <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
+        <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
+        <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
+        <button class="toggle" data-metric="ARPU" style="--accent:#34d399"><span class="dot" style="background:#34d399"></span>ARPU</button>
+        <button class="toggle" data-metric="Biaya Iklan" style="--accent:#f43f5e" id="toggle-biaya"><span class="dot" style="background:#f43f5e"></span>Biaya Iklan</button>
+        <button class="toggle" data-metric="ROI" style="--accent:#a78bfa" id="toggle-roi"><span class="dot" style="background:#a78bfa"></span>ROI</button>
+      </div>
 
-  <!-- Period Filter -->
-  <div id="period-filter" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;">
-    <span class="toolbar-label">Periode:</span>
+      <!-- Toolbar Periode -->
+      <div class="toolbar">
+        <span class="toolbar-label">Tampilkan per:</span>
+        <button class="toggle" data-quick="yesterday" onclick="quickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+        <button class="toggle" data-quick="7days" onclick="quickSelect('7days')" style="--accent:#94a3b8">7 Hari</button>
+        <button class="toggle" data-quick="30days" onclick="quickSelect('30days')" style="--accent:#94a3b8">30 Hari</button>
+        <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
+        <button class="toggle active" data-group="day" onclick="setGroup('day')">Per Hari</button>
+        <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
+        <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
+        <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
+      </div>
 
-    <!-- Per Hari -->
-    <div id="filter-day" style="display:flex;align-items:center;gap:8px;">
-      <input type="date" id="date-single" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
-      <button onclick="applyFilterDay()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
-    </div>
+      <!-- Period Filter -->
+      <div id="period-filter" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;">
+        <span class="toolbar-label">Periode:</span>
+        <div id="filter-day" style="display:flex;align-items:center;gap:8px;">
+          <input type="date" id="date-single" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <button onclick="applyFilterDay()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-week" style="display:none;align-items:center;gap:8px;">
+          <select id="week-select" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="applyFilterWeek()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-month" style="display:none;align-items:center;gap:8px;">
+          <select id="month-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <select id="month-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="applyFilterMonth()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
+          <input type="date" id="custom-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <input type="date" id="custom-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <button onclick="applyFilterCustom()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
+      </div>
 
-    <!-- Per Minggu -->
-    <div id="filter-week" style="display:none;align-items:center;gap:8px;">
-      <select id="week-select" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;">
-      </select>
-      <button onclick="applyFilterWeek()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
-    </div>
-
-    <!-- Per Bulan -->
-    <div id="filter-month" style="display:none;align-items:center;gap:8px;">
-      <select id="month-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;"></select>
-      <span style="color:var(--muted);font-size:12px;">s/d</span>
-      <select id="month-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'Inter',sans-serif;cursor:pointer;"></select>
-      <button onclick="applyFilterMonth()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
-    </div>
-
-    <!-- Custom -->
-    <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
-      <input type="date" id="custom-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
-      <span style="color:var(--muted);font-size:12px;">s/d</span>
-      <input type="date" id="custom-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
-      <button onclick="applyFilterCustom()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
-    </div>
-
-    <button onclick="resetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
-  </div>
-
-  <!-- Chart -->
-  <div class="chart-card">
-    <div class="chart-title" id="chart-title">Tren Harian</div>
-    <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
-  </div>
+      <!-- Chart -->
+      <div class="chart-card">
+        <div class="chart-title" id="chart-title">Tren Harian</div>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const SHEET_ID   = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
-const SHEET_NAME = 'Shopee Stats Harian';
-const API_URL    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+
+const SOURCES = {
+  shopee: {
+    sheetName: 'Shopee Stats Harian',
+    label: 'Shopee',
+    color: '#EE4D2D',
+    hasAds: true,
+  },
+  tiktok: {
+    sheetName: 'TikTok Stats Harian',
+    label: 'TikTok Shop',
+    color: '#ff0050',
+    hasAds: false,
+  }
+};
 
 const METRICS = {
   'Live Show PV':  { color: '#64748b', format: 'number', axis: 'y2' },
@@ -401,7 +349,7 @@ const METRICS = {
   'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
   'ARPU':          { color: '#34d399', format: 'rp',     axis: 'y1' },
   'Biaya Iklan':   { color: '#f43f5e', format: 'rp',     axis: 'y1' },
-  'ROI':           { color: '#a78bfa', format: 'number',  axis: 'y2' },
+  'ROI':           { color: '#a78bfa', format: 'number', axis: 'y2' },
 };
 
 const KPI_LIST = [
@@ -416,7 +364,7 @@ const KPI_LIST = [
   { key: 'AOV',           label: 'AOV',           accent: '#f97316' },
   { key: 'ARPU',          label: 'ARPU',          accent: '#34d399' },
   { key: 'Biaya Iklan',   label: 'Biaya Iklan',   accent: '#f43f5e' },
-  { key: 'ROI',           label: 'ROI',            accent: '#a78bfa' },
+  { key: 'ROI',           label: 'ROI',           accent: '#a78bfa' },
 ];
 
 function fmtRp(v) {
@@ -436,8 +384,16 @@ function fmt(v, type) {
   return fmtNum(v);
 }
 
-async function fetchData() {
-  const res  = await fetch(API_URL);
+// Cache data per platform
+const dataCache = { shopee: null, tiktok: null };
+let currentPlatform = 'shopee';
+let globalData = [];
+let filteredData = [];
+let currentGroup = 'day';
+
+async function fetchSheetData(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res  = await fetch(url);
   const text = await res.text();
   const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
   const cols = json.table.cols.map(c => c.label);
@@ -446,134 +402,170 @@ async function fetchData() {
     cols.forEach((col, i) => {
       const cell = row.c[i];
       if (!cell) { obj[col] = 0; return; }
-      // Konversi nilai ke number untuk kolom numerik
       obj[col] = cell.v !== null && cell.v !== undefined ? cell.v : 0;
     });
-    // Hitung ERR = Live Watch PV / Live Show PV
-    const showPV  = obj['Live Show PV'] || 0;
-    const watchPV = obj['Live Watch PV'] || 0;
-    obj['ERR'] = showPV > 0 ? watchPV / showPV : 0;
-    // Pastikan Biaya Iklan terbaca
+    // Hitung ERR untuk Shopee
+    if (sheetName.includes('Shopee')) {
+      const showPV  = obj['Live Show PV']  || 0;
+      const watchPV = obj['Live Watch PV'] || 0;
+      obj['ERR'] = showPV > 0 ? watchPV / showPV : 0;
+    }
     obj['Biaya Iklan'] = Number(obj['Biaya Iklan']) || 0;
     return obj;
   }).filter(r => r['Tanggal']);
 }
 
-async function fetchAdsData() {
-  try {
-    const res  = await fetch(API_ADS_URL);
-    const text = await res.text();
-    const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
-    const cols = json.table.cols.map(c => c.label);
-    return json.table.rows.map(row => {
-      const obj = {};
-      cols.forEach((col, i) => {
-        const cell = row.c[i];
-        if (!cell) { obj[cols[i]] = 0; return; }
-        // Tanggal dari gviz bisa berupa string atau Date
-        if (i === 0) {
-          let v = cell.v || cell.f || '';
-          // Format gviz: "Date(2026,5,16)" → "2026-06-16"
-          const dm = String(v).match(/Date\((\d+),(\d+),(\d+)\)/);
-          if (dm) {
-            const y = dm[1], m = String(parseInt(dm[2])+1).padStart(2,'0'), d = String(dm[3]).padStart(2,'0');
-            obj[cols[i]] = y + '-' + m + '-' + d;
-          } else {
-            obj[cols[i]] = String(v);
-          }
-        } else {
-          obj[cols[i]] = cell.v || 0;
-        }
-      });
-      return obj;
-    }).filter(r => r['Tanggal']);
-  } catch(e) {
-    console.warn('Ads data tidak tersedia:', e);
-    return [];
+async function loadPlatform(platform) {
+  if (dataCache[platform]) return dataCache[platform];
+  const src = SOURCES[platform];
+  const data = await fetchSheetData(src.sheetName);
+  dataCache[platform] = data;
+  return data;
+}
+
+function setPlatform(platform) {
+  currentPlatform = platform;
+  const src = SOURCES[platform];
+
+  // Update toggle button styles
+  document.getElementById('btn-shopee').className = 'platform-btn' + (platform === 'shopee' ? ' active-shopee' : '');
+  document.getElementById('btn-tiktok').className = 'platform-btn' + (platform === 'tiktok' ? ' active-tiktok' : '');
+
+  // Biaya Iklan & ROI hanya untuk Shopee
+  const biayaBtn = document.getElementById('toggle-biaya');
+  const roiBtn   = document.getElementById('toggle-roi');
+  if (src.hasAds) {
+    biayaBtn.style.display = '';
+    roiBtn.style.display   = '';
+  } else {
+    biayaBtn.style.display = 'none';
+    roiBtn.style.display   = 'none';
+    biayaBtn.classList.remove('active');
+    roiBtn.classList.remove('active');
   }
-}
 
-function getAdsForDate(tanggal) {
-  const row = globalAdsData.find(d => d['Tanggal'] === tanggal);
-  return row ? (row['Total Biaya Iklan'] || 0) : 0;
-}
+  // Update header warna
+  document.querySelector('.logo').style.background = src.color;
 
-function getTotalAds(data) {
-  return data.reduce((s, d) => s + getAdsForDate(d['Tanggal']), 0);
+  // Load data
+  document.getElementById('kpi-grid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data ' + src.label + '...</div>';
+  loadPlatform(platform).then(data => {
+    globalData   = data;
+    filteredData = [...data];
+    renderKPI(filteredData);
+    renderChart(filteredData);
+    const dates = data.map(d => d['Tanggal']).sort();
+    document.getElementById('date-single').value = dates[dates.length - 1] || '';
+    document.getElementById('custom-from').value = dates[0] || '';
+    document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
+    buildWeekOptions();
+    buildMonthOptions();
+    // Default Kemarin
+    document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+    const yBtn = document.querySelector('[data-quick="yesterday"]');
+    if (yBtn) { yBtn.classList.add('active'); quickSelect('yesterday'); }
+    document.getElementById('period-filter').style.display = 'none';
+    updateDateRange(filteredData);
+  }).catch(err => {
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data ${src.label}: ${err.message}</div>`;
+    document.getElementById('kpi-grid').innerHTML = '';
+  });
 }
 
 function calcKPI(data) {
-  // SUM untuk metrik volume
   const totalShowPV  = data.reduce((s, d) => s + (d['Live Show PV']  || 0), 0);
   const totalWatchPV = data.reduce((s, d) => s + (d['Live Watch PV'] || 0), 0);
   const totalClick   = data.reduce((s, d) => s + (d['Click Product'] || 0), 0);
   const totalOrder   = data.reduce((s, d) => s + (d['Order Number']  || 0), 0);
   const totalGMV     = data.reduce((s, d) => s + (d['GMV']           || 0), 0);
+  const totalPembeli = data.reduce((s, d) => s + (Number(d['Pembeli']) || 0), 0);
+  const totalBiaya   = data.reduce((s, d) => s + (Number(d['Biaya Iklan']) || 0), 0);
 
-  // Kalkulasi rasio dari total
   const err  = totalShowPV  > 0 ? totalWatchPV / totalShowPV  : 0;
+  const ctr  = totalWatchPV > 0 ? totalClick   / totalWatchPV : 0;
   const ctor = totalClick   > 0 ? totalOrder   / totalClick   : 0;
-  const ctr  = totalWatchPV > 0 ? totalClick   / totalWatchPV : 0; // CTR = Click Product / Live Watch PV
   const aov  = totalOrder   > 0 ? totalGMV     / totalOrder   : 0;
-  const totalPembeli   = data.reduce((s, d) => s + (Number(d['Pembeli']) || 0), 0);
-  const totalBiayaIklan = data.reduce((s, d) => s + (Number(d['Biaya Iklan']) || 0), 0);
-  const arpu = totalPembeli    > 0 ? totalGMV / totalPembeli    : 0;
-  const roi  = totalBiayaIklan > 0 ? Math.round(totalGMV / totalBiayaIklan * 100) / 100 : 0;
+  const arpu = totalPembeli > 0 ? totalGMV     / totalPembeli : 0;
+  const roi  = totalBiaya   > 0 ? Math.round(totalGMV / totalBiaya * 100) / 100 : 0;
 
   return {
-    'Live Show PV':  totalShowPV,
-    'Live Watch PV': totalWatchPV,
-    'Click Product': totalClick,
-    'Order Number':  totalOrder,
-    'GMV':           totalGMV,
-    'ERR':           err,
-    'CTOR':          ctor,
-    'CTR':           ctr,
-    'AOV':           aov,
-    'ARPU':          arpu,
-    'Biaya Iklan':   totalBiayaIklan,
-    'ROI':           roi,
+    'Live Show PV': totalShowPV, 'Live Watch PV': totalWatchPV,
+    'Click Product': totalClick, 'Order Number': totalOrder,
+    'GMV': totalGMV, 'ERR': err, 'CTR': ctr, 'CTOR': ctor,
+    'AOV': aov, 'ARPU': arpu, 'Biaya Iklan': totalBiaya, 'ROI': roi,
   };
 }
 
 function renderKPI(data) {
-  const kpi = calcKPI(data);
+  const kpi  = calcKPI(data);
   const days = data.length;
-  document.getElementById('kpi-grid').innerHTML = KPI_LIST.map(k => {
-    const val  = kpi[k.key] || 0;
-    const type = METRICS[k.key]?.format || 'number';
-    const isRatio = ['ERR','CTOR','CTR','AOV','ARPU'].includes(k.key);
-    const sublabel = isRatio
-      ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
-      : `<div class="kpi-delta">Total ${days} hari</div>`;
-    const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
-    const isMoney  = ['GMV', 'Biaya Iklan'].includes(k.key);
-    const isARPU   = k.key === 'ARPU';
-    // Traffic metrics: show full number, no abbreviation
-    const displayVal = isVolume
-      ? Math.round(val).toLocaleString('id-ID')
-      : isARPU
-        ? 'Rp ' + Math.round(val).toLocaleString('id-ID')
+  const src  = SOURCES[currentPlatform];
+  document.getElementById('kpi-grid').innerHTML = KPI_LIST
+    .filter(k => src.hasAds || !['Biaya Iklan','ROI'].includes(k.key))
+    .map(k => {
+      const val  = kpi[k.key] || 0;
+      const type = METRICS[k.key]?.format || 'number';
+      const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
+      const isMoney  = ['GMV','Biaya Iklan'].includes(k.key);
+      const isARPU   = k.key === 'ARPU';
+      const displayVal = isVolume
+        ? Math.round(val).toLocaleString('id-ID')
+        : isARPU ? 'Rp ' + Math.round(val).toLocaleString('id-ID')
         : fmt(val, type);
-    // Money metrics: show abbreviated + full number on hover
-    const fullVal = isMoney
-      ? `title="Detail: Rp ${Math.round(val).toLocaleString('id-ID')}"`
-      : '';
-    const tooltip = isMoney
-      ? `<div class="kpi-full">Rp ${Math.round(val).toLocaleString('id-ID')}</div>`
-      : '';
-    return `<div class="kpi" style="--accent:${k.accent}">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value" ${fullVal}>${displayVal}</div>
-      ${tooltip}
-      ${sublabel}
-    </div>`;
-  }).join('');
+      const fullVal = isMoney
+        ? `<div class="kpi-full">Rp ${Math.round(val).toLocaleString('id-ID')}</div>` : '';
+      const sub = ['ERR','CTOR','CTR','AOV','ARPU'].includes(k.key)
+        ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
+        : `<div class="kpi-delta">Total ${days} hari</div>`;
+      return `<div class="kpi" style="--accent:${k.accent}">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value">${displayVal}</div>
+        ${fullVal}${sub}
+      </div>`;
+    }).join('');
 }
 
 let chartInstance = null;
 function getActive() {
   return [...document.querySelectorAll('.toggle.active[data-metric]')].map(b => b.dataset.metric);
+}
+
+function groupData(data, group) {
+  if (group === 'day' || group === 'custom') {
+    return data.map(d => {
+      const biaya = Number(d['Biaya Iklan']) || 0;
+      const gmv   = Number(d['GMV']) || 0;
+      return Object.assign({}, d, { 'ROI': biaya > 0 ? Math.round(gmv / biaya * 100) / 100 : 0 });
+    });
+  }
+  const grouped = {};
+  data.forEach(d => {
+    const date = new Date(d['Tanggal']);
+    let key;
+    if (group === 'week') {
+      const day = date.getDay(), diff = (day === 0 ? -6 : 1 - day);
+      const mon = new Date(date); mon.setDate(date.getDate() + diff);
+      key = mon.toISOString().split('T')[0];
+    } else {
+      key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    }
+    if (!grouped[key]) {
+      grouped[key] = { 'Tanggal': key, 'Live Show PV':0,'Live Watch PV':0,'Click Product':0,'Order Number':0,'GMV':0,'Pembeli':0,'Biaya Iklan':0 };
+    }
+    ['Live Show PV','Live Watch PV','Click Product','Order Number','GMV','Pembeli','Biaya Iklan'].forEach(k => {
+      grouped[key][k] = (grouped[key][k] || 0) + (Number(d[k]) || 0);
+    });
+  });
+  return Object.values(grouped).map(g => {
+    g['ERR']  = g['Live Show PV']  > 0 ? g['Live Watch PV'] / g['Live Show PV']  : 0;
+    g['CTR']  = g['Live Watch PV'] > 0 ? g['Click Product'] / g['Live Watch PV'] : 0;
+    g['CTOR'] = g['Click Product'] > 0 ? g['Order Number']  / g['Click Product'] : 0;
+    g['AOV']  = g['Order Number']  > 0 ? g['GMV']           / g['Order Number']  : 0;
+    g['ARPU'] = g['Pembeli']       > 0 ? g['GMV']           / g['Pembeli']       : 0;
+    g['ROI']  = g['Biaya Iklan']   > 0 ? Math.round(g['GMV'] / g['Biaya Iklan'] * 100) / 100 : 0;
+    return g;
+  });
 }
 
 function renderChart(data) {
@@ -583,50 +575,31 @@ function renderChart(data) {
   const datasets = active.map(key => {
     const m = METRICS[key];
     return {
-      label: key,
-      data: data.map(d => d[key] || 0),
-      borderColor: m.color,
-      backgroundColor: m.color + '18',
-      pointBackgroundColor: m.color,
-      pointRadius: 4,
-      pointHoverRadius: 7,
-      tension: 0.3,
-      yAxisID: m.axis,
-      fill: false,
+      label: key, data: data.map(d => d[key] || 0),
+      borderColor: m.color, backgroundColor: m.color + '18',
+      pointBackgroundColor: m.color, pointRadius: 4, pointHoverRadius: 7,
+      tension: 0.3, yAxisID: m.axis, fill: false,
     };
   });
-
   const hasY1 = active.some(k => METRICS[k]?.axis === 'y1');
   const hasY2 = active.some(k => METRICS[k]?.axis === 'y2');
   const hasY3 = active.some(k => METRICS[k]?.axis === 'y3');
-
   if (chartInstance) chartInstance.destroy();
   chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
-    type: 'line',
-    data: { labels, datasets },
+    type: 'line', data: { labels, datasets },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { labels: { color: '#e8eaf2', font: { size: 12 }, boxWidth: 12 } },
         tooltip: {
           backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
           titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
-          callbacks: {
-            label: ctx => {
-              const type = METRICS[ctx.dataset.label]?.format || 'number';
-              return ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y, type)}`;
-            }
-          }
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y, METRICS[ctx.dataset.label]?.format || 'number')}` }
         }
       },
       scales: {
-        x: { 
-          ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, 
-          grid: { color: '#252836' },
-          offset: true,
-        },
+        x: { ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, grid: { color: '#252836' }, offset: true },
         y1: { display: hasY1, position: 'left', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
         y2: { display: hasY2, position: hasY1 ? 'right' : 'left', ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: !hasY1, color: '#252836' } },
         y3: { display: hasY3, position: 'right', ticks: { color: '#e879f9', font: { size: 10 }, callback: v => fmtPct(v) }, grid: { display: false } },
@@ -635,10 +608,6 @@ function renderChart(data) {
   });
 }
 
-let globalData = [];
-let filteredData = [];
-let currentGroup = 'day';
-
 document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
   btn.addEventListener('click', () => {
     btn.classList.toggle('active');
@@ -646,322 +615,126 @@ document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
   });
 });
 
-// ── Group By ──────────────────────────────────────────────────────────────────
 function setGroup(group) {
   currentGroup = group;
-  // Deactivate quick select buttons
   document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
-  // Activate correct group button
-  document.querySelectorAll('[data-group]').forEach(b => {
-    b.classList.toggle('active', b.dataset.group === group);
-  });
-  // Show period filter box
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.toggle('active', b.dataset.group === group));
   document.getElementById('period-filter').style.display = 'flex';
-
-  // Tampilkan filter yang sesuai
-  document.getElementById('filter-day').style.display    = group === 'day'    ? 'flex' : 'none';
-  document.getElementById('filter-week').style.display   = group === 'week'   ? 'flex' : 'none';
-  document.getElementById('filter-month').style.display  = group === 'month'  ? 'flex' : 'none';
-  document.getElementById('filter-custom').style.display = group === 'custom' ? 'flex' : 'none';
-
-  const titles = { day: 'Tren Harian', week: 'Tren Mingguan', month: 'Tren Bulanan', custom: 'Tren Custom' };
+  ['day','week','month','custom'].forEach(g => {
+    document.getElementById('filter-'+g).style.display = g === group ? 'flex' : 'none';
+  });
+  const titles = { day:'Tren Harian', week:'Tren Mingguan', month:'Tren Bulanan', custom:'Tren Custom' };
   document.getElementById('chart-title').textContent = titles[group];
-
-  // Reset ke semua data
   filteredData = [...globalData];
-  renderKPI(filteredData);
-  renderChart(filteredData);
-  updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
 }
 
-// ── Filter Per Hari ──────────────────────────────────────────────────────────
-// ── Quick Select ─────────────────────────────────────────────────────────────
 function quickSelect(val) {
   if (!globalData.length) return;
   const dates = [...new Set(globalData.map(d => d['Tanggal']))].sort();
   const last  = dates[dates.length - 1];
   let from = last;
-
-  if (val === 'yesterday') {
-    from = last;
-  } else if (val === '7days') {
-    const d = new Date(last);
-    d.setDate(d.getDate() - 6);
-    from = d.toISOString().split('T')[0];
-  } else if (val === '30days') {
-    const d = new Date(last);
-    d.setDate(d.getDate() - 29);
-    from = d.toISOString().split('T')[0];
-  }
-
-  // Set active state - deactivate group buttons, activate quick button
+  if (val === '7days')  { const d = new Date(last); d.setDate(d.getDate()-6);  from = d.toISOString().split('T')[0]; }
+  if (val === '30days') { const d = new Date(last); d.setDate(d.getDate()-29); from = d.toISOString().split('T')[0]; }
   document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
-  document.querySelector(`[data-quick="${val}"]`).classList.add('active');
-
-  // Hide period filter box for quick selects
+  document.querySelector(`[data-quick="${val}"]`)?.classList.add('active');
   document.getElementById('period-filter').style.display = 'none';
-
-  // Filter data
-  if (val === 'yesterday') {
-    filteredData = globalData.filter(d => d['Tanggal'] === last);
-  } else {
-    filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
-  }
-
+  filteredData = val === 'yesterday'
+    ? globalData.filter(d => d['Tanggal'] === last)
+    : globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
   if (!filteredData.length) return;
   currentGroup = 'day';
-  document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData);
-  renderChart(filteredData);
-  updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
 }
 
 function applyFilterDay() {
   const date = document.getElementById('date-single').value;
   if (!date) return;
-
   filteredData = globalData.filter(d => d['Tanggal'] === date);
-  if (!filteredData.length) {
-    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk tanggal ini.</div>';
-    return;
-  }
+  if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk tanggal ini.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData);
-  renderChart(filteredData);
+  renderKPI(filteredData); renderChart(filteredData);
   document.getElementById('date-range').textContent = date + ' · 1 hari';
 }
 
-// ── Filter Per Minggu ────────────────────────────────────────────────────────
 function buildWeekOptions() {
-  const select = document.getElementById('week-select');
-  select.innerHTML = '';
+  const select = document.getElementById('week-select'); select.innerHTML = '';
   const weeks = {};
-
   globalData.forEach(d => {
-    const date = new Date(d['Tanggal']);
-    // Cari Senin dari minggu ini
-    const day = date.getDay();
-    const diff = (day === 0 ? -6 : 1 - day);
-    const monday = new Date(date);
-    monday.setDate(date.getDate() + diff);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    const key = monday.toISOString().split('T')[0];
-    if (!weeks[key]) {
-      const fmtDate = d => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-      weeks[key] = `${fmtDate(monday)} – ${fmtDate(sunday)}`;
-    }
+    const date = new Date(d['Tanggal']), day = date.getDay(), diff = (day===0?-6:1-day);
+    const mon = new Date(date); mon.setDate(date.getDate()+diff);
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+    const key = mon.toISOString().split('T')[0];
+    if (!weeks[key]) { const f = d => d.toLocaleDateString('id-ID',{day:'numeric',month:'short'}); weeks[key] = `${f(mon)} – ${f(sun)}`; }
   });
-
-  Object.entries(weeks).sort().forEach(([key, label]) => {
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = label;
-    select.appendChild(opt);
-  });
-
-  // Default ke minggu terakhir
-  if (select.options.length) select.selectedIndex = select.options.length - 1;
+  Object.entries(weeks).sort().forEach(([key,label]) => { const o = document.createElement('option'); o.value=key; o.textContent=label; select.appendChild(o); });
+  if (select.options.length) select.selectedIndex = select.options.length-1;
 }
 
 function applyFilterWeek() {
   const monday = document.getElementById('week-select').value;
-  if (!monday) return;
-
-  const mondayDate = new Date(monday);
-  const sundayDate = new Date(mondayDate);
-  sundayDate.setDate(mondayDate.getDate() + 6);
-  const sundayStr = sundayDate.toISOString().split('T')[0];
-
+  const sun = new Date(monday); sun.setDate(sun.getDate()+6);
+  const sundayStr = sun.toISOString().split('T')[0];
   filteredData = globalData.filter(d => d['Tanggal'] >= monday && d['Tanggal'] <= sundayStr);
-  if (!filteredData.length) {
-    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk minggu ini.</div>';
-    return;
-  }
+  if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData);
-  renderChart(filteredData);
-  updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
 }
 
-// ── Filter Per Bulan ─────────────────────────────────────────────────────────
 function buildMonthOptions() {
-  const BULAN = ['Januari','Februari','Maret','April','Mei','Juni',
-                 'Juli','Agustus','September','Oktober','November','Desember'];
+  const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const months = {};
-
   globalData.forEach(d => {
     const date = new Date(d['Tanggal']);
-    const key  = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
     if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
   });
-
   const entries = Object.entries(months).sort();
-
-  ['month-from', 'month-to'].forEach(id => {
-    const select = document.getElementById(id);
-    select.innerHTML = '';
-    entries.forEach(([key, label]) => {
-      const opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = label;
-      select.appendChild(opt);
-    });
+  ['month-from','month-to'].forEach(id => {
+    const sel = document.getElementById(id); sel.innerHTML = '';
+    entries.forEach(([key,label]) => { const o = document.createElement('option'); o.value=key; o.textContent=label; sel.appendChild(o); });
   });
-
-  // Default: from = bulan pertama, to = bulan terakhir
-  const fromSel = document.getElementById('month-from');
-  const toSel   = document.getElementById('month-to');
-  if (fromSel.options.length) fromSel.selectedIndex = 0;
-  if (toSel.options.length)   toSel.selectedIndex   = toSel.options.length - 1;
+  const f = document.getElementById('month-from'), t = document.getElementById('month-to');
+  if (f.options.length) f.selectedIndex = 0;
+  if (t.options.length) t.selectedIndex = t.options.length-1;
 }
 
 function applyFilterMonth() {
-  const from = document.getElementById('month-from').value;
-  const to   = document.getElementById('month-to').value;
-  if (!from || !to) return;
-
-  // Dari awal bulan "from" sampai akhir bulan "to"
-  const fromDate = from + '-01';
-  const toDateObj = new Date(to + '-01');
-  toDateObj.setMonth(toDateObj.getMonth() + 1);
-  toDateObj.setDate(toDateObj.getDate() - 1);
-  const toDate = toDateObj.toISOString().split('T')[0];
-
+  const from = document.getElementById('month-from').value, to = document.getElementById('month-to').value;
+  const fromDate = from+'-01';
+  const toObj = new Date(to+'-01'); toObj.setMonth(toObj.getMonth()+1); toObj.setDate(toObj.getDate()-1);
+  const toDate = toObj.toISOString().split('T')[0];
   filteredData = globalData.filter(d => d['Tanggal'] >= fromDate && d['Tanggal'] <= toDate);
-  if (!filteredData.length) {
-    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
-    return;
-  }
+  if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData);
-  renderChart(filteredData);
-  updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
 }
 
-// ── Filter Custom ─────────────────────────────────────────────────────────────
 function applyFilterCustom() {
-  const from = document.getElementById('custom-from').value;
-  const to   = document.getElementById('custom-to').value;
+  const from = document.getElementById('custom-from').value, to = document.getElementById('custom-to').value;
   if (!from || !to) return;
-
   filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
-  if (!filteredData.length) {
-    document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>';
-    return;
-  }
+  if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData);
-  renderChart(filteredData);
-  updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
 }
 
-// ── Reset & Utils ────────────────────────────────────────────────────────────
 function resetFilter() {
   filteredData = [...globalData];
-  renderKPI(filteredData);
-  renderChart(filteredData);
-  updateDateRange(filteredData);
-
-  const dates = globalData.map(d => d['Tanggal']).sort();
-  document.getElementById('date-single').value = dates[dates.length - 1] || '';
-  document.getElementById('custom-from').value = dates[0] || '';
-  document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
+  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
 }
 
 function updateDateRange(data) {
   const dates = data.map(d => d['Tanggal']).sort();
   if (!dates.length) return;
-  if (dates.length === 1) {
-    document.getElementById('date-range').textContent = dates[0] + ' · 1 hari';
-  } else {
-    document.getElementById('date-range').textContent = `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
-  }
+  document.getElementById('date-range').textContent = dates.length === 1
+    ? dates[0] + ' · 1 hari'
+    : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
 }
 
-function groupData(data, group) {
-  if (group === 'day' || group === 'custom') {
-    // Hitung ROI per baris untuk mode per hari
-    return data.map(d => {
-      const biaya = Number(d['Biaya Iklan']) || 0;
-      const gmv   = Number(d['GMV']) || 0;
-      return Object.assign({}, d, {
-        'ROI': biaya > 0 ? Math.round(gmv / biaya * 100) / 100 : 0
-      });
-    });
-  }
-
-  const grouped = {};
-  data.forEach(d => {
-    let key;
-    const date = new Date(d['Tanggal']);
-    if (group === 'week') {
-      // Minggu ke berapa (ISO week)
-      const startOfYear = new Date(date.getFullYear(), 0, 1);
-      const week = Math.ceil(((date - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
-      key = `${date.getFullYear()}-W${String(week).padStart(2,'0')}`;
-    } else if (group === 'month') {
-      key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
-    }
-
-    if (!grouped[key]) {
-      grouped[key] = {
-        'Tanggal': key,
-        'Live Show PV': 0, 'Live Watch PV': 0,
-        'Click Product': 0, 'Order Number': 0, 'GMV': 0, 'Pembeli': 0,
-      };
-    }
-    ['Live Show PV','Live Watch PV','Click Product','Order Number','GMV','Pembeli','Biaya Iklan'].forEach(k => {
-      grouped[key][k] = (grouped[key][k] || 0) + (Number(d[k]) || 0);
-    });
-  });
-
-  // Hitung rasio dari total
-  return Object.values(grouped).map(g => {
-    g['ERR']       = g['Live Show PV']  > 0 ? g['Live Watch PV'] / g['Live Show PV']  : 0;
-    g['CTR']       = g['Live Watch PV'] > 0 ? g['Click Product'] / g['Live Watch PV'] : 0;
-    g['CTOR']      = g['Click Product'] > 0 ? g['Order Number']  / g['Click Product'] : 0;
-    g['AOV']       = g['Order Number']  > 0 ? g['GMV']           / g['Order Number']  : 0;
-    g['ARPU']      = g['Pembeli']       > 0 ? g['GMV']           / g['Pembeli']       : 0;
-    g['ROI']       = g['Biaya Iklan']   > 0 ? Math.round(g['GMV'] / g['Biaya Iklan'] * 100) / 100 : 0;
-    return g;
-  });
-}
-
-async function init() {
-  try {
-    globalData = await fetchData();
-    if (!globalData.length) {
-      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>';
-      return;
-    }
-    filteredData = [...globalData];
-    renderKPI(filteredData);
-    renderChart(filteredData);
-    const dates = globalData.map(d => d['Tanggal']).sort();
-    document.getElementById('date-single').value = dates[dates.length - 1] || '';
-    document.getElementById('custom-from').value = dates[0] || '';
-    document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
-    buildWeekOptions();
-    buildMonthOptions();
-
-    // Set active state ke Kemarin
-    document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
-    const yBtn = document.querySelector('[data-quick="yesterday"]');
-    if (yBtn) yBtn.classList.add('active');
-    document.getElementById('period-filter').style.display = 'none';
-
-    updateDateRange(filteredData);
-  } catch(err) {
-    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
-    console.error(err);
-  }
-}
-
-init();
+// Init
+setPlatform('shopee');
 </script>
 </body>
 </html>
