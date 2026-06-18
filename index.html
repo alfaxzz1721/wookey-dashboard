@@ -106,16 +106,14 @@
     transition: all .2s; color: var(--muted); background: transparent;
     font-family: 'Inter', sans-serif;
   }
-  .platform-btn.active-shopee {
-    background: var(--shopee); color: white;
-  }
-  .platform-btn.active-tiktok {
-    background: var(--tiktok); color: white;
-  }
-  .platform-btn:not(.active-shopee):not(.active-tiktok):hover {
+  .platform-btn.active-shopee { background: var(--shopee); color: white; }
+  .platform-btn.active-tiktok { background: var(--tiktok); color: white; }
+  .platform-btn.active-all    { background: #6366f1; color: white; }
+  .platform-btn:not(.active-shopee):not(.active-tiktok):not(.active-all):hover {
     background: var(--surface); color: var(--text);
   }
-  .platform-logo { font-size: 16px; }
+  .platform-logo { font-size: 15px; line-height:1; }
+  .platform-logo img { width:16px; height:16px; vertical-align:middle; border-radius:3px; }
 
   /* KPI */
   .kpi-row {
@@ -244,10 +242,23 @@
       <!-- Platform Toggle -->
       <div class="platform-toggle">
         <button class="platform-btn active-shopee" id="btn-shopee" onclick="setPlatform('shopee')">
-          <span class="platform-logo">🛍️</span> Shopee
+          <span class="platform-logo">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="16" height="16" rx="3" fill="#EE4D2D"/>
+              <text x="8" y="12" text-anchor="middle" font-size="10" fill="white" font-weight="bold">S</text>
+            </svg>
+          </span> Shopee
         </button>
         <button class="platform-btn" id="btn-tiktok" onclick="setPlatform('tiktok')">
-          <span class="platform-logo">🎵</span> TikTok Shop
+          <span class="platform-logo">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="16" height="16" rx="3" fill="#010101"/>
+              <path d="M11 5.5c.8.6 1.8 1 2.8 1V4.7c-.6 0-1.1-.2-1.5-.5V8c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4c.2 0 .4 0 .6.1V2.2C8.6 2.1 8.3 2 8 2 5.2 2 3 4.2 3 7s2.2 5 5 5 5-2.2 5-5V5.5H11z" fill="#fff"/>
+            </svg>
+          </span> TikTok
+        </button>
+        <button class="platform-btn" id="btn-all" onclick="setPlatform('all')">
+          <span class="platform-logo">📊</span> All Platform
         </button>
       </div>
 
@@ -326,18 +337,9 @@
 const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
 
 const SOURCES = {
-  shopee: {
-    sheetName: 'Shopee Stats Harian',
-    label: 'Shopee',
-    color: '#EE4D2D',
-    hasAds: true,
-  },
-  tiktok: {
-    sheetName: 'TikTok Stats Harian',
-    label: 'TikTok Shop',
-    color: '#ff0050',
-    hasAds: false,
-  }
+  shopee: { sheetName: 'Shopee Stats Harian',  label: 'Shopee',       color: '#EE4D2D', hasAds: true  },
+  tiktok: { sheetName: 'TikTok Stats Harian',  label: 'TikTok',       color: '#ff0050', hasAds: false },
+  all:    { sheetName: null,                    label: 'All Platform', color: '#6366f1', hasAds: false },
 };
 
 const METRICS = {
@@ -436,6 +438,47 @@ async function loadPlatform(platform) {
   return data;
 }
 
+async function loadAllPlatforms() {
+  // Load Shopee + TikTok paralel
+  const [shopeeData, tiktokData] = await Promise.all([
+    loadPlatform('shopee'),
+    loadPlatform('tiktok'),
+  ]);
+
+  // Gabungkan per tanggal: jumlahkan semua kolom numerik
+  const merged = {};
+  const numCols = ['GMV','Order Number','Click Product','Live Watch PV','Live Show PV','Pembeli','Biaya Iklan'];
+
+  [...shopeeData, ...tiktokData].forEach(row => {
+    const tgl = row['Tanggal'];
+    if (!tgl) return;
+    if (!merged[tgl]) merged[tgl] = { 'Tanggal': tgl };
+    numCols.forEach(col => {
+      merged[tgl][col] = (merged[tgl][col] || 0) + (Number(row[col]) || 0);
+    });
+  });
+
+  // Hitung rasio dari total gabungan
+  return Object.values(merged).map(d => {
+    const gmv   = d['GMV']           || 0;
+    const order = d['Order Number']  || 0;
+    const klik  = d['Click Product'] || 0;
+    const watch = d['Live Watch PV'] || 0;
+    const show  = d['Live Show PV']  || 0;
+    const buyer = d['Pembeli']       || 0;
+    const biaya = d['Biaya Iklan']   || 0;
+
+    d['Konversi %'] = watch > 0 ? watch / (show || 1) : 0;
+    d['CTR']        = watch > 0 ? klik / watch : 0;
+    d['CTOR']       = klik  > 0 ? order / klik : 0;
+    d['AOV']        = order > 0 ? gmv / order  : 0;
+    d['ERR']        = show  > 0 ? watch / show : 0;
+    d['ARPU']       = buyer > 0 ? gmv / buyer  : 0;
+    d['ROI']        = biaya > 0 ? Math.round(gmv / biaya * 100) / 100 : 0;
+    return d;
+  }).sort((a, b) => a['Tanggal'].localeCompare(b['Tanggal']));
+}
+
 function setPlatform(platform) {
   currentPlatform = platform;
   const src = SOURCES[platform];
@@ -443,19 +486,15 @@ function setPlatform(platform) {
   // Update toggle button styles
   document.getElementById('btn-shopee').className = 'platform-btn' + (platform === 'shopee' ? ' active-shopee' : '');
   document.getElementById('btn-tiktok').className = 'platform-btn' + (platform === 'tiktok' ? ' active-tiktok' : '');
+  document.getElementById('btn-all').className    = 'platform-btn' + (platform === 'all'    ? ' active-all'    : '');
 
-  // Biaya Iklan & ROI hanya untuk Shopee
+  // Biaya Iklan & ROI: tampilkan untuk Shopee & All
   const biayaBtn = document.getElementById('toggle-biaya');
   const roiBtn   = document.getElementById('toggle-roi');
-  if (src.hasAds) {
-    biayaBtn.style.display = '';
-    roiBtn.style.display   = '';
-  } else {
-    biayaBtn.style.display = 'none';
-    roiBtn.style.display   = 'none';
-    biayaBtn.classList.remove('active');
-    roiBtn.classList.remove('active');
-  }
+  const showAds  = platform === 'shopee' || platform === 'all';
+  biayaBtn.style.display = showAds ? '' : 'none';
+  roiBtn.style.display   = showAds ? '' : 'none';
+  if (!showAds) { biayaBtn.classList.remove('active'); roiBtn.classList.remove('active'); }
 
   // Update header warna
   document.querySelector('.logo').style.background = src.color;
@@ -463,7 +502,10 @@ function setPlatform(platform) {
   // Load data
   document.getElementById('kpi-top').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data ' + src.label + '...</div>';
   document.getElementById('kpi-bottom').innerHTML = '';
-  loadPlatform(platform).then(data => {
+
+  const loadPromise = platform === 'all' ? loadAllPlatforms() : loadPlatform(platform);
+
+  loadPromise.then(data => {
     globalData   = data;
     filteredData = [...data];
     renderKPI(filteredData);
@@ -474,7 +516,6 @@ function setPlatform(platform) {
     document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
     buildWeekOptions();
     buildMonthOptions();
-    // Default Kemarin
     document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
     const yBtn = document.querySelector('[data-quick="yesterday"]');
@@ -503,6 +544,7 @@ function calcKPI(data) {
   const aov  = totalOrder   > 0 ? totalGMV     / totalOrder   : 0;
   const arpu = totalPembeli > 0 ? totalGMV     / totalPembeli : 0;
   const roi  = totalBiaya   > 0 ? Math.round(totalGMV / totalBiaya * 100) / 100 : 0;
+  // Untuk 'all': hasAds dianggap true karena Shopee punya Biaya Iklan
 
   return {
     'Live Show PV': totalShowPV, 'Live Watch PV': totalWatchPV,
@@ -513,7 +555,7 @@ function calcKPI(data) {
 }
 
 function makeKpiCard(k, kpi, days, hasAds) {
-  if (!hasAds && ['Biaya Iklan','ROI'].includes(k.key)) {
+  if (!hasAds && currentPlatform !== 'all' && ['Biaya Iklan','ROI'].includes(k.key)) {
     return `<div class="kpi" style="--accent:${k.accent};opacity:.3">
       <div class="kpi-label">${k.label}</div>
       <div class="kpi-value" style="color:var(--muted)">—</div>
