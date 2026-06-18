@@ -133,6 +133,30 @@
   }
   .toggle .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
 
+  /* Platform Toggle */
+  .platform-toggle {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px; margin-bottom: 20px;
+    width: fit-content;
+  }
+  .platform-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 18px; border-radius: 7px;
+    font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer;
+    transition: all .2s; color: var(--muted); background: transparent;
+    font-family: 'Inter', sans-serif;
+  }
+  .platform-btn.active-all    { background: #6366f1; color: white; }
+  .platform-btn.active-shopee { background: var(--shopee); color: white; }
+  .platform-btn.active-tiktok { background: #ff0050; color: white; }
+  .platform-btn:not(.active-all):not(.active-shopee):not(.active-tiktok):hover {
+    background: var(--surface); color: var(--text);
+  }
+  .platform-logo { font-size: 15px; line-height:1; display:flex; align-items:center; }
+  .platform-logo svg { border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+
   /* Chart */
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
   .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
@@ -221,12 +245,32 @@
     <div class="header">
       <span class="logo">S</span>
       <div class="live-dot"></div>
-      <span class="header-title">Live Streaming — Shopee</span>
+      <span class="header-title" id="header-title">Live Streaming</span>
       <span class="header-sub" id="date-range">Memuat...</span>
     </div>
 
     <div class="main">
       <div id="error-container"></div>
+
+      <!-- Platform Toggle -->
+      <div class="platform-toggle">
+        <button class="platform-btn active-all" id="btn-all" onclick="setPlatform('all')">
+          <span class="platform-logo">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="white"/><rect x="2" y="2" width="6" height="6" rx="1" fill="#6366f1"/><rect x="10" y="2" width="6" height="6" rx="1" fill="#6366f1"/><rect x="2" y="10" width="6" height="6" rx="1" fill="#6366f1"/><rect x="10" y="10" width="6" height="6" rx="1" fill="#6366f1"/></svg>
+          </span> All Platform
+        </button>
+        <button class="platform-btn" id="btn-shopee" onclick="setPlatform('shopee')">
+          <span class="platform-logo">
+            <svg width="18" height="18" viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="16" fill="white"/><path d="M50 8 C38 8 28 16 28 27 L22 27 C19 27 17 29 16 32 L10 75 C9 79 12 83 16 83 L84 83 C88 83 91 79 90 75 L84 32 C83 29 81 27 78 27 L72 27 C72 16 62 8 50 8 Z" fill="#EE4D2D"/><path d="M38 27 C38 20 43 15 50 15 C57 15 62 20 62 27" stroke="white" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M42 47 C42 44 44 42 48 42 L54 42 C57 42 58 44 58 46 C58 48 56 49 53 50 L48 51 C44 52 42 54 42 57 C42 60 44 62 48 62 L54 62 C57 62 58 60 58 58" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round"/></svg>
+          </span> Shopee
+        </button>
+        <button class="platform-btn" id="btn-tiktok" onclick="setPlatform('tiktok')">
+          <span class="platform-logo">
+            <svg width="18" height="18" viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="16" fill="white"/><path d="M65 18 C65 18 68 28 78 31 L78 44 C78 44 70 44 65 40 L65 62 C65 74 55 83 44 81 C33 79 26 69 29 58 C32 47 44 42 54 47 L54 61 C50 59 45 60 43 64 C41 68 44 73 49 73 C54 73 57 69 57 64 L57 18 L65 18 Z" fill="#010101"/></svg>
+          </span> TikTok
+        </button>
+      </div>
+
 
       <!-- KPI -->
       <div class="kpi-grid" id="kpi-grid">
@@ -296,9 +340,106 @@
 </div>
 
 <script>
-const SHEET_ID   = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
-const SHEET_NAME = 'Shopee Live Harian';
-const API_URL    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+
+const LIVE_SOURCES = {
+  shopee: { sheetName: 'Shopee Live Harian', label: 'Live Streaming — Shopee', color: '#EE4D2D' },
+  tiktok: { sheetName: 'TikTok Live Harian', label: 'Live Streaming — TikTok', color: '#ff0050' },
+  all:    { sheetName: null,                  label: 'Live Streaming — All Platform', color: '#6366f1' },
+};
+
+const dataCache = { shopee: null, tiktok: null };
+let currentPlatform = 'all';
+
+async function fetchSheetData(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res  = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(row => {
+    const obj = {};
+    cols.forEach((col, i) => {
+      const cell = row.c[i];
+      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = 0; return; }
+      obj[col] = cell.v;
+    });
+    return obj;
+  }).filter(r => r['Tanggal'] && r['Tanggal'] !== '0');
+}
+
+async function loadPlatformData(platform) {
+  if (platform === 'all') {
+    const [shopee, tiktok] = await Promise.all([
+      loadPlatformData('shopee'),
+      loadPlatformData('tiktok'),
+    ]);
+    // Gabungkan per tanggal
+    const merged = {};
+    const numCols = ['GMV','Order Number','Click Product','Live Watch PV','Live Show PV'];
+    [...shopee, ...tiktok].forEach(row => {
+      const tgl = row['Tanggal'];
+      if (!tgl) return;
+      if (!merged[tgl]) merged[tgl] = { 'Tanggal': tgl };
+      numCols.forEach(col => {
+        merged[tgl][col] = (merged[tgl][col] || 0) + (Number(row[col]) || 0);
+      });
+    });
+    // Hitung ulang rasio
+    return Object.values(merged).map(d => {
+      const gmv   = d['GMV']           || 0;
+      const order = d['Order Number']  || 0;
+      const klik  = d['Click Product'] || 0;
+      const watch = d['Live Watch PV'] || 0;
+      const show  = d['Live Show PV']  || 0;
+      d['CTR']  = watch > 0 ? round4(klik  / watch) * 100 : 0;
+      d['CTOR'] = klik  > 0 ? round4(order / klik)  * 100 : 0;
+      d['AOV']  = order > 0 ? Math.round(gmv / order) : 0;
+      d['ERR']  = show  > 0 ? round4(watch / show)  * 100 : 0;
+      return d;
+    }).sort((a, b) => a['Tanggal'].localeCompare(b['Tanggal']));
+  }
+  if (dataCache[platform]) return dataCache[platform];
+  const data = await fetchSheetData(LIVE_SOURCES[platform].sheetName);
+  dataCache[platform] = data;
+  return data;
+}
+
+function round4(v) { return Math.round(v * 10000) / 10000; }
+
+function setPlatform(platform) {
+  currentPlatform = platform;
+  const src = LIVE_SOURCES[platform];
+
+  document.getElementById('btn-all').className    = 'platform-btn' + (platform === 'all'    ? ' active-all'    : '');
+  document.getElementById('btn-shopee').className = 'platform-btn' + (platform === 'shopee' ? ' active-shopee' : '');
+  document.getElementById('btn-tiktok').className = 'platform-btn' + (platform === 'tiktok' ? ' active-tiktok' : '');
+  document.getElementById('header-title').textContent = src.label;
+
+  document.getElementById('kpi-grid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data ' + src.label + '...</div>';
+
+  loadPlatformData(platform).then(data => {
+    globalData   = data;
+    filteredData = [...data];
+    renderKPI(filteredData);
+    renderChart(filteredData);
+    const dates = data.map(d => d['Tanggal']).sort();
+    document.getElementById('date-single').value = dates[dates.length - 1] || '';
+    document.getElementById('custom-from').value = dates[0] || '';
+    document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
+    buildWeekOptions();
+    buildMonthOptions();
+    document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+    const yBtn = document.querySelector('[data-quick="yesterday"]');
+    if (yBtn) { yBtn.classList.add('active'); quickSelect('yesterday'); }
+    document.getElementById('period-filter').style.display = 'none';
+    updateDateRange(filteredData);
+  }).catch(err => {
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat: ${err.message}</div>`;
+    document.getElementById('kpi-grid').innerHTML = '';
+  });
+}
 
 const METRICS = {
   'GMV':           { color: '#f59e0b', format: 'rp',     axis: 'y1' },
@@ -344,38 +485,7 @@ function fmt(v, type) {
   return fmtNum(v);
 }
 
-async function fetchData() {
-  const res  = await fetch(API_URL);
-  const text = await res.text();
-  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
-  const cols = json.table.cols.map(c => c.label);
-
-  return json.table.rows.map(row => {
-    const obj = {};
-    cols.forEach((col, i) => {
-      const cell = row.c[i];
-      if (!cell || cell.v === null || cell.v === undefined) {
-        obj[col] = 0;
-        return;
-      }
-      // Kolom Tanggal
-      if (i === 0) {
-        const dm = String(cell.v).match(/Date\((\d+),(\d+),(\d+)\)/);
-        if (dm) {
-          const y = dm[1];
-          const m = String(parseInt(dm[2]) + 1).padStart(2, '0');
-          const d = String(dm[3]).padStart(2, '0');
-          obj[col] = `${y}-${m}-${d}`;
-        } else {
-          obj[col] = String(cell.f || cell.v || '');
-        }
-      } else {
-        obj[col] = Number(cell.v) || 0;
-      }
-    });
-    return obj;
-  }).filter(r => r['Tanggal'] && r['Tanggal'] !== '0');
-}
+// fetchData digantikan oleh loadPlatformData
 
 function calcKPI(data) {
   const totalGMV     = data.reduce((s, d) => s + (d['GMV']           || 0), 0);
@@ -665,40 +775,8 @@ function updateDateRange(data) {
     : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
 }
 
-async function init() {
-  try {
-    globalData = await fetchData();
-    if (!globalData.length) {
-      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data di sheet "Shopee Live Harian".</div>';
-      document.getElementById('kpi-grid').innerHTML = '';
-      return;
-    }
-    filteredData = [...globalData];
-    renderKPI(filteredData);
-    renderChart(filteredData);
-
-    const dates = globalData.map(d => d['Tanggal']).sort();
-    document.getElementById('date-single').value = dates[dates.length - 1] || '';
-    document.getElementById('custom-from').value = dates[0] || '';
-    document.getElementById('custom-to').value   = dates[dates.length - 1] || '';
-    buildWeekOptions();
-    buildMonthOptions();
-
-    // Default: tampilkan Kemarin
-    document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
-    const yBtn = document.querySelector('[data-quick="yesterday"]');
-    if (yBtn) { yBtn.classList.add('active'); quickSelect('yesterday'); }
-
-    updateDateRange(filteredData);
-  } catch(err) {
-    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
-    document.getElementById('kpi-grid').innerHTML = '';
-    console.error(err);
-  }
-}
-
-init();
+// Init
+setPlatform('all');
 </script>
 </body>
 </html>
