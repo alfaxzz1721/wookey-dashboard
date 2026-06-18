@@ -508,13 +508,25 @@ async function fetchSheetData(sheetName) {
     rows = rows.slice(1);  // skip header row
   }
 
+  // Kolom non-numerik
+  const STR_COLS = new Set(['Tanggal']);
+
   return rows.map(row => {
     const obj = {};
     cols.forEach((col, i) => {
       if (!col) return;
       const cell = row.c[i];
-      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = 0; return; }
-      obj[col] = cell.v;
+      if (!cell || cell.v === null || cell.v === undefined) {
+        obj[col] = STR_COLS.has(col) ? '' : 0;
+        return;
+      }
+      // Semua nilai dari gviz bisa berupa string — konversi ke number kecuali Tanggal
+      if (STR_COLS.has(col)) {
+        obj[col] = String(cell.v);
+      } else {
+        const n = parseFloat(String(cell.v).replace(',', '.'));
+        obj[col] = isNaN(n) ? 0 : n;
+      }
     });
 
     // Normalisasi CTR/CTOR/ERR ke persen
