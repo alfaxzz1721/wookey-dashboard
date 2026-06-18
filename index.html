@@ -476,7 +476,7 @@ function fmtNum(v) {
   if (v >= 1e3) return (v/1e3).toFixed(1) + 'K';
   return Math.round(v).toLocaleString('id-ID');
 }
-function fmtPct(v) { return (v * 100).toFixed(2) + '%'; }
+function fmtPct(v) { return Number(v).toFixed(2) + '%'; }
 function fmtRoi(v) { return Number(v).toFixed(2) + 'x'; }
 function fmt(v, type) {
   if (type === 'rp')  return fmtRp(v);
@@ -505,11 +505,24 @@ async function fetchSheetData(sheetName) {
       if (!cell) { obj[col] = 0; return; }
       obj[col] = cell.v !== null && cell.v !== undefined ? cell.v : 0;
     });
-    // Hitung ERR untuk Shopee
+
+    // Normalisasi CTR/CTOR/ERR:
+    // Shopee: tersimpan sebagai desimal (0.18 = 18%) → kalikan 100
+    // TikTok: tersimpan sudah dalam persen (162.84%) → pakai langsung
+    // Deteksi: kalau nilai < 2, kemungkinan desimal → kalikan 100
+    const normPct = (v) => {
+      const n = Number(v) || 0;
+      return n > 0 && n < 2 ? n * 100 : n;
+    };
+    obj['CTR']  = normPct(obj['CTR']);
+    obj['CTOR'] = normPct(obj['CTOR']);
+    obj['ERR']  = normPct(obj['ERR']);
+
+    // Hitung ERR untuk Shopee dari volume (lebih akurat)
     if (sheetName.includes('Shopee')) {
       const showPV  = obj['Live Show PV']  || 0;
       const watchPV = obj['Live Watch PV'] || 0;
-      obj['ERR'] = showPV > 0 ? watchPV / showPV : 0;
+      obj['ERR'] = showPV > 0 ? (watchPV / showPV) * 100 : 0;
     }
     obj['Biaya Iklan'] = Number(obj['Biaya Iklan']) || 0;
     return obj;
@@ -624,9 +637,9 @@ function calcKPI(data) {
   const totalPembeli = data.reduce((s, d) => s + (Number(d['Pembeli']) || 0), 0);
   const totalBiaya   = data.reduce((s, d) => s + (Number(d['Biaya Iklan']) || 0), 0);
 
-  const err  = totalShowPV  > 0 ? totalWatchPV / totalShowPV  : 0;
-  const ctr  = totalWatchPV > 0 ? totalClick   / totalWatchPV : 0;
-  const ctor = totalClick   > 0 ? totalOrder   / totalClick   : 0;
+  const err  = totalShowPV  > 0 ? (totalWatchPV / totalShowPV)  * 100 : 0;
+  const ctr  = totalWatchPV > 0 ? (totalClick   / totalWatchPV) * 100 : 0;
+  const ctor = totalClick   > 0 ? (totalOrder   / totalClick)   * 100 : 0;
   const aov  = totalOrder   > 0 ? totalGMV     / totalOrder   : 0;
   const arpu = totalPembeli > 0 ? totalGMV     / totalPembeli : 0;
   const roi  = totalBiaya   > 0 ? Math.round(totalGMV / totalBiaya * 100) / 100 : 0;
@@ -715,9 +728,9 @@ function groupData(data, group) {
     });
   });
   return Object.values(grouped).map(g => {
-    g['ERR']  = g['Live Show PV']  > 0 ? g['Live Watch PV'] / g['Live Show PV']  : 0;
-    g['CTR']  = g['Live Watch PV'] > 0 ? g['Click Product'] / g['Live Watch PV'] : 0;
-    g['CTOR'] = g['Click Product'] > 0 ? g['Order Number']  / g['Click Product'] : 0;
+    g['ERR']  = g['Live Show PV']  > 0 ? (g['Live Watch PV'] / g['Live Show PV'])  * 100 : 0;
+    g['CTR']  = g['Live Watch PV'] > 0 ? (g['Click Product'] / g['Live Watch PV']) * 100 : 0;
+    g['CTOR'] = g['Click Product'] > 0 ? (g['Order Number']  / g['Click Product']) * 100 : 0;
     g['AOV']  = g['Order Number']  > 0 ? g['GMV']           / g['Order Number']  : 0;
     g['ARPU'] = g['Pembeli']       > 0 ? g['GMV']           / g['Pembeli']       : 0;
     g['ROI']  = g['Biaya Iklan']   > 0 ? Math.round(g['GMV'] / g['Biaya Iklan'] * 100) / 100 : 0;
