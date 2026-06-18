@@ -497,36 +497,42 @@ async function fetchSheetData(sheetName) {
   const res  = await fetch(url);
   const text = await res.text();
   const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
-  const cols = json.table.cols.map(c => c.label);
-  return json.table.rows.map(row => {
+
+  // gviz kadang mengembalikan header sebagai baris data pertama
+  // Deteksi: kalau cols[0].label kosong, pakai row[0] sebagai header
+  let cols = json.table.cols.map(c => c.label);
+  let rows = json.table.rows;
+  if (!cols[0] && rows.length > 0) {
+    // Ambil header dari baris pertama
+    cols = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v) : '');
+    rows = rows.slice(1);  // skip header row
+  }
+
+  return rows.map(row => {
     const obj = {};
     cols.forEach((col, i) => {
+      if (!col) return;
       const cell = row.c[i];
-      if (!cell) { obj[col] = 0; return; }
-      obj[col] = cell.v !== null && cell.v !== undefined ? cell.v : 0;
+      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = 0; return; }
+      obj[col] = cell.v;
     });
 
-    // Normalisasi CTR/CTOR/ERR:
-    // Shopee: tersimpan sebagai desimal (0.18 = 18%) → kalikan 100
-    // TikTok: tersimpan sudah dalam persen (162.84%) → pakai langsung
-    // Deteksi: kalau nilai < 2, kemungkinan desimal → kalikan 100
-    const normPct = (v) => {
-      const n = Number(v) || 0;
-      return n > 0 && n < 2 ? n * 100 : n;
-    };
+    // Normalisasi CTR/CTOR/ERR ke persen
+    // Shopee: desimal (0.18) → kalikan 100; TikTok: sudah persen (162.84)
+    const normPct = (v) => { const n = Number(v) || 0; return n > 0 && n < 2 ? n * 100 : n; };
     obj['CTR']  = normPct(obj['CTR']);
     obj['CTOR'] = normPct(obj['CTOR']);
     obj['ERR']  = normPct(obj['ERR']);
 
-    // Hitung ERR untuk Shopee dari volume (lebih akurat)
+    // Hitung ERR Shopee dari volume
     if (sheetName.includes('Shopee')) {
-      const showPV  = obj['Live Show PV']  || 0;
-      const watchPV = obj['Live Watch PV'] || 0;
+      const showPV  = Number(obj['Live Show PV'])  || 0;
+      const watchPV = Number(obj['Live Watch PV']) || 0;
       obj['ERR'] = showPV > 0 ? (watchPV / showPV) * 100 : 0;
     }
     obj['Biaya Iklan'] = Number(obj['Biaya Iklan']) || 0;
     return obj;
-  }).filter(r => r['Tanggal']);
+  }).filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
 }
 
 async function loadPlatform(platform) {
