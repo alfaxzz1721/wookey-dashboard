@@ -37,6 +37,7 @@
   .app-layout { display: flex; min-height: 100vh; }
 
   /* Sidebar */
+  /* ── Sidebar Toggle ────────────────────────────── */
   .sidebar {
     width: 220px; min-width: 220px;
     background: var(--surface);
@@ -46,9 +47,28 @@
     height: 100vh; z-index: 200; overflow-y: auto;
     transition: transform .25s cubic-bezier(.4,0,.2,1);
   }
-  .sidebar.collapsed {
-    transform: translateX(-220px);
+  .sidebar.collapsed { transform: translateX(-220px); }
+  .sidebar-close {
+    position: absolute; top: 14px; right: 10px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    border-radius: 6px; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
   }
+  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 199;
+  }
+  .sidebar-overlay.show { display: block; }
+  .content-area {
+    margin-left: 220px; flex: 1;
+    display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left .25s cubic-bezier(.4,0,.2,1);
+  }
+  .content-area.expanded { margin-left: 0; }
   .sidebar-toggle {
     position: fixed; top: 14px; left: 16px;
     z-index: 300;
@@ -116,8 +136,7 @@
   }
 
   /* Content */
-  .content-area { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; transition: margin-left .25s cubic-bezier(.4,0,.2,1); }
-  .content-area.expanded { margin-left: 0; }
+
   .header {
     background: var(--surface); border-bottom: 1px solid var(--border);
     padding: 14px 28px; display: flex; align-items: center; gap: 16px;
@@ -208,7 +227,6 @@
 
   @media (max-width: 900px) {
     .sidebar { transform: translateX(-220px); }
-    .sidebar.open { transform: translateX(0); }
     .content-area { margin-left: 0 !important; }
     .main { padding: 16px; }
     .kpi-row-top    { grid-template-columns: repeat(2, 1fr); }
@@ -276,12 +294,6 @@
 
   <!-- Content -->
   <div class="content-area">
-    <!-- Tombol buka sidebar (tampil saat sidebar collapsed) -->
-    <button class="sidebar-toggle" id="sidebar-open-btn" onclick="toggleSidebar()" title="Buka sidebar">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
     <!-- Overlay -->
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
@@ -876,29 +888,35 @@ function updateDateRange(data) {
     : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
 }
 
-// ── Sidebar Toggle ────────────────────────────────────
+// ── Sidebar Toggle (persists across pages) ────────────
 function toggleSidebar() {
-  const sidebar  = document.getElementById('sidebar');
-  const content  = document.querySelector('.content-area');
-  const overlay  = document.getElementById('sidebar-overlay');
-  const openBtn  = document.getElementById('sidebar-open-btn');
-
+  const sidebar = document.getElementById('sidebar');
+  const content = document.querySelector('.content-area');
+  const overlay = document.getElementById('sidebar-overlay');
   const isCollapsed = sidebar.classList.contains('collapsed');
-
   if (isCollapsed) {
-    // Buka
     sidebar.classList.remove('collapsed');
     content.classList.remove('expanded');
     overlay.classList.remove('show');
-    openBtn.style.display = 'none';
+    localStorage.setItem('sidebar', 'open');
   } else {
-    // Tutup
     sidebar.classList.add('collapsed');
     content.classList.add('expanded');
     if (window.innerWidth < 900) overlay.classList.add('show');
-    openBtn.style.display = 'flex';
+    localStorage.setItem('sidebar', 'closed');
   }
 }
+
+// Restore state dari localStorage
+(function() {
+  const state = localStorage.getItem('sidebar');
+  if (state === 'closed') {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.querySelector('.content-area');
+    if (sidebar) sidebar.classList.add('collapsed');
+    if (content) content.classList.add('expanded');
+  }
+})();
 
 // Init
 setPlatform('all');
