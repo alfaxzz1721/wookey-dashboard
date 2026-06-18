@@ -352,7 +352,7 @@ const METRICS = {
   'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
   'ARPU':          { color: '#34d399', format: 'rp',     axis: 'y1' },
   'Biaya Iklan':   { color: '#f43f5e', format: 'rp',     axis: 'y1' },
-  'ROI':           { color: '#a78bfa', format: 'number', axis: 'y2' },
+  'ROI':           { color: '#a78bfa', format: 'roi',    axis: 'y2' },
 };
 
 // Tingkat atas: metrik finansial utama
@@ -389,9 +389,11 @@ function fmtNum(v) {
   return Math.round(v).toLocaleString('id-ID');
 }
 function fmtPct(v) { return (v * 100).toFixed(2) + '%'; }
+function fmtRoi(v) { return Number(v).toFixed(2) + 'x'; }
 function fmt(v, type) {
-  if (type === 'rp') return fmtRp(v);
+  if (type === 'rp')  return fmtRp(v);
   if (type === 'pct') return fmtPct(v);
+  if (type === 'roi') return fmtRoi(v);
   return fmtNum(v);
 }
 
