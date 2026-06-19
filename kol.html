@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wookey Weight — Marketing</title>
+<title>Wookey Weight — Marketing KOL</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -19,10 +19,8 @@
     --green:     #10b981;
     --red:       #ef4444;
 
-    --c-meta:   #1877F2;
-    --c-google: #EA4335;
-    --c-shopee: #EE4D2D;
-    --c-tiktok: #ff0050;
+    --c-kol:  #8b5cf6;
+    --c-ugc:  #f59e0b;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -86,7 +84,6 @@
   .sidebar-item.active .sidebar-icon { color: var(--shopee); }
   .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
 
-  /* Sub-menu Marketing */
   .sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
   .sidebar-subitem {
     display: flex; align-items: center; gap: 8px;
@@ -110,34 +107,30 @@
   .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
   .main { padding: 24px 28px; }
 
-  /* Platform legend tabs (toggle visibility per platform) */
-  .platform-tabs {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 20px; flex-wrap: wrap;
-  }
-  .platform-tab {
-    display: flex; align-items: center; gap: 8px;
-    padding: 9px 16px; border-radius: 10px;
+  /* Program tabs (KOL Daily / UGC Campaign / All) */
+  .program-tabs { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .program-tab {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px; border-radius: 10px;
     border: 1.5px solid var(--border); background: var(--surface);
     color: var(--muted); font-size: 13px; font-weight: 600;
     cursor: pointer; transition: all .15s;
   }
-  .platform-tab .sw { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); opacity: .35; transition: opacity .15s; }
-  .platform-tab.active { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
-  .platform-tab.active .sw { opacity: 1; }
+  .program-tab .sw { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); opacity: .35; transition: opacity .15s; }
+  .program-tab.active { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+  .program-tab.active .sw { opacity: 1; }
 
   /* KPI cards */
-  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
   .kpi {
     background: var(--surface); border: 1px solid var(--border);
     border-top: 3px solid var(--accent); border-radius: 10px; padding: 16px 18px;
   }
-  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
   .kpi-value { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
   .kpi-sub { font-size: 10px; color: var(--muted); }
-  .kpi.total { border-top-color: #fff; background: linear-gradient(135deg, var(--surface), var(--surface2)); }
 
-  /* Share bar (proportion of total spend) */
+  /* Share of spend */
   .share-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; }
   .share-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; }
   .share-bar { display: flex; height: 28px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; background: var(--surface2); }
@@ -237,11 +230,11 @@
       <a class="sidebar-item" href="live.html"><span class="sidebar-icon">🔴</span>Live Streaming</a>
       <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;"><span class="sidebar-icon">📦</span>Produk<span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span></a>
 
-      <a class="sidebar-item active" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
+      <a class="sidebar-item active" href="kol.html"><span class="sidebar-icon">📣</span>Marketing</a>
       <div class="sidebar-submenu">
-        <a class="sidebar-subitem" href="kol.html"><span class="dot"></span>KOL (UGC + Daily)</a>
+        <a class="sidebar-subitem active" href="kol.html"><span class="dot"></span>KOL (UGC + Daily)</a>
         <a class="sidebar-subitem disabled" href="#"><span class="dot"></span>Affiliate<span style="margin-left:auto;font-size:9px;">Soon</span></a>
-        <a class="sidebar-subitem active" href="marketing.html"><span class="dot"></span>Ads (Meta/Google/Shopee/TikTok)</a>
+        <a class="sidebar-subitem" href="marketing.html"><span class="dot"></span>Ads (Meta/Google/Shopee/TikTok)</a>
       </div>
     </div>
     <div class="sidebar-section">
@@ -250,7 +243,7 @@
       <a class="sidebar-item" href="https://drive.google.com" target="_blank"><span class="sidebar-icon">📁</span>Google Drive</a>
     </div>
     <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
-      <div style="font-size:10px;color:var(--muted);text-align:center;">Data Ads diupdate manual</div>
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Data KOL diupdate manual</div>
     </div>
   </aside>
 
@@ -264,19 +257,18 @@
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
       </button>
       <span class="logo">S</span>
-      <span class="header-title">Marketing — Ads Spend</span>
+      <span class="header-title">Marketing — KOL</span>
       <span class="header-sub" id="date-range">Memuat...</span>
     </div>
 
     <div class="main">
       <div id="error-container"></div>
 
-      <!-- Platform tabs -->
-      <div class="platform-tabs" id="platform-tabs">
-        <div class="platform-tab active" data-platform="Meta Ads" style="--accent:var(--c-meta)" onclick="togglePlatform(this)"><span class="sw"></span>Meta Ads</div>
-        <div class="platform-tab active" data-platform="Google Ads" style="--accent:var(--c-google)" onclick="togglePlatform(this)"><span class="sw"></span>Google Ads</div>
-        <div class="platform-tab active" data-platform="Shopee Ads" style="--accent:var(--c-shopee)" onclick="togglePlatform(this)"><span class="sw"></span>Shopee Ads</div>
-        <div class="platform-tab active" data-platform="TikTok Ads" style="--accent:var(--c-tiktok)" onclick="togglePlatform(this)"><span class="sw"></span>TikTok Ads</div>
+      <!-- Program tabs -->
+      <div class="program-tabs" id="program-tabs">
+        <div class="program-tab active" data-program="all" style="--accent:#fff" onclick="setProgram('all', this)"><span class="sw"></span>Semua Program</div>
+        <div class="program-tab" data-program="kol" style="--accent:var(--c-kol)" onclick="setProgram('kol', this)"><span class="sw"></span>KOL Daily</div>
+        <div class="program-tab" data-program="ugc" style="--accent:var(--c-ugc)" onclick="setProgram('ugc', this)"><span class="sw"></span>UGC Campaign</div>
       </div>
 
       <!-- KPI -->
@@ -286,7 +278,7 @@
 
       <!-- Share of spend -->
       <div class="share-card">
-        <div class="share-title">Komposisi Biaya per Platform</div>
+        <div class="share-title">Komposisi Biaya KOL Daily vs UGC Campaign</div>
         <div class="share-bar" id="share-bar"></div>
         <div class="share-legend" id="share-legend"></div>
       </div>
@@ -331,7 +323,7 @@
 
       <!-- Chart -->
       <div class="chart-card">
-        <div class="chart-title">Tren Biaya Iklan</div>
+        <div class="chart-title">Tren Biaya & Jumlah Deal</div>
         <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
       </div>
 
@@ -342,11 +334,12 @@
             <thead>
               <tr>
                 <th>Tanggal</th>
-                <th>Meta Ads</th>
-                <th>Google Ads</th>
-                <th>Shopee Ads</th>
-                <th>TikTok Ads</th>
-                <th>Total</th>
+                <th>KOL Daily Biaya</th>
+                <th>KOL Daily Deal</th>
+                <th>UGC Biaya</th>
+                <th>UGC Deal</th>
+                <th>Total Biaya</th>
+                <th>Total Deal</th>
               </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -359,16 +352,10 @@
 
 <script>
 const SHEET_ID   = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
-const SHEET_NAME = 'Marketing Ads Harian';
+const SHEET_NAME = 'Marketing KOL Harian';
 const API_URL    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
-const PLATFORMS = {
-  'Meta Ads':   { color: '#1877F2', key: 'Meta Ads' },
-  'Google Ads': { color: '#EA4335', key: 'Google Ads' },
-  'Shopee Ads': { color: '#EE4D2D', key: 'Shopee Ads' },
-  'TikTok Ads': { color: '#ff0050', key: 'TikTok Ads' },
-};
-let activePlatforms = new Set(Object.keys(PLATFORMS));
+let currentProgram = 'all';
 
 function fmtRp(v) {
   if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(2) + 'M';
@@ -408,75 +395,88 @@ async function fetchData() {
 
 let globalData = [], filteredData = [], currentGroup = 'day', chartInstance = null;
 
-function togglePlatform(el) {
-  const p = el.dataset.platform;
-  if (activePlatforms.has(p)) {
-    if (activePlatforms.size === 1) return;
-    activePlatforms.delete(p);
-    el.classList.remove('active');
-  } else {
-    activePlatforms.add(p);
-    el.classList.add('active');
-  }
+function setProgram(prog, el) {
+  currentProgram = prog;
+  document.querySelectorAll('.program-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
   renderAll();
 }
 
+function getVals(d) {
+  // Returns {biaya, count} based on currentProgram
+  if (currentProgram === 'kol') return { biaya: d['KOL Daily Biaya']||0, count: d['KOL Daily Count']||0 };
+  if (currentProgram === 'ugc') return { biaya: d['UGC Campaign Biaya']||0, count: d['UGC Campaign Count']||0 };
+  return { biaya: d['Total Biaya']||0, count: d['Total Count']||0 };
+}
+
 function renderKPI(data) {
-  const totals = {};
-  Object.keys(PLATFORMS).forEach(p => totals[p] = 0);
-  data.forEach(d => Object.keys(PLATFORMS).forEach(p => totals[p] += (d[p] || 0)));
-  const grandTotal = Object.keys(PLATFORMS).reduce((s, p) => s + totals[p], 0);
+  let kolBiaya=0, kolCount=0, ugcBiaya=0, ugcCount=0;
+  data.forEach(d => {
+    kolBiaya += d['KOL Daily Biaya']||0; kolCount += d['KOL Daily Count']||0;
+    ugcBiaya += d['UGC Campaign Biaya']||0; ugcCount += d['UGC Campaign Count']||0;
+  });
+  const totalBiaya = kolBiaya + ugcBiaya;
+  const totalCount = kolCount + ugcCount;
   const days = [...new Set(data.map(d => d['Tanggal']))].length;
+  const avgPerDeal = totalCount > 0 ? totalBiaya / totalCount : 0;
 
-  const cards = Object.entries(PLATFORMS).map(([label, cfg]) => `
-    <div class="kpi" style="--accent:${cfg.color}">
-      <div class="kpi-label"><span style="width:7px;height:7px;border-radius:2px;background:${cfg.color};display:inline-block;"></span>${label}</div>
-      <div class="kpi-value">${fmtRp(totals[label])}</div>
-      <div class="kpi-sub">${days} hari</div>
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi" style="--accent:var(--c-kol)">
+      <div class="kpi-label">KOL Daily</div>
+      <div class="kpi-value">${fmtRp(kolBiaya)}</div>
+      <div class="kpi-sub">${kolCount} deal · ${days} hari</div>
     </div>
-  `).join('');
-
-  const totalCard = `
-    <div class="kpi total">
-      <div class="kpi-label">Total Biaya Iklan</div>
-      <div class="kpi-value">${fmtRp(grandTotal)}</div>
-      <div class="kpi-sub">Semua platform</div>
+    <div class="kpi" style="--accent:var(--c-ugc)">
+      <div class="kpi-label">UGC Campaign</div>
+      <div class="kpi-value">${fmtRp(ugcBiaya)}</div>
+      <div class="kpi-sub">${ugcCount} deal · ${days} hari</div>
+    </div>
+    <div class="kpi" style="--accent:#fff">
+      <div class="kpi-label">Total Biaya KOL</div>
+      <div class="kpi-value">${fmtRp(totalBiaya)}</div>
+      <div class="kpi-sub">${totalCount} deal total</div>
+    </div>
+    <div class="kpi" style="--accent:#10b981">
+      <div class="kpi-label">Rata-rata / Deal</div>
+      <div class="kpi-value">${fmtRp(avgPerDeal)}</div>
+      <div class="kpi-sub">Semua program</div>
     </div>
   `;
 
-  document.getElementById('kpi-grid').innerHTML = cards + totalCard;
-
-  // Share bar
   const barEl = document.getElementById('share-bar');
   const legendEl = document.getElementById('share-legend');
-  if (grandTotal === 0) {
+  if (totalBiaya === 0) {
     barEl.innerHTML = '';
     legendEl.innerHTML = '<span style="color:var(--muted);font-size:12px;">Belum ada data</span>';
   } else {
-    barEl.innerHTML = Object.entries(PLATFORMS).map(([label, cfg]) => {
-      const pct = (totals[label] / grandTotal * 100);
-      if (pct <= 0) return '';
-      return `<div class="share-seg" style="width:${pct}%;background:${cfg.color};" title="${label}: ${pct.toFixed(1)}%"></div>`;
-    }).join('');
-    legendEl.innerHTML = Object.entries(PLATFORMS).map(([label, cfg]) => {
-      const pct = grandTotal > 0 ? (totals[label] / grandTotal * 100) : 0;
-      return `<div class="share-legend-item"><span class="sw" style="background:${cfg.color}"></span>${label} <span class="pct">${pct.toFixed(1)}%</span></div>`;
-    }).join('');
+    const kolPct = kolBiaya / totalBiaya * 100;
+    const ugcPct = ugcBiaya / totalBiaya * 100;
+    barEl.innerHTML = `
+      ${kolPct > 0 ? `<div class="share-seg" style="width:${kolPct}%;background:var(--c-kol);" title="KOL Daily: ${kolPct.toFixed(1)}%"></div>` : ''}
+      ${ugcPct > 0 ? `<div class="share-seg" style="width:${ugcPct}%;background:var(--c-ugc);" title="UGC Campaign: ${ugcPct.toFixed(1)}%"></div>` : ''}
+    `;
+    legendEl.innerHTML = `
+      <div class="share-legend-item"><span class="sw" style="background:var(--c-kol)"></span>KOL Daily <span class="pct">${kolPct.toFixed(1)}%</span></div>
+      <div class="share-legend-item"><span class="sw" style="background:var(--c-ugc)"></span>UGC Campaign <span class="pct">${ugcPct.toFixed(1)}%</span></div>
+    `;
   }
 }
 
 function renderChart(data) {
   const dates = [...new Set(data.map(d => d['Tanggal']))].sort();
-  const datasets = Object.entries(PLATFORMS).filter(([label]) => activePlatforms.has(label)).map(([label, cfg]) => ({
-    label,
-    data: dates.map(date => {
-      const row = data.find(d => d['Tanggal'] === date);
-      return row ? (row[label] || 0) : 0;
-    }),
-    backgroundColor: cfg.color,
-    borderRadius: 3,
-    stack: 'spend',
-  }));
+
+  let datasets;
+  if (currentProgram === 'all') {
+    datasets = [
+      { label: 'KOL Daily', data: dates.map(date => { const r = data.find(d=>d['Tanggal']===date); return r ? (r['KOL Daily Biaya']||0) : 0; }), backgroundColor: '#8b5cf6', borderRadius: 3, stack: 'spend' },
+      { label: 'UGC Campaign', data: dates.map(date => { const r = data.find(d=>d['Tanggal']===date); return r ? (r['UGC Campaign Biaya']||0) : 0; }), backgroundColor: '#f59e0b', borderRadius: 3, stack: 'spend' },
+    ];
+  } else {
+    const key = currentProgram === 'kol' ? 'KOL Daily Biaya' : 'UGC Campaign Biaya';
+    const color = currentProgram === 'kol' ? '#8b5cf6' : '#f59e0b';
+    const label = currentProgram === 'kol' ? 'KOL Daily' : 'UGC Campaign';
+    datasets = [{ label, data: dates.map(date => { const r = data.find(d=>d['Tanggal']===date); return r ? (r[key]||0) : 0; }), backgroundColor: color, borderRadius: 3 }];
+  }
 
   if (chartInstance) chartInstance.destroy();
   chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
@@ -486,22 +486,16 @@ function renderChart(data) {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { display: false },
+        legend: { display: currentProgram === 'all', labels: { color: '#e8eaf2', font: { size: 11 } } },
         tooltip: {
           backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
           titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
-          callbacks: {
-            label: ctx => ` ${ctx.dataset.label}: ${fmtRpFull(ctx.parsed.y)}`,
-            footer: items => {
-              const total = items.reduce((s, i) => s + i.parsed.y, 0);
-              return `Total: ${fmtRpFull(total)}`;
-            }
-          }
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtRpFull(ctx.parsed.y)}` }
         }
       },
       scales: {
-        x: { stacked: true, ticks: { color: '#5a6070', font: { size: 10, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
-        y: { stacked: true, ticks: { color: '#5a6070', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
+        x: { stacked: currentProgram === 'all', ticks: { color: '#5a6070', font: { size: 10, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
+        y: { stacked: currentProgram === 'all', ticks: { color: '#5a6070', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
       }
     }
   });
@@ -509,29 +503,27 @@ function renderChart(data) {
 
 function renderTable(data) {
   const sorted = [...data].sort((a,b) => b['Tanggal'].localeCompare(a['Tanggal']));
-  const totals = { 'Meta Ads':0, 'Google Ads':0, 'Shopee Ads':0, 'TikTok Ads':0 };
 
+  let totK=0, totKc=0, totU=0, totUc=0;
   const rowsHtml = sorted.map(d => {
-    const total = Object.keys(PLATFORMS).reduce((s,p) => s + (d[p]||0), 0);
-    Object.keys(PLATFORMS).forEach(p => totals[p] += (d[p]||0));
+    const k = d['KOL Daily Biaya']||0, kc = d['KOL Daily Count']||0;
+    const u = d['UGC Campaign Biaya']||0, uc = d['UGC Campaign Count']||0;
+    totK+=k; totKc+=kc; totU+=u; totUc+=uc;
     return `<tr>
       <td>${d['Tanggal']}</td>
-      <td>${fmtRpFull(d['Meta Ads']||0)}</td>
-      <td>${fmtRpFull(d['Google Ads']||0)}</td>
-      <td>${fmtRpFull(d['Shopee Ads']||0)}</td>
-      <td>${fmtRpFull(d['TikTok Ads']||0)}</td>
-      <td><b>${fmtRpFull(total)}</b></td>
+      <td>${fmtRpFull(k)}</td>
+      <td>${kc}</td>
+      <td>${fmtRpFull(u)}</td>
+      <td>${uc}</td>
+      <td><b>${fmtRpFull(k+u)}</b></td>
+      <td>${kc+uc}</td>
     </tr>`;
   }).join('');
 
-  const grandTotal = Object.values(totals).reduce((a,b)=>a+b,0);
   const totalRow = `<tr class="total-row">
-      <td>TOTAL</td>
-      <td>${fmtRpFull(totals['Meta Ads'])}</td>
-      <td>${fmtRpFull(totals['Google Ads'])}</td>
-      <td>${fmtRpFull(totals['Shopee Ads'])}</td>
-      <td>${fmtRpFull(totals['TikTok Ads'])}</td>
-      <td>${fmtRpFull(grandTotal)}</td>
+      <td>TOTAL</td><td>${fmtRpFull(totK)}</td><td>${totKc}</td>
+      <td>${fmtRpFull(totU)}</td><td>${totUc}</td>
+      <td>${fmtRpFull(totK+totU)}</td><td>${totKc+totUc}</td>
     </tr>`;
 
   document.getElementById('table-body').innerHTML = totalRow + rowsHtml;
@@ -550,7 +542,6 @@ function updateDateRange(data) {
     dates.length === 1 ? `${dates[0]} · 1 hari` : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
 }
 
-// ── Period filter logic (mirrors index.html pattern) ──────────
 function setGroup(group) {
   currentGroup = group;
   document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
@@ -641,7 +632,6 @@ function resetFilter() {
   quickSelect('30days');
 }
 
-// ── Sidebar Toggle ─────────────────────────────────────
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const content = document.querySelector('.content-area');
@@ -673,7 +663,7 @@ async function init() {
   try {
     globalData = await fetchData();
     if (!globalData.length) {
-      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Belum ada data di sheet "Marketing Ads Harian".</div>';
+      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Belum ada data di sheet "Marketing KOL Harian".</div>';
       document.getElementById('kpi-grid').innerHTML = '';
       return;
     }
