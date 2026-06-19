@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wookey Weight — Marketing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #13151f;
+    --surface2:  #1a1d2a;
+    --border:    #252836;
+    --text:      #e8eaf2;
+    --muted:     #5a6070;
+    --shopee:    #EE4D2D;
+    --green:     #10b981;
+    --red:       #ef4444;
+
+    --c-meta:   #1877F2;
+    --c-google: #EA4335;
+    --c-shopee: #EE4D2D;
+    --c-tiktok: #ff0050;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ─────────────────────────────────────── */
+  .sidebar {
+    width: 220px; min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 200; overflow-y: auto;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed { transform: translateX(-220px); }
+  .sidebar-close {
+    position: absolute; top: 14px; right: 10px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    border-radius: 6px; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 199;
+  }
+  .sidebar-overlay.show { display: block; }
+  .content-area {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left .25s cubic-bezier(.4,0,.2,1),
+                width .25s cubic-bezier(.4,0,.2,1);
+  }
+  .content-area.expanded { margin-left: 0; width: 100%; }
+
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo { background: var(--shopee); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-section-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  /* Sub-menu Marketing */
+  .sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
+  .sidebar-subitem {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 1px;
+  }
+  .sidebar-subitem:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-subitem.active { background: color-mix(in srgb, var(--shopee) 12%, transparent); color: var(--text); font-weight: 600; }
+  .sidebar-subitem .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .sidebar-subitem.active .dot { background: var(--shopee); }
+  .sidebar-subitem.disabled { opacity: .4; pointer-events: none; }
+
+  .header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
+  .main { padding: 24px 28px; }
+
+  /* Platform legend tabs (toggle visibility per platform) */
+  .platform-tabs {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .platform-tab {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--muted); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .platform-tab .sw { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); opacity: .35; transition: opacity .15s; }
+  .platform-tab.active { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+  .platform-tab.active .sw { opacity: 1; }
+
+  /* KPI cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent); border-radius: 10px; padding: 16px 18px;
+  }
+  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .kpi-value { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+  .kpi-sub { font-size: 10px; color: var(--muted); }
+  .kpi.total { border-top-color: #fff; background: linear-gradient(135deg, var(--surface), var(--surface2)); }
+
+  /* Share bar (proportion of total spend) */
+  .share-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; }
+  .share-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; }
+  .share-bar { display: flex; height: 28px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; background: var(--surface2); }
+  .share-seg { transition: all .2s; }
+  .share-legend { display: flex; flex-wrap: wrap; gap: 16px; }
+  .share-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text); }
+  .share-legend-item .sw { width: 9px; height: 9px; border-radius: 2px; }
+  .share-legend-item .pct { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  /* Toolbar periode */
+  .toolbar {
+    display: flex; align-items: center; gap: 4px;
+    margin-bottom: 16px; flex-wrap: nowrap;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 12px; overflow-x: auto;
+  }
+  .toolbar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 2px; white-space: nowrap; }
+  .toggle {
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px 10px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); font-size: 11px; font-weight: 500;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: all .15s;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .toggle.active { border-color: var(--shopee); color: var(--text); background: color-mix(in srgb, var(--shopee) 15%, transparent); }
+
+  #period-filter {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+  }
+  #period-filter input, #period-filter select {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 12px;
+    padding: 5px 8px; font-family: 'JetBrains Mono', monospace; cursor: pointer;
+  }
+
+  /* Chart */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 20px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 320px; }
+
+  /* Table */
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .table-card table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .table-card th {
+    text-align: right; padding: 10px 14px; background: var(--surface2);
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--muted); border-bottom: 1px solid var(--border);
+  }
+  .table-card th:first-child { text-align: left; }
+  .table-card td {
+    text-align: right; padding: 9px 14px; font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid var(--border); color: var(--text);
+  }
+  .table-card td:first-child { text-align: left; font-family: 'Inter', sans-serif; color: var(--muted); }
+  .table-card tr:last-child td { border-bottom: none; }
+  .table-card tr:hover td { background: var(--surface2); }
+  .table-card .total-row td { font-weight: 700; color: #fff; background: var(--surface2); }
+  .table-scroll { max-height: 420px; overflow-y: auto; }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-220px); }
+    .content-area { margin-left: 0 !important; width: 100% !important; }
+    .main { padding: 16px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="toggleSidebar()" title="Tutup sidebar">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="sidebar-brand">
+      <span class="logo">S</span>
+      <div>
+        <div class="sidebar-brand-name">Wookey Weight</div>
+        <div class="sidebar-brand-sub">Official Store</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analytics</div>
+      <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
+      <a class="sidebar-item" href="sumber.html"><span class="sidebar-icon">🎯</span>Sumber Penjualan</a>
+      <a class="sidebar-item" href="live.html"><span class="sidebar-icon">🔴</span>Live Streaming</a>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;"><span class="sidebar-icon">📦</span>Produk<span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span></a>
+
+      <a class="sidebar-item active" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
+      <div class="sidebar-submenu">
+        <a class="sidebar-subitem disabled" href="#"><span class="dot"></span>UGC Campaign<span style="margin-left:auto;font-size:9px;">Soon</span></a>
+        <a class="sidebar-subitem disabled" href="#"><span class="dot"></span>KOL Daily<span style="margin-left:auto;font-size:9px;">Soon</span></a>
+        <a class="sidebar-subitem disabled" href="#"><span class="dot"></span>Affiliate<span style="margin-left:auto;font-size:9px;">Soon</span></a>
+        <a class="sidebar-subitem active" href="marketing.html"><span class="dot"></span>Ads (Meta/Google/Shopee/TikTok)</a>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Data</div>
+      <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank"><span class="sidebar-icon">📋</span>Google Sheets</a>
+      <a class="sidebar-item" href="https://drive.google.com" target="_blank"><span class="sidebar-icon">📁</span>Google Drive</a>
+    </div>
+    <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Data Ads diupdate manual</div>
+    </div>
+  </aside>
+
+  <!-- Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Content -->
+  <div class="content-area">
+    <div class="header">
+      <button onclick="toggleSidebar()" style="background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:var(--muted);flex-shrink:0;transition:all .15s;" title="Toggle sidebar" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
+      </button>
+      <span class="logo">S</span>
+      <span class="header-title">Marketing — Ads Spend</span>
+      <span class="header-sub" id="date-range">Memuat...</span>
+    </div>
+
+    <div class="main">
+      <div id="error-container"></div>
+
+      <!-- Platform tabs -->
+      <div class="platform-tabs" id="platform-tabs">
+        <div class="platform-tab active" data-platform="Meta Ads" style="--accent:var(--c-meta)" onclick="togglePlatform(this)"><span class="sw"></span>Meta Ads</div>
+        <div class="platform-tab active" data-platform="Google Ads" style="--accent:var(--c-google)" onclick="togglePlatform(this)"><span class="sw"></span>Google Ads</div>
+        <div class="platform-tab active" data-platform="Shopee Ads" style="--accent:var(--c-shopee)" onclick="togglePlatform(this)"><span class="sw"></span>Shopee Ads</div>
+        <div class="platform-tab active" data-platform="TikTok Ads" style="--accent:var(--c-tiktok)" onclick="togglePlatform(this)"><span class="sw"></span>TikTok Ads</div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Share of spend -->
+      <div class="share-card">
+        <div class="share-title">Komposisi Biaya per Platform</div>
+        <div class="share-bar" id="share-bar"></div>
+        <div class="share-legend" id="share-legend"></div>
+      </div>
+
+      <!-- Toolbar Periode -->
+      <div class="toolbar">
+        <span class="toolbar-label">Tampilkan per:</span>
+        <button class="toggle" data-quick="yesterday" onclick="quickSelect('yesterday')">Kemarin</button>
+        <button class="toggle" data-quick="7days" onclick="quickSelect('7days')">7 Hari</button>
+        <button class="toggle active" data-quick="30days" onclick="quickSelect('30days')">30 Hari</button>
+        <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
+        <button class="toggle" data-group="day" onclick="setGroup('day')">Per Hari</button>
+        <button class="toggle" data-group="week" onclick="setGroup('week')">Per Minggu</button>
+        <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
+        <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
+      </div>
+
+      <div id="period-filter" style="display:none;">
+        <span class="toolbar-label">Periode:</span>
+        <div id="filter-day" style="display:none;align-items:center;gap:8px;">
+          <input type="date" id="date-single">
+          <button onclick="applyFilterDay()" class="toggle active">Terapkan</button>
+        </div>
+        <div id="filter-week" style="display:none;align-items:center;gap:8px;">
+          <select id="week-select"></select>
+          <button onclick="applyFilterWeek()" class="toggle active">Terapkan</button>
+        </div>
+        <div id="filter-month" style="display:none;align-items:center;gap:8px;">
+          <select id="month-from"></select>
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <select id="month-to"></select>
+          <button onclick="applyFilterMonth()" class="toggle active">Terapkan</button>
+        </div>
+        <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
+          <input type="date" id="custom-from">
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <input type="date" id="custom-to">
+          <button onclick="applyFilterCustom()" class="toggle active">Terapkan</button>
+        </div>
+        <button onclick="resetFilter()" class="toggle" style="margin-left:4px;">Reset</button>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card">
+        <div class="chart-title">Tren Biaya Iklan</div>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Meta Ads</th>
+                <th>Google Ads</th>
+                <th>Shopee Ads</th>
+                <th>TikTok Ads</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID   = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+const SHEET_NAME = 'Marketing Ads Harian';
+const API_URL    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const PLATFORMS = {
+  'Meta Ads':   { color: '#1877F2', key: 'Meta Ads' },
+  'Google Ads': { color: '#EA4335', key: 'Google Ads' },
+  'Shopee Ads': { color: '#EE4D2D', key: 'Shopee Ads' },
+  'TikTok Ads': { color: '#ff0050', key: 'TikTok Ads' },
+};
+let activePlatforms = new Set(Object.keys(PLATFORMS));
+
+function fmtRp(v) {
+  if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(2) + 'M';
+  if (v >= 1e6) return 'Rp ' + (v/1e6).toFixed(1) + 'jt';
+  return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+}
+function fmtRpFull(v) { return 'Rp ' + Math.round(v).toLocaleString('id-ID'); }
+
+async function fetchData() {
+  const res  = await fetch(API_URL);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+
+  let cols = json.table.cols.map(c => c.label);
+  let rows = json.table.rows;
+  if (!cols[0] && rows.length > 0) {
+    cols = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v) : '');
+    rows = rows.slice(1);
+  }
+
+  return rows.map(row => {
+    const obj = {};
+    cols.forEach((col, i) => {
+      if (!col) return;
+      const cell = row.c[i];
+      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = col === 'Tanggal' ? '' : 0; return; }
+      if (col === 'Tanggal') {
+        obj[col] = String(cell.v);
+      } else {
+        const n = parseFloat(String(cell.v).replace(',', '.'));
+        obj[col] = isNaN(n) ? 0 : n;
+      }
+    });
+    return obj;
+  }).filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
+}
+
+let globalData = [], filteredData = [], currentGroup = 'day', chartInstance = null;
+
+function togglePlatform(el) {
+  const p = el.dataset.platform;
+  if (activePlatforms.has(p)) {
+    if (activePlatforms.size === 1) return;
+    activePlatforms.delete(p);
+    el.classList.remove('active');
+  } else {
+    activePlatforms.add(p);
+    el.classList.add('active');
+  }
+  renderAll();
+}
+
+function renderKPI(data) {
+  const totals = {};
+  Object.keys(PLATFORMS).forEach(p => totals[p] = 0);
+  data.forEach(d => Object.keys(PLATFORMS).forEach(p => totals[p] += (d[p] || 0)));
+  const grandTotal = Object.keys(PLATFORMS).reduce((s, p) => s + totals[p], 0);
+  const days = [...new Set(data.map(d => d['Tanggal']))].length;
+
+  const cards = Object.entries(PLATFORMS).map(([label, cfg]) => `
+    <div class="kpi" style="--accent:${cfg.color}">
+      <div class="kpi-label"><span style="width:7px;height:7px;border-radius:2px;background:${cfg.color};display:inline-block;"></span>${label}</div>
+      <div class="kpi-value">${fmtRp(totals[label])}</div>
+      <div class="kpi-sub">${days} hari</div>
+    </div>
+  `).join('');
+
+  const totalCard = `
+    <div class="kpi total">
+      <div class="kpi-label">Total Biaya Iklan</div>
+      <div class="kpi-value">${fmtRp(grandTotal)}</div>
+      <div class="kpi-sub">Semua platform</div>
+    </div>
+  `;
+
+  document.getElementById('kpi-grid').innerHTML = cards + totalCard;
+
+  // Share bar
+  const barEl = document.getElementById('share-bar');
+  const legendEl = document.getElementById('share-legend');
+  if (grandTotal === 0) {
+    barEl.innerHTML = '';
+    legendEl.innerHTML = '<span style="color:var(--muted);font-size:12px;">Belum ada data</span>';
+  } else {
+    barEl.innerHTML = Object.entries(PLATFORMS).map(([label, cfg]) => {
+      const pct = (totals[label] / grandTotal * 100);
+      if (pct <= 0) return '';
+      return `<div class="share-seg" style="width:${pct}%;background:${cfg.color};" title="${label}: ${pct.toFixed(1)}%"></div>`;
+    }).join('');
+    legendEl.innerHTML = Object.entries(PLATFORMS).map(([label, cfg]) => {
+      const pct = grandTotal > 0 ? (totals[label] / grandTotal * 100) : 0;
+      return `<div class="share-legend-item"><span class="sw" style="background:${cfg.color}"></span>${label} <span class="pct">${pct.toFixed(1)}%</span></div>`;
+    }).join('');
+  }
+}
+
+function renderChart(data) {
+  const dates = [...new Set(data.map(d => d['Tanggal']))].sort();
+  const datasets = Object.entries(PLATFORMS).filter(([label]) => activePlatforms.has(label)).map(([label, cfg]) => ({
+    label,
+    data: dates.map(date => {
+      const row = data.find(d => d['Tanggal'] === date);
+      return row ? (row[label] || 0) : 0;
+    }),
+    backgroundColor: cfg.color,
+    borderRadius: 3,
+    stack: 'spend',
+  }));
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: dates, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
+          titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${fmtRpFull(ctx.parsed.y)}`,
+            footer: items => {
+              const total = items.reduce((s, i) => s + i.parsed.y, 0);
+              return `Total: ${fmtRpFull(total)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, ticks: { color: '#5a6070', font: { size: 10, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
+        y: { stacked: true, ticks: { color: '#5a6070', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
+      }
+    }
+  });
+}
+
+function renderTable(data) {
+  const sorted = [...data].sort((a,b) => b['Tanggal'].localeCompare(a['Tanggal']));
+  const totals = { 'Meta Ads':0, 'Google Ads':0, 'Shopee Ads':0, 'TikTok Ads':0 };
+
+  const rowsHtml = sorted.map(d => {
+    const total = Object.keys(PLATFORMS).reduce((s,p) => s + (d[p]||0), 0);
+    Object.keys(PLATFORMS).forEach(p => totals[p] += (d[p]||0));
+    return `<tr>
+      <td>${d['Tanggal']}</td>
+      <td>${fmtRpFull(d['Meta Ads']||0)}</td>
+      <td>${fmtRpFull(d['Google Ads']||0)}</td>
+      <td>${fmtRpFull(d['Shopee Ads']||0)}</td>
+      <td>${fmtRpFull(d['TikTok Ads']||0)}</td>
+      <td><b>${fmtRpFull(total)}</b></td>
+    </tr>`;
+  }).join('');
+
+  const grandTotal = Object.values(totals).reduce((a,b)=>a+b,0);
+  const totalRow = `<tr class="total-row">
+      <td>TOTAL</td>
+      <td>${fmtRpFull(totals['Meta Ads'])}</td>
+      <td>${fmtRpFull(totals['Google Ads'])}</td>
+      <td>${fmtRpFull(totals['Shopee Ads'])}</td>
+      <td>${fmtRpFull(totals['TikTok Ads'])}</td>
+      <td>${fmtRpFull(grandTotal)}</td>
+    </tr>`;
+
+  document.getElementById('table-body').innerHTML = totalRow + rowsHtml;
+}
+
+function renderAll() {
+  renderKPI(filteredData);
+  renderChart(filteredData);
+  renderTable(filteredData);
+}
+
+function updateDateRange(data) {
+  const dates = [...new Set(data.map(d => d['Tanggal']))].sort();
+  if (!dates.length) { document.getElementById('date-range').textContent = 'Tidak ada data'; return; }
+  document.getElementById('date-range').textContent =
+    dates.length === 1 ? `${dates[0]} · 1 hari` : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+}
+
+// ── Period filter logic (mirrors index.html pattern) ──────────
+function setGroup(group) {
+  currentGroup = group;
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.toggle('active', b.dataset.group === group));
+  document.getElementById('period-filter').style.display = 'flex';
+  ['day','week','month','custom'].forEach(g => {
+    document.getElementById('filter-'+g).style.display = g === group ? 'flex' : 'none';
+  });
+}
+
+function quickSelect(val) {
+  if (!globalData.length) return;
+  const dates = [...new Set(globalData.map(d => d['Tanggal']))].sort();
+  const last  = dates[dates.length - 1];
+  let from = last;
+  if (val === '7days')  { const d = new Date(last); d.setDate(d.getDate()-6);  from = d.toISOString().split('T')[0]; }
+  if (val === '30days') { const d = new Date(last); d.setDate(d.getDate()-29); from = d.toISOString().split('T')[0]; }
+
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-quick="${val}"]`).classList.add('active');
+  document.getElementById('period-filter').style.display = 'none';
+
+  filteredData = val === 'yesterday' ? globalData.filter(d => d['Tanggal'] === last)
+                                      : globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
+  renderAll();
+  updateDateRange(filteredData);
+}
+
+function applyFilterDay() {
+  const v = document.getElementById('date-single').value;
+  filteredData = globalData.filter(d => d['Tanggal'] === v);
+  renderAll(); updateDateRange(filteredData);
+}
+function buildWeekOptions() {
+  const select = document.getElementById('week-select');
+  select.innerHTML = '';
+  const weeks = {};
+  globalData.forEach(d => {
+    const date = new Date(d['Tanggal']); const day = date.getDay(); const diff = (day === 0 ? -6 : 1 - day);
+    const mon = new Date(date); mon.setDate(date.getDate() + diff);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const key = mon.toISOString().split('T')[0];
+    if (!weeks[key]) { const f = d => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }); weeks[key] = `${f(mon)} – ${f(sun)}`; }
+  });
+  Object.entries(weeks).sort().forEach(([key, label]) => {
+    const opt = document.createElement('option'); opt.value = key; opt.textContent = label; select.appendChild(opt);
+  });
+  if (select.options.length) select.selectedIndex = select.options.length - 1;
+}
+function applyFilterWeek() {
+  const monday = document.getElementById('week-select').value;
+  const sun = new Date(monday); sun.setDate(sun.getDate() + 6);
+  const to = sun.toISOString().split('T')[0];
+  filteredData = globalData.filter(d => d['Tanggal'] >= monday && d['Tanggal'] <= to);
+  renderAll(); updateDateRange(filteredData);
+}
+function buildMonthOptions() {
+  const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const months = {};
+  globalData.forEach(d => {
+    const date = new Date(d['Tanggal']); const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
+  });
+  const entries = Object.entries(months).sort();
+  ['month-from','month-to'].forEach(id => {
+    const sel = document.getElementById(id); sel.innerHTML = '';
+    entries.forEach(([key, label]) => { const opt = document.createElement('option'); opt.value = key; opt.textContent = label; sel.appendChild(opt); });
+  });
+  document.getElementById('month-from').selectedIndex = 0;
+  document.getElementById('month-to').selectedIndex   = entries.length - 1;
+}
+function applyFilterMonth() {
+  const from = document.getElementById('month-from').value + '-01';
+  const toM  = new Date(document.getElementById('month-to').value + '-01');
+  toM.setMonth(toM.getMonth()+1); toM.setDate(toM.getDate()-1);
+  const to = toM.toISOString().split('T')[0];
+  filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  renderAll(); updateDateRange(filteredData);
+}
+function applyFilterCustom() {
+  const from = document.getElementById('custom-from').value;
+  const to   = document.getElementById('custom-to').value;
+  filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  renderAll(); updateDateRange(filteredData);
+}
+function resetFilter() {
+  quickSelect('30days');
+}
+
+// ── Sidebar Toggle ─────────────────────────────────────
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const content = document.querySelector('.content-area');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  if (isCollapsed) {
+    sidebar.classList.remove('collapsed');
+    content.classList.remove('expanded');
+    overlay.classList.remove('show');
+    localStorage.setItem('sidebar', 'open');
+  } else {
+    sidebar.classList.add('collapsed');
+    content.classList.add('expanded');
+    if (window.innerWidth < 900) overlay.classList.add('show');
+    localStorage.setItem('sidebar', 'closed');
+  }
+}
+(function() {
+  const state = localStorage.getItem('sidebar');
+  if (state === 'closed') {
+    const s = document.getElementById('sidebar');
+    const c = document.querySelector('.content-area');
+    if (s) s.classList.add('collapsed');
+    if (c) c.classList.add('expanded');
+  }
+})();
+
+async function init() {
+  try {
+    globalData = await fetchData();
+    if (!globalData.length) {
+      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Belum ada data di sheet "Marketing Ads Harian".</div>';
+      document.getElementById('kpi-grid').innerHTML = '';
+      return;
+    }
+    document.getElementById('date-single').value = '';
+    document.getElementById('custom-from').value = '';
+    document.getElementById('custom-to').value   = '';
+    buildWeekOptions();
+    buildMonthOptions();
+    quickSelect('30days');
+  } catch (err) {
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
+    document.getElementById('kpi-grid').innerHTML = '';
+    console.error(err);
+  }
+}
+init();
+</script>
+</body>
+</html>
