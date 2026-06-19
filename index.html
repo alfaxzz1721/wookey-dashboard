@@ -424,8 +424,8 @@ const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
 
 const SOURCES = {
   shopee: { sheetName: 'Shopee Stats Harian',  label: 'Shopee',       color: '#EE4D2D', hasAds: true  },
-  tiktok: { sheetName: 'TikTok Stats Harian',  label: 'TikTok',       color: '#ff0050', hasAds: false },
-  all:    { sheetName: null,                    label: 'All Platform', color: '#6366f1', hasAds: false },
+  tiktok: { sheetName: 'TikTok Stats Harian',  label: 'TikTok',       color: '#ff0050', hasAds: true  },
+  all:    { sheetName: null,                    label: 'All Platform', color: '#6366f1', hasAds: true  },
 };
 
 const METRICS = {
@@ -608,7 +608,7 @@ function setPlatform(platform) {
   // Biaya Iklan & ROI: tampilkan untuk Shopee & All
   const biayaBtn = document.getElementById('toggle-biaya');
   const roiBtn   = document.getElementById('toggle-roi');
-  const showAds  = platform === 'shopee' || platform === 'all';
+  const showAds  = true;  // Shopee & TikTok keduanya punya Biaya Iklan
   biayaBtn.style.display = showAds ? '' : 'none';
   roiBtn.style.display   = showAds ? '' : 'none';
   if (!showAds) { biayaBtn.classList.remove('active'); roiBtn.classList.remove('active'); }
@@ -672,7 +672,7 @@ function calcKPI(data) {
 }
 
 function makeKpiCard(k, kpi, days, hasAds) {
-  if (!hasAds && currentPlatform !== 'all' && ['Biaya Iklan','ROI'].includes(k.key)) {
+  if (!hasAds && ['Biaya Iklan','ROI'].includes(k.key)) {
     return `<div class="kpi" style="--accent:${k.accent};opacity:.3">
       <div class="kpi-label">${k.label}</div>
       <div class="kpi-value" style="color:var(--muted)">—</div>
