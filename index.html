@@ -532,19 +532,17 @@ async function fetchSheetData(sheetName) {
       }
     });
 
-    // Normalisasi CTR/CTOR/ERR ke persen
-    // Shopee: desimal (0.18) → kalikan 100; TikTok: sudah persen (162.84)
-    const normPct = (v) => { const n = Number(v) || 0; return n > 0 && n < 2 ? n * 100 : n; };
-    obj['CTR']  = normPct(obj['CTR']);
-    obj['CTOR'] = normPct(obj['CTOR']);
-    obj['ERR']  = normPct(obj['ERR']);
+    // CTR/CTOR/ERR: hitung ulang langsung dari volume mentah (Click/Watch/Order/Show)
+    // supaya akurat dan konsisten untuk SEMUA platform — tidak bergantung pada
+    // nilai kolom CTR/CTOR/ERR di sheet yang formatnya bisa beda-beda (desimal vs persen).
+    const klikRaw  = Number(obj['Click Product'])  || 0;
+    const watchRaw = Number(obj['Live Watch PV'])  || 0;
+    const orderRaw = Number(obj['Order Number'])   || 0;
+    const showRaw  = Number(obj['Live Show PV'])   || 0;
 
-    // Hitung ERR Shopee dari volume
-    if (sheetName.includes('Shopee')) {
-      const showPV  = Number(obj['Live Show PV'])  || 0;
-      const watchPV = Number(obj['Live Watch PV']) || 0;
-      obj['ERR'] = showPV > 0 ? (watchPV / showPV) * 100 : 0;
-    }
+    obj['CTR']  = watchRaw > 0 ? (klikRaw  / watchRaw) * 100 : 0;
+    obj['CTOR'] = klikRaw  > 0 ? (orderRaw / klikRaw)  * 100 : 0;
+    obj['ERR']  = showRaw  > 0 ? (watchRaw / showRaw)  * 100 : 0;
     obj['Biaya Iklan'] = Number(obj['Biaya Iklan']) || 0;
     return obj;
   }).filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
@@ -588,11 +586,11 @@ async function loadAllPlatforms() {
     const buyer = d['Pembeli']       || 0;
     const biaya = d['Biaya Iklan']   || 0;
 
-    d['Konversi %'] = watch > 0 ? watch / (show || 1) : 0;
-    d['CTR']        = watch > 0 ? klik / watch : 0;
-    d['CTOR']       = klik  > 0 ? order / klik : 0;
+    d['Konversi %'] = watch > 0 ? (watch / (show || 1)) * 100 : 0;
+    d['CTR']        = watch > 0 ? (klik / watch)   * 100 : 0;
+    d['CTOR']       = klik  > 0 ? (order / klik)   * 100 : 0;
     d['AOV']        = order > 0 ? gmv / order  : 0;
-    d['ERR']        = show  > 0 ? watch / show : 0;
+    d['ERR']        = show  > 0 ? (watch / show)   * 100 : 0;
     d['ARPU']       = buyer > 0 ? gmv / buyer  : 0;
     d['ROI']        = biaya > 0 ? Math.round(gmv / biaya * 100) / 100 : 0;
     return d;
