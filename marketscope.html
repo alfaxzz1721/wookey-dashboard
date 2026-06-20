@@ -240,8 +240,8 @@
 
 <script>
 const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
-const URL_TREND    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Harian')}`;
-const URL_AUDIENCE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Audience')}`;
+const URL_TREND    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Harian')}&headers=1&_cb=${Date.now()}`;
+const URL_AUDIENCE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Audience')}&headers=1&_cb=${Date.now()}`;
 
 function fmtNum(v) {
   v = Number(v) || 0;
