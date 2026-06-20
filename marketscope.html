@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wookey Weight — Market Scope</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #13151f;
+    --surface2:  #1a1d2a;
+    --border:    #252836;
+    --text:      #e8eaf2;
+    --muted:     #5a6070;
+    --shopee:    #EE4D2D;
+    --green:     #10b981;
+    --red:       #ef4444;
+    --tiktok:    #25F4EE;
+
+    --c-aware: #3b82f6;
+    --c-cons:  #f59e0b;
+    --c-conv:  #10b981;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 220px; min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 200; overflow-y: auto;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed { transform: translateX(-220px); }
+  .sidebar-close {
+    position: absolute; top: 14px; right: 10px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    border-radius: 6px; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 199;
+  }
+  .sidebar-overlay.show { display: block; }
+  .content-area {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left .25s cubic-bezier(.4,0,.2,1),
+                width .25s cubic-bezier(.4,0,.2,1);
+  }
+  .content-area.expanded { margin-left: 0; width: 100%; }
+
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo { background: var(--shopee); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-section-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
+  .main { padding: 24px 28px; }
+
+  .section-title {
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--text); margin: 28px 0 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title:first-child { margin-top: 0; }
+  .section-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Funnel */
+  .funnel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .funnel-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent); border-radius: 10px; padding: 18px 20px;
+  }
+  .funnel-label { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .funnel-value { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+  .funnel-bm { font-size: 11px; color: var(--muted); }
+  .funnel-bm b { color: var(--text); }
+  .funnel-arrow { display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 18px; }
+
+  /* KPI grid (Brand Diagnosis) */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px;
+  }
+  .kpi-label { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .kpi-value { font-size: 18px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px; }
+  .kpi-bm { font-size: 10px; color: var(--muted); }
+
+  /* Audience grid */
+  .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .audience-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .audience-card-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 14px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 12px; }
+  .bar-label { width: 130px; flex-shrink: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { flex: 1; height: 18px; background: var(--surface2); border-radius: 4px; overflow: hidden; position: relative; display: flex; }
+  .bar-fill { height: 100%; border-radius: 4px 0 0 4px; transition: width .3s; }
+  .bar-fill.brand { background: var(--tiktok); }
+  .bar-fill.benchmark { background: var(--muted); opacity: .5; }
+  .bar-value { width: 55px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); flex-shrink:0; }
+
+  .legend-row { display: flex; gap: 16px; margin-bottom: 12px; font-size: 11px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+  .legend-sw { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* Chart */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 20px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 280px; }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
+  .info-note { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--muted); font-size: 11px; margin-bottom: 16px; }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-220px); }
+    .content-area { margin-left: 0 !important; width: 100% !important; }
+    .main { padding: 16px; }
+    .funnel-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .audience-grid { grid-template-columns: 1fr; }
+    .header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="toggleSidebar()" title="Tutup sidebar">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="sidebar-brand">
+      <span class="logo">S</span>
+      <div>
+        <div class="sidebar-brand-name">Wookey Weight</div>
+        <div class="sidebar-brand-sub">Official Store</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analytics</div>
+      <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
+      <a class="sidebar-item" href="sumber.html"><span class="sidebar-icon">🎯</span>Sumber Penjualan</a>
+      <a class="sidebar-item" href="live.html"><span class="sidebar-icon">🔴</span>Live Streaming</a>
+      <a class="sidebar-item active" href="marketscope.html"><span class="sidebar-icon">🧭</span>Market Scope</a>
+      <a class="sidebar-item" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Data</div>
+      <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank"><span class="sidebar-icon">📋</span>Google Sheets</a>
+      <a class="sidebar-item" href="https://drive.google.com" target="_blank"><span class="sidebar-icon">📁</span>Google Drive</a>
+    </div>
+    <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Data Market Scope (TikTok)</div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <div class="content-area">
+    <div class="header">
+      <button onclick="toggleSidebar()" style="background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:var(--muted);flex-shrink:0;transition:all .15s;" title="Toggle sidebar" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
+      </button>
+      <span class="logo">S</span>
+      <span class="header-title">Market Scope — TikTok Brand Insights</span>
+      <span class="header-sub" id="date-range">Memuat...</span>
+    </div>
+
+    <div class="main">
+      <div id="error-container"></div>
+
+      <!-- ═══════ BRAND DIAGNOSIS ═══════ -->
+      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand Diagnosis — Marketing Funnel</div>
+
+      <div class="funnel-grid" id="funnel-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+
+      <div class="kpi-grid" id="diag-kpi-grid"></div>
+
+      <div class="chart-card">
+        <div class="chart-title">Tren Impressions & Search Volume</div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      </div>
+
+      <!-- ═══════ AUDIENCE ANALYSIS ═══════ -->
+      <div class="section-title"><span class="dot" style="background:var(--c-conv)"></span>Audience Analysis — Demografi Snapshot</div>
+      <div class="info-note" id="audience-date-note">Memuat tanggal snapshot...</div>
+
+      <div class="legend-row">
+        <div class="legend-item"><span class="legend-sw" style="background:var(--tiktok)"></span>Brand (Wookey Weight)</div>
+        <div class="legend-item"><span class="legend-sw" style="background:var(--muted);opacity:.5"></span>Benchmark (Top 5 Vertical)</div>
+      </div>
+
+      <div class="audience-grid" id="audience-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+const URL_TREND    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Harian')}`;
+const URL_AUDIENCE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Audience')}`;
+
+function fmtNum(v) {
+  v = Number(v) || 0;
+  if (v >= 1e6) return (v/1e6).toFixed(2) + 'jt';
+  if (v >= 1e3) return (v/1e3).toFixed(1) + 'rb';
+  return Math.round(v).toLocaleString('id-ID');
+}
+function fmtPct(v) { return (Number(v)*100).toFixed(2) + '%'; }
+function fmtFull(v) { return Math.round(Number(v)||0).toLocaleString('id-ID'); }
+
+async function fetchSheet(url) {
+  const res  = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+  let cols = json.table.cols.map(c => c.label);
+  let rows = json.table.rows;
+  if (!cols[0] && rows.length > 0) {
+    cols = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v) : '');
+    rows = rows.slice(1);
+  }
+  return rows.map(row => {
+    const obj = {};
+    cols.forEach((col, i) => {
+      if (!col) return;
+      const cell = row.c[i];
+      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = ''; return; }
+      const raw = cell.v;
+      const n = parseFloat(String(raw).replace(',', '.'));
+      obj[col] = isNaN(n) || col === 'Tanggal' || col === 'Category' || col === 'Label' ? raw : n;
+    });
+    return obj;
+  });
+}
+
+function renderFunnel(data) {
+  if (!data.length) {
+    document.getElementById('funnel-grid').innerHTML = '<div class="error">Belum ada data funnel.</div>';
+    return;
+  }
+  const latest = data[data.length - 1];
+  const stages = [
+    { key: 'funnel_awareness', bmKey: 'funnel_awareness_bm', label: 'Awareness', accent: 'var(--c-aware)' },
+    { key: 'funnel_consideration', bmKey: 'funnel_consideration_bm', label: 'Consideration', accent: 'var(--c-cons)' },
+    { key: 'funnel_conversion', bmKey: 'funnel_conversion_bm', label: 'Conversion', accent: 'var(--c-conv)' },
+  ];
+  document.getElementById('funnel-grid').innerHTML = stages.map(s => {
+    const val = latest[s.key] || 0;
+    const bm  = latest[s.bmKey] || 0;
+    return `<div class="funnel-card" style="--accent:${s.accent}">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-value">${fmtNum(val)}</div>
+      <div class="funnel-bm">Benchmark: <b>${fmtNum(bm)}</b></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDiagKPI(data) {
+  if (!data.length) return;
+  const latest = data[data.length - 1];
+  const kpis = [
+    { key: 'diag_net_sentiment_rate', label: 'Net Sentiment Rate', type: 'pct', accent: '#10b981' },
+    { key: 'diag_awareness_audience_penetration', label: 'Awareness Penetration', type: 'pct', accent: '#3b82f6' },
+    { key: 'diag_reach', label: 'Reach', type: 'num', accent: '#f59e0b' },
+    { key: 'diag_frequency', label: 'Frequency', type: 'dec', accent: '#e879f9' },
+    { key: 'diag_consideration_cost', label: 'Consideration Cost', type: 'rp', accent: '#06b6d4' },
+    { key: 'diag_conversion_cost', label: 'Conversion Cost', type: 'rp', accent: '#ef4444' },
+    { key: 'diag_ad_engagements', label: 'Ad Engagements', type: 'num', accent: '#8b5cf6' },
+    { key: 'diag_search_volume_bd', label: 'Search Volume', type: 'num', accent: '#f97316' },
+  ];
+  document.getElementById('diag-kpi-grid').innerHTML = kpis.map(k => {
+    const v = latest[k.key];
+    let display;
+    if (v === undefined || v === '' || v === null) display = '-';
+    else if (k.type === 'pct') display = fmtPct(v);
+    else if (k.type === 'rp') display = 'Rp ' + fmtFull(v);
+    else if (k.type === 'dec') display = Number(v).toFixed(2);
+    else display = fmtNum(v);
+    return `<div class="kpi" style="--accent:${k.accent}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${display}</div>
+    </div>`;
+  }).join('');
+}
+
+let chartInstance = null;
+function renderTrendChart(data) {
+  const dates = data.map(d => d['Tanggal']);
+  const impressions = data.map(d => d['trend_impressions'] || 0);
+  const searchVol    = data.map(d => d['overview_search_volume'] || 0);
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'Impressions', data: impressions, borderColor: '#3b82f6', backgroundColor: '#3b82f622', tension: .3, yAxisID: 'y1', pointRadius: dates.length===1?6:3 },
+        { label: 'Search Volume', data: searchVol, borderColor: '#f59e0b', backgroundColor: '#f59e0b22', tension: .3, yAxisID: 'y2', pointRadius: dates.length===1?6:3 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#e8eaf2', font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
+          titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtFull(ctx.parsed.y)}` }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#5a6070', font: { size: 10, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
+        y1: { position: 'left', ticks: { color: '#3b82f6', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { color: '#252836' } },
+        y2: { position: 'right', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: false } },
+      }
+    }
+  });
+}
+
+function renderAudienceBars(containerId, items, maxBrand) {
+  const el = document.getElementById(containerId);
+  if (!items.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;">Tidak ada data</div>'; return; }
+  el.innerHTML = items.map(item => {
+    const brandPct = maxBrand > 0 ? (item.brand / maxBrand * 100) : 0;
+    const bmPct    = item.benchmark !== '' && item.benchmark !== null && maxBrand > 0 ? (item.benchmark / maxBrand * 100) : 0;
+    return `
+      <div class="bar-row">
+        <div class="bar-label" title="${item.label}">${item.label}</div>
+        <div class="bar-track">
+          <div class="bar-fill brand" style="width:${Math.min(brandPct,100)}%"></div>
+        </div>
+        <div class="bar-value">${fmtPct(item.brand)}</div>
+      </div>
+      ${item.benchmark !== '' && item.benchmark !== null ? `
+      <div class="bar-row" style="margin-top:-6px;margin-bottom:14px;">
+        <div class="bar-label"></div>
+        <div class="bar-track">
+          <div class="bar-fill benchmark" style="width:${Math.min(bmPct,100)}%"></div>
+        </div>
+        <div class="bar-value" style="opacity:.6">${fmtPct(item.benchmark)}</div>
+      </div>` : ''}
+    `;
+  }).join('');
+}
+
+function renderAudience(rows) {
+  if (!rows.length) {
+    document.getElementById('audience-grid').innerHTML = '<div class="error">Belum ada data audience.</div>';
+    return;
+  }
+
+  const snapDate = rows[0]['Tanggal Snapshot'] || rows[0]['Tanggal'];
+  document.getElementById('audience-date-note').textContent =
+    `📅 Snapshot terbaru: ${snapDate || '-'} (data demografi update sesuai ketersediaan dari TikTok)`;
+
+  // Filter baris header berulang
+  const dataRows = rows.filter(r => r['Category'] && r['Category'] !== 'Category');
+
+  const byCategory = {};
+  dataRows.forEach(r => {
+    const cat = r['Category'];
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push({ label: r['Label'], brand: Number(r['Brand'])||0, benchmark: r['Benchmark'] });
+  });
+
+  const cards = [
+    { key: 'age', title: 'Usia' },
+    { key: 'gender', title: 'Gender' },
+    { key: 'device_os', title: 'Device OS' },
+    { key: 'location', title: 'Lokasi (Top 10)' },
+    { key: 'personas', title: 'Persona Audiens' },
+    { key: 'interests', title: 'Top 10 Interests' },
+  ];
+
+  document.getElementById('audience-grid').innerHTML = cards.map(c => `
+    <div class="audience-card">
+      <div class="audience-card-title">${c.title}</div>
+      <div id="aud-${c.key}"></div>
+    </div>
+  `).join('');
+
+  cards.forEach(c => {
+    const items = byCategory[c.key] || [];
+    const maxBrand = Math.max(...items.map(i => i.brand), 0.001);
+    renderAudienceBars(`aud-${c.key}`, items, maxBrand);
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const content = document.querySelector('.content-area');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  if (isCollapsed) {
+    sidebar.classList.remove('collapsed');
+    content.classList.remove('expanded');
+    overlay.classList.remove('show');
+    localStorage.setItem('sidebar', 'open');
+  } else {
+    sidebar.classList.add('collapsed');
+    content.classList.add('expanded');
+    if (window.innerWidth < 900) overlay.classList.add('show');
+    localStorage.setItem('sidebar', 'closed');
+  }
+}
+(function() {
+  const state = localStorage.getItem('sidebar');
+  if (state === 'closed') {
+    const s = document.getElementById('sidebar');
+    const c = document.querySelector('.content-area');
+    if (s) s.classList.add('collapsed');
+    if (c) c.classList.add('expanded');
+  }
+})();
+
+async function init() {
+  try {
+    const [trendData, audienceData] = await Promise.all([
+      fetchSheet(URL_TREND),
+      fetchSheet(URL_AUDIENCE),
+    ]);
+
+    const validTrend = trendData.filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
+    validTrend.sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
+
+    if (!validTrend.length) {
+      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Belum ada data Market Scope.</div>';
+      document.getElementById('funnel-grid').innerHTML = '';
+      return;
+    }
+
+    const dates = validTrend.map(d => d['Tanggal']);
+    document.getElementById('date-range').textContent =
+      dates.length === 1 ? `${dates[0]} · 1 hari` : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+
+    renderFunnel(validTrend);
+    renderDiagKPI(validTrend);
+    renderTrendChart(validTrend);
+    renderAudience(audienceData);
+
+  } catch (err) {
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
+    console.error(err);
+  }
+}
+init();
+</script>
+</body>
+</html>
