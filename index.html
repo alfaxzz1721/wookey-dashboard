@@ -185,6 +185,68 @@
   }
   .kpi-row-top    { grid-template-columns: repeat(5, 1fr); }
   .kpi-row-bottom { grid-template-columns: repeat(7, 1fr); margin-bottom: 20px; }
+
+  /* Shopee vs TikTok Comparison */
+  .compare-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 22px; margin-bottom: 20px;
+  }
+  .compare-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .compare-title { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .compare-title .icon { font-size: 15px; }
+  .compare-subtitle { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+  .compare-legend { display: flex; gap: 16px; }
+  .compare-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
+  .compare-legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+  .compare-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  }
+  .compare-metric {
+    background: var(--surface2); border-radius: 10px; padding: 14px 14px 12px;
+    border: 1px solid var(--border);
+  }
+  .compare-metric-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .compare-bars { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .compare-bar-row { display: flex; align-items: center; gap: 8px; }
+  .compare-bar-platform { width: 14px; font-size: 9px; font-weight: 800; flex-shrink: 0; }
+  .compare-bar-track {
+    flex: 1; height: 16px; background: var(--bg); border-radius: 5px; overflow: hidden; position: relative;
+  }
+  .compare-bar-fill {
+    height: 100%; border-radius: 5px; transition: width .4s ease;
+    display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+    min-width: 2px;
+  }
+  .compare-bar-value {
+    font-size: 9.5px; font-weight: 700; color: #fff; font-family: 'JetBrains Mono', monospace;
+    text-shadow: 0 1px 2px rgba(0,0,0,.4); white-space: nowrap;
+  }
+  .compare-diff {
+    font-size: 10px; font-weight: 600; padding-top: 6px; border-top: 1px dashed var(--border);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .compare-diff.positive { color: #10b981; }
+  .compare-diff.negative { color: #f43f5e; }
+  .compare-diff.neutral  { color: var(--muted); }
+  .compare-winner-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 20px;
+    margin-left: auto;
+  }
+  .compare-winner-badge.shopee { background: color-mix(in srgb, var(--shopee) 18%, transparent); color: var(--shopee); }
+  .compare-winner-badge.tiktok { background: color-mix(in srgb, var(--tiktok) 18%, transparent); color: var(--tiktok); }
+
+  @media (max-width: 1100px) {
+    .compare-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .compare-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
   .kpi {
     background: var(--surface); border: 1px solid var(--border);
     border-top: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px;
@@ -356,6 +418,9 @@
         <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data...</div>
       </div>
       <div class="kpi-row kpi-row-bottom" id="kpi-bottom"></div>
+
+      <!-- Shopee vs TikTok Comparison (hanya tampil di toggle All Platform) -->
+      <div id="compare-section" style="display:none;"></div>
 
       <!-- Toolbar Metrik -->
       <div class="toolbar" id="toolbar-metrics">
@@ -563,6 +628,10 @@ async function loadAllPlatforms() {
     loadPlatform('tiktok'),
   ]);
 
+  // Simpan mentah untuk dipakai compare section (difilter ulang sesuai periode aktif)
+  rawShopeeData = shopeeData;
+  rawTiktokData = tiktokData;
+
   // Gabungkan per tanggal: jumlahkan semua kolom numerik
   const merged = {};
   const numCols = ['GMV','Order Number','Click Product','Live Watch PV','Live Show PV','Pembeli','Biaya Iklan'];
@@ -597,6 +666,150 @@ async function loadAllPlatforms() {
   }).sort((a, b) => a['Tanggal'].localeCompare(b['Tanggal']));
 }
 
+// ── Shopee vs TikTok Comparison Section ──────────────────────────
+let rawShopeeData = [];
+let rawTiktokData = [];
+
+function fmtCompareValue(val, type) {
+  if (type === 'rp') {
+    if (Math.abs(val) >= 1e9) return 'Rp' + (val/1e9).toFixed(2) + 'M';
+    if (Math.abs(val) >= 1e6) return 'Rp' + (val/1e6).toFixed(1) + 'jt';
+    if (Math.abs(val) >= 1e3) return 'Rp' + (val/1e3).toFixed(0) + 'rb';
+    return 'Rp' + Math.round(val).toLocaleString('id-ID');
+  }
+  if (type === 'pct') return val.toFixed(2) + '%';
+  if (type === 'roi') return val.toFixed(2) + 'x';
+  if (type === 'int') {
+    if (Math.abs(val) >= 1e6) return (val/1e6).toFixed(2) + 'jt';
+    if (Math.abs(val) >= 1e3) return (val/1e3).toFixed(1) + 'rb';
+    return Math.round(val).toLocaleString('id-ID');
+  }
+  return String(val);
+}
+
+function calcCompareMetrics(rows) {
+  const totalGMV     = rows.reduce((s,d) => s + (Number(d['GMV']) || 0), 0);
+  const totalOrder   = rows.reduce((s,d) => s + (Number(d['Order Number']) || 0), 0);
+  const totalClick   = rows.reduce((s,d) => s + (Number(d['Click Product']) || 0), 0);
+  const totalWatch   = rows.reduce((s,d) => s + (Number(d['Live Watch PV']) || 0), 0);
+  const totalPembeli = rows.reduce((s,d) => s + (Number(d['Pembeli']) || 0), 0);
+  const totalBiaya   = rows.reduce((s,d) => s + (Number(d['Biaya Iklan']) || 0), 0);
+
+  const ctr  = totalWatch > 0 ? (totalClick / totalWatch) * 100 : 0;
+  const ctor = totalClick > 0 ? (totalOrder / totalClick) * 100 : 0;
+  const aov  = totalOrder > 0 ? totalGMV / totalOrder : 0;
+  const arpu = totalPembeli > 0 ? totalGMV / totalPembeli : 0;
+  const roi  = totalBiaya > 0 ? totalGMV / totalBiaya : 0;
+
+  return {
+    'GMV':           { val: totalGMV,   type: 'rp'  },
+    'Order Number':  { val: totalOrder, type: 'int' },
+    'CTR':           { val: ctr,        type: 'pct' },
+    'CTOR':          { val: ctor,       type: 'pct' },
+    'AOV':           { val: aov,        type: 'rp'  },
+    'ARPU':          { val: arpu,       type: 'rp'  },
+    'Biaya Iklan':   { val: totalBiaya, type: 'rp'  },
+    'ROI':           { val: roi,        type: 'roi' },
+  };
+}
+
+function renderCompareSection(dateFrom, dateTo) {
+  const section = document.getElementById('compare-section');
+  if (currentPlatform !== 'all') { section.style.display = 'none'; return; }
+  section.style.display = '';
+
+  const inRange = (d) => d['Tanggal'] >= dateFrom && d['Tanggal'] <= dateTo;
+  const shopeeRows = rawShopeeData.filter(inRange);
+  const tiktokRows = rawTiktokData.filter(inRange);
+
+  if (!shopeeRows.length && !tiktokRows.length) {
+    section.innerHTML = '';
+    return;
+  }
+
+  const sMetrics = calcCompareMetrics(shopeeRows);
+  const tMetrics = calcCompareMetrics(tiktokRows);
+
+  const metricOrder = ['GMV','Order Number','CTR','CTOR','AOV','ARPU','Biaya Iklan','ROI'];
+  const metricMeta = {
+    'GMV':          { label: 'GMV',          icon: '💰', higherIsBetter: true  },
+    'Order Number': { label: 'Order',        icon: '📦', higherIsBetter: true  },
+    'CTR':          { label: 'CTR',          icon: '🎯', higherIsBetter: true  },
+    'CTOR':         { label: 'CTOR',         icon: '🛒', higherIsBetter: true  },
+    'AOV':          { label: 'AOV',          icon: '🧾', higherIsBetter: true  },
+    'ARPU':         { label: 'ARPU',         icon: '👤', higherIsBetter: true  },
+    'Biaya Iklan':  { label: 'Biaya Iklan',  icon: '📣', higherIsBetter: false },
+    'ROI':          { label: 'ROI',          icon: '📈', higherIsBetter: true  },
+  };
+
+  const cardsHtml = metricOrder.map(key => {
+    const meta = metricMeta[key];
+    const s = sMetrics[key], t = tMetrics[key];
+    const maxVal = Math.max(s.val, t.val, 0.0001);
+    const sPct = Math.max((s.val / maxVal) * 100, s.val > 0 ? 3 : 0);
+    const tPct = Math.max((t.val / maxVal) * 100, t.val > 0 ? 3 : 0);
+
+    let diffPct = 0;
+    if (s.val !== 0) diffPct = ((t.val - s.val) / Math.abs(s.val)) * 100;
+    else if (t.val !== 0) diffPct = 100;
+
+    const tiktokBetter = meta.higherIsBetter ? (t.val > s.val) : (t.val < s.val) && t.val > 0;
+    const shopeeBetter = meta.higherIsBetter ? (s.val > t.val) : (s.val < t.val) && s.val > 0;
+    const winner = tiktokBetter ? 'tiktok' : (shopeeBetter ? 'shopee' : null);
+    const winnerLabel = winner === 'tiktok' ? 'TikTok 👑' : (winner === 'shopee' ? 'Shopee 👑' : '');
+
+    const diffClass = Math.abs(diffPct) < 1 ? 'neutral' : (
+      (meta.higherIsBetter ? diffPct > 0 : diffPct < 0) ? 'positive' : 'negative'
+    );
+    const diffArrow = diffPct > 0 ? '▲' : (diffPct < 0 ? '▼' : '—');
+    const diffText = isFinite(diffPct) ? `${diffArrow} ${Math.abs(diffPct).toFixed(0)}% vs Shopee` : '';
+
+    return `
+      <div class="compare-metric">
+        <div class="compare-metric-label">
+          <span>${meta.icon} ${meta.label}</span>
+          ${winnerLabel ? `<span class="compare-winner-badge ${winner}">${winnerLabel}</span>` : ''}
+        </div>
+        <div class="compare-bars">
+          <div class="compare-bar-row">
+            <span class="compare-bar-platform" style="color:var(--shopee)">S</span>
+            <div class="compare-bar-track">
+              <div class="compare-bar-fill" style="width:${sPct}%;background:var(--shopee);">
+                <span class="compare-bar-value">${fmtCompareValue(s.val, s.type)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="compare-bar-row">
+            <span class="compare-bar-platform" style="color:var(--tiktok)">T</span>
+            <div class="compare-bar-track">
+              <div class="compare-bar-fill" style="width:${tPct}%;background:var(--tiktok);">
+                <span class="compare-bar-value">${fmtCompareValue(t.val, t.type)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="compare-diff ${diffClass}">${diffText}</div>
+      </div>
+    `;
+  }).join('');
+
+  section.innerHTML = `
+    <div class="compare-card">
+      <div class="compare-header">
+        <div>
+          <div class="compare-title"><span class="icon">⚖️</span>Shopee vs TikTok — Perbandingan Performa</div>
+          <div class="compare-subtitle">${dateFrom} — ${dateTo} · Kedua platform punya karakteristik & basis pelanggan berbeda, jadi hasilnya wajar tidak sama</div>
+        </div>
+        <div class="compare-legend">
+          <div class="compare-legend-item" style="color:var(--shopee)"><span class="compare-legend-dot" style="background:var(--shopee)"></span>Shopee</div>
+          <div class="compare-legend-item" style="color:var(--tiktok)"><span class="compare-legend-dot" style="background:var(--tiktok)"></span>TikTok</div>
+        </div>
+      </div>
+      <div class="compare-grid">${cardsHtml}</div>
+    </div>
+  `;
+}
+
 function setPlatform(platform) {
   currentPlatform = platform;
   const src = SOURCES[platform];
@@ -620,6 +833,7 @@ function setPlatform(platform) {
   // Load data
   document.getElementById('kpi-top').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data ' + src.label + '...</div>';
   document.getElementById('kpi-bottom').innerHTML = '';
+  document.getElementById('compare-section').style.display = 'none';
 
   const loadPromise = platform === 'all' ? loadAllPlatforms() : loadPlatform(platform);
 
@@ -916,10 +1130,15 @@ function resetFilter() {
 
 function updateDateRange(data) {
   const dates = data.map(d => d['Tanggal']).sort();
-  if (!dates.length) return;
+  if (!dates.length) {
+    document.getElementById('compare-section').style.display = 'none';
+    return;
+  }
   document.getElementById('date-range').textContent = dates.length === 1
     ? dates[0] + ' · 1 hari'
     : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+
+  renderCompareSection(dates[0], dates[dates.length-1]);
 }
 
 // ── Sidebar Toggle (persists across pages) ────────────
