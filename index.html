@@ -226,11 +226,30 @@
   }
   .compare-diff {
     font-size: 10px; font-weight: 600; padding-top: 6px; border-top: 1px dashed var(--border);
-    display: flex; align-items: center; gap: 4px;
+    display: flex; align-items: center; gap: 4px; position: relative;
   }
   .compare-diff.positive { color: #10b981; }
   .compare-diff.negative { color: #f43f5e; }
   .compare-diff.neutral  { color: var(--muted); }
+  .compare-diff-info {
+    width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0;
+    background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+    font-size: 9px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+    cursor: help; margin-left: 2px; font-family: 'Inter', sans-serif;
+  }
+  .compare-diff-info:hover { background: var(--border); color: var(--text); }
+  .compare-diff-tooltip {
+    display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    width: 200px; background: #1f2230; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-size: 10.5px; font-weight: 400; line-height: 1.5; color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4); z-index: 50; text-align: left; white-space: normal;
+  }
+  .compare-diff-tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: #1f2230;
+  }
+  .compare-diff-info:hover + .compare-diff-tooltip,
+  .compare-diff-tooltip:hover { display: block; }
   .compare-winner-badge {
     display: inline-flex; align-items: center; gap: 3px;
     font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 20px;
@@ -238,6 +257,28 @@
   }
   .compare-winner-badge.shopee { background: color-mix(in srgb, var(--shopee) 18%, transparent); color: var(--shopee); }
   .compare-winner-badge.tiktok { background: color-mix(in srgb, var(--tiktok) 18%, transparent); color: var(--tiktok); }
+
+  .compare-info-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); font-size: 10px; font-weight: 700;
+    cursor: pointer; flex-shrink: 0; position: relative;
+    font-family: 'Inter', sans-serif;
+  }
+  .compare-info-btn:hover { background: var(--border); color: var(--text); }
+  .compare-info-popup {
+    display: none; position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+    width: 260px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    z-index: 50; text-align: left; cursor: default;
+  }
+  .compare-info-btn.open .compare-info-popup { display: block; }
+  .compare-info-popup-title { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .compare-info-popup-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 7px; font-size: 10.5px; line-height: 1.5; color: var(--muted); }
+  .compare-info-popup-row:last-child { margin-bottom: 0; }
+  .compare-info-popup-row b { color: var(--text); }
+  .compare-info-popup-arrow { flex-shrink: 0; font-weight: 700; width: 14px; }
 
   @media (max-width: 1100px) {
     .compare-grid { grid-template-columns: repeat(2, 1fr); }
@@ -731,14 +772,14 @@ function renderCompareSection(dateFrom, dateTo) {
 
   const metricOrder = ['GMV','Order Number','CTR','CTOR','AOV','ARPU','Biaya Iklan','ROI'];
   const metricMeta = {
-    'GMV':          { label: 'GMV',          icon: '💰', higherIsBetter: true  },
-    'Order Number': { label: 'Order',        icon: '📦', higherIsBetter: true  },
-    'CTR':          { label: 'CTR',          icon: '🎯', higherIsBetter: true  },
-    'CTOR':         { label: 'CTOR',         icon: '🛒', higherIsBetter: true  },
-    'AOV':          { label: 'AOV',          icon: '🧾', higherIsBetter: true  },
-    'ARPU':         { label: 'ARPU',         icon: '👤', higherIsBetter: true  },
-    'Biaya Iklan':  { label: 'Biaya Iklan',  icon: '📣', higherIsBetter: false },
-    'ROI':          { label: 'ROI',          icon: '📈', higherIsBetter: true  },
+    'GMV':          { label: 'GMV',          icon: '💰', higherIsBetter: true,  fullName: 'GMV (Total Penjualan)' },
+    'Order Number': { label: 'Order',        icon: '📦', higherIsBetter: true,  fullName: 'jumlah Order' },
+    'CTR':          { label: 'CTR',          icon: '🎯', higherIsBetter: true,  fullName: 'CTR (rasio klik dari pengunjung)' },
+    'CTOR':         { label: 'CTOR',         icon: '🛒', higherIsBetter: true,  fullName: 'CTOR (rasio order dari klik)' },
+    'AOV':          { label: 'AOV',          icon: '🧾', higherIsBetter: true,  fullName: 'AOV (rata-rata nilai per order)' },
+    'ARPU':         { label: 'ARPU',         icon: '👤', higherIsBetter: true,  fullName: 'ARPU (rata-rata belanja per pembeli)' },
+    'Biaya Iklan':  { label: 'Biaya Iklan',  icon: '📣', higherIsBetter: false, fullName: 'Biaya Iklan' },
+    'ROI':          { label: 'ROI',          icon: '📈', higherIsBetter: true,  fullName: 'ROI (return on investment iklan)' },
   };
 
   const cardsHtml = metricOrder.map(key => {
@@ -761,7 +802,18 @@ function renderCompareSection(dateFrom, dateTo) {
       (meta.higherIsBetter ? diffPct > 0 : diffPct < 0) ? 'positive' : 'negative'
     );
     const diffArrow = diffPct > 0 ? '▲' : (diffPct < 0 ? '▼' : '—');
-    const diffText = isFinite(diffPct) ? `${diffArrow} ${Math.abs(diffPct).toFixed(0)}% vs Shopee` : '';
+    const diffAbs = Math.abs(diffPct).toFixed(0);
+    const diffText = isFinite(diffPct) ? `${diffArrow} ${diffAbs}% vs Shopee` : '';
+
+    // Tooltip kontekstual: jelaskan arah naik/turun + apakah itu bagus/buruk untuk metrik ini
+    let tooltipText = '';
+    if (isFinite(diffPct) && Math.abs(diffPct) >= 1) {
+      const arahKata = diffPct > 0 ? 'lebih tinggi' : 'lebih rendah';
+      const goodBad = (meta.higherIsBetter ? diffPct > 0 : diffPct < 0) ? 'lebih baik 👍' : 'lebih kurang baik 👎';
+      tooltipText = `TikTok ${arahKata} ${diffAbs}% dibanding Shopee untuk ${meta.fullName}. Untuk metrik ini, nilai yang ${meta.higherIsBetter ? 'lebih tinggi' : 'lebih rendah'} dianggap ${meta.higherIsBetter ? 'lebih baik' : 'lebih baik'} — jadi hasil ini ${goodBad} bagi TikTok.`;
+    } else {
+      tooltipText = `TikTok dan Shopee hampir setara untuk ${meta.fullName} pada periode ini.`;
+    }
 
     return `
       <div class="compare-metric">
@@ -785,7 +837,11 @@ function renderCompareSection(dateFrom, dateTo) {
             <span class="compare-bar-value">${fmtCompareValue(t.val, t.type)}</span>
           </div>
         </div>
-        <div class="compare-diff ${diffClass}">${diffText}</div>
+        <div class="compare-diff ${diffClass}">
+          ${diffText}
+          <span class="compare-diff-info">?</span>
+          <div class="compare-diff-tooltip">${tooltipText}</div>
+        </div>
       </div>
     `;
   }).join('');
@@ -794,8 +850,27 @@ function renderCompareSection(dateFrom, dateTo) {
     <div class="compare-card">
       <div class="compare-header">
         <div>
-          <div class="compare-title"><span class="icon">⚖️</span>Shopee vs TikTok — Perbandingan Performa</div>
-          <div class="compare-subtitle">${dateFrom} — ${dateTo} · Kedua platform punya karakteristik & basis pelanggan berbeda, jadi hasilnya wajar tidak sama</div>
+          <div class="compare-title">
+            <span class="icon">⚖️</span>Shopee vs TikTok — Perbandingan Performa
+            <span class="compare-info-btn" id="compare-info-btn" onclick="document.getElementById('compare-info-btn').classList.toggle('open')">
+              i
+              <div class="compare-info-popup" onclick="event.stopPropagation()">
+                <div class="compare-info-popup-title">Cara baca angka perbandingan</div>
+                <div class="compare-info-popup-row">
+                  <span class="compare-info-popup-arrow" style="color:#10b981">▲</span>
+                  <span>Nilai <b>TikTok lebih tinggi</b> dari Shopee, sebesar persentase yang tertera.</span>
+                </div>
+                <div class="compare-info-popup-row">
+                  <span class="compare-info-popup-arrow" style="color:#f43f5e">▼</span>
+                  <span>Nilai <b>TikTok lebih rendah</b> dari Shopee, sebesar persentase yang tertera.</span>
+                </div>
+                <div class="compare-info-popup-row">
+                  <span class="compare-info-popup-arrow">👑</span>
+                  <span>Badge menandai platform dengan performa <b>lebih baik</b> di metrik itu. Untuk Biaya Iklan, nilai lebih <b>rendah</b> yang dianggap lebih baik.</span>
+                </div>
+              </div>
+            </span>
+          </div>
         </div>
         <div class="compare-legend">
           <div class="compare-legend-item" style="color:var(--shopee)"><span class="compare-legend-dot" style="background:var(--shopee)"></span>Shopee</div>
