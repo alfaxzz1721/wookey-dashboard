@@ -323,6 +323,20 @@
   /* Chart */
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
   .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+  .chart-compare-summary {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;
+  }
+  .chart-summary-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; font-size: 11px;
+  }
+  .chart-summary-pill .label { color: var(--muted); font-weight: 600; }
+  .chart-summary-pill .vals { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; }
+  .chart-summary-pill .v-shopee { color: var(--shopee); font-weight: 700; }
+  .chart-summary-pill .v-tiktok { color: var(--tiktok); font-weight: 700; }
+  .chart-summary-pill .v-total  { color: var(--text); font-weight: 700; padding-left: 6px; border-left: 1px solid var(--border); }
+  .chart-summary-pill .sep { color: var(--border); }
   .chart-wrap { position: relative; height: 320px; }
 
   .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
@@ -522,6 +536,7 @@
       <!-- Chart -->
       <div class="chart-card">
         <div class="chart-title" id="chart-title">Tren Harian</div>
+        <div id="chart-compare-summary"></div>
         <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
       </div>
     </div>
@@ -1074,6 +1089,12 @@ function groupData(data, group) {
 }
 
 function renderChart(data) {
+  if (currentPlatform === 'all') {
+    renderStackedCompareChart(data);
+    return;
+  }
+  document.getElementById('chart-compare-summary').innerHTML = '';
+
   data = groupData(data, currentGroup);
   const labels  = data.map(d => d['Tanggal']);
   const active  = getActive();
@@ -1111,6 +1132,149 @@ function renderChart(data) {
       }
     }
   });
+}
+
+// ── Stacked Bar Chart khusus toggle "All Platform" ──────────
+// Menampilkan kontribusi Shopee vs TikTok bertumpuk per tanggal/minggu/bulan,
+// untuk SETIAP metrik yang dicentang di toolbar (multi-chart kalau metrik > 1
+// punya skala sangat berbeda, tapi defaultnya tetap 1 chart gabungan sumbu kiri/kanan
+// seperti line chart sebelumnya supaya konsisten).
+function renderStackedCompareChart(data) {
+  const dateFrom = data.length ? data.map(d => d['Tanggal']).sort()[0] : null;
+  const dateTo   = data.length ? data.map(d => d['Tanggal']).sort().slice(-1)[0] : null;
+  if (!dateFrom || !dateTo) {
+    if (chartInstance) chartInstance.destroy();
+    document.getElementById('chart-compare-summary').innerHTML = '';
+    return;
+  }
+
+  const inRange = (d) => d['Tanggal'] >= dateFrom && d['Tanggal'] <= dateTo;
+  const shopeeRaw = groupData(rawShopeeData.filter(inRange), currentGroup);
+  const tiktokRaw = groupData(rawTiktokData.filter(inRange), currentGroup);
+
+  // Gabungkan label tanggal dari kedua sumber (union, urut)
+  const labelSet = new Set([...shopeeRaw.map(d => d['Tanggal']), ...tiktokRaw.map(d => d['Tanggal'])]);
+  const labels = [...labelSet].sort();
+
+  const shopeeByDate = Object.fromEntries(shopeeRaw.map(d => [d['Tanggal'], d]));
+  const tiktokByDate = Object.fromEntries(tiktokRaw.map(d => [d['Tanggal'], d]));
+
+  const active = getActive();
+  // Stacked bar paling jelas untuk 1 metrik. Kalau user pilih >1 metrik dengan skala
+  // beda jauh (mis. GMV & CTR), tetap di-stack tapi pakai 2 sumbu y seperti biasa.
+  const datasets = [];
+  active.forEach(key => {
+    const m = METRICS[key];
+    const shopeeColor = '#EE4D2D';
+    const tiktokColor = '#ff0050';
+    datasets.push({
+      label: `${key} — Shopee`,
+      data: labels.map(l => (shopeeByDate[l]?.[key]) || 0),
+      backgroundColor: shopeeColor + (active.length > 1 ? 'cc' : 'e6'),
+      borderRadius: 3, stack: key, yAxisID: m.axis,
+      borderSkipped: false,
+    });
+    datasets.push({
+      label: `${key} — TikTok`,
+      data: labels.map(l => (tiktokByDate[l]?.[key]) || 0),
+      backgroundColor: tiktokColor + (active.length > 1 ? 'cc' : 'e6'),
+      borderRadius: 3, stack: key, yAxisID: m.axis,
+      borderSkipped: false,
+    });
+  });
+
+  const hasY1 = active.some(k => METRICS[k]?.axis === 'y1');
+  const hasY2 = active.some(k => METRICS[k]?.axis === 'y2');
+  const hasY3 = active.some(k => METRICS[k]?.axis === 'y3');
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('mainChart').getContext('2d'), {
+    type: 'bar', data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#e8eaf2', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
+          titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
+          callbacks: {
+            label: ctx => {
+              const metricKey = ctx.dataset.label.split(' — ')[0];
+              return ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y, METRICS[metricKey]?.format || 'number')}`;
+            },
+            footer: items => {
+              // Tampilkan total stack per metrik di footer tooltip
+              const totals = {};
+              items.forEach(it => {
+                const metricKey = it.dataset.label.split(' — ')[0];
+                totals[metricKey] = (totals[metricKey] || 0) + it.parsed.y;
+              });
+              return Object.entries(totals).map(([k, v]) =>
+                `Total ${k}: ${fmt(v, METRICS[k]?.format || 'number')}`
+              );
+            }
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, ticks: { color: '#5a6070', font: { size: 11, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
+        y1: { stacked: true, display: hasY1, position: 'left', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtRp(v) }, grid: { color: '#252836' } },
+        y2: { stacked: true, display: hasY2, position: hasY1 ? 'right' : 'left', ticks: { color: '#10b981', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: !hasY1, color: '#252836' } },
+        y3: { stacked: true, display: hasY3, position: 'right', ticks: { color: '#e879f9', font: { size: 10 }, callback: v => fmtPct(v) }, grid: { display: false } },
+      }
+    }
+  });
+
+  renderChartCompareSummary(active, shopeeRaw, tiktokRaw);
+}
+
+function renderChartCompareSummary(active, shopeeRaw, tiktokRaw) {
+  const sumMetric = (rows, key) => rows.reduce((s, d) => s + (Number(d[key]) || 0), 0);
+  const isRatio = (key) => ['CTR','CTOR','ERR'].includes(key);
+  const isMoney = (key) => ['GMV','Biaya Iklan','AOV','ARPU'].includes(key);
+  const isRoi   = (key) => key === 'ROI';
+
+  const pillsHtml = active.map(key => {
+    let sVal, tVal, totVal;
+    if (isRatio(key) || key === 'AOV' || key === 'ARPU' || isRoi(key)) {
+      // Untuk rasio/rata-rata, hitung ulang dari total volume mentah (akurat,
+      // bukan rata-rata dari rata-rata harian)
+      const sKpi = calcKPI(shopeeRaw), tKpi = calcKPI(tiktokRaw);
+      const allKpi = calcKPI([...shopeeRaw, ...tiktokRaw]);
+      sVal = sKpi[key] || 0; tVal = tKpi[key] || 0;
+      // Untuk gabungan: hitung dari total volume gabungan (bukan sVal+tVal yang salah utk rasio)
+      const merged = {};
+      ['Live Show PV','Live Watch PV','Click Product','Order Number','GMV','Pembeli','Biaya Iklan'].forEach(k => {
+        merged[k] = sumMetric(shopeeRaw, k) + sumMetric(tiktokRaw, k);
+      });
+      if (key === 'CTR')  totVal = merged['Live Watch PV'] > 0 ? (merged['Click Product']/merged['Live Watch PV'])*100 : 0;
+      else if (key === 'CTOR') totVal = merged['Click Product'] > 0 ? (merged['Order Number']/merged['Click Product'])*100 : 0;
+      else if (key === 'ERR') totVal = merged['Live Show PV'] > 0 ? (merged['Live Watch PV']/merged['Live Show PV'])*100 : 0;
+      else if (key === 'AOV') totVal = merged['Order Number'] > 0 ? merged['GMV']/merged['Order Number'] : 0;
+      else if (key === 'ARPU') totVal = merged['Pembeli'] > 0 ? merged['GMV']/merged['Pembeli'] : 0;
+      else if (key === 'ROI') totVal = merged['Biaya Iklan'] > 0 ? merged['GMV']/merged['Biaya Iklan'] : 0;
+    } else {
+      sVal = sumMetric(shopeeRaw, key);
+      tVal = sumMetric(tiktokRaw, key);
+      totVal = sVal + tVal;
+    }
+
+    const fmtType = METRICS[key]?.format || 'number';
+    return `
+      <div class="chart-summary-pill">
+        <span class="label">${key}</span>
+        <span class="vals">
+          <span class="v-shopee">S: ${fmt(sVal, fmtType)}</span>
+          <span class="sep">·</span>
+          <span class="v-tiktok">T: ${fmt(tVal, fmtType)}</span>
+          <span class="v-total">${isRatio(key) || isRoi(key) ? 'Kalkulasi' : 'Total'}: ${fmt(totVal, fmtType)}</span>
+        </span>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('chart-compare-summary').innerHTML = pillsHtml;
 }
 
 document.querySelectorAll('.toggle[data-metric]').forEach(btn => {
