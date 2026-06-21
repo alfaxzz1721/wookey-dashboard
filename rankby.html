@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wookey Weight — Rank By</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #13151f;
+    --surface2:  #1a1d2a;
+    --border:    #252836;
+    --text:      #e8eaf2;
+    --muted:     #5a6070;
+    --shopee:    #EE4D2D;
+    --tiktok:    #ff0050;
+    --green:     #10b981;
+    --red:       #ef4444;
+    --gold:      #fbbf24;
+    --silver:    #cbd5e1;
+    --bronze:    #f97316;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ─────────────────────────────────────── */
+  .sidebar {
+    width: 220px; min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 200; overflow-y: auto;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed { transform: translateX(-220px); }
+  .sidebar-close {
+    position: absolute; top: 14px; right: 10px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    border-radius: 6px; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 199; }
+  .sidebar-overlay.show { display: block; }
+  .content-area {
+    margin-left: 220px; width: calc(100% - 220px);
+    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
+  }
+  .content-area.expanded { margin-left: 0; width: 100%; }
+
+  .sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .logo { background: var(--shopee); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-section-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
+  .sidebar-subitem {
+    display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 1px;
+  }
+  .sidebar-subitem:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-subitem.active { background: color-mix(in srgb, var(--shopee) 12%, transparent); color: var(--text); font-weight: 600; }
+  .sidebar-subitem .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .sidebar-subitem.active .dot { background: var(--shopee); }
+  .sidebar-subitem.disabled { opacity: .4; pointer-events: none; }
+
+  .header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
+  .main { padding: 24px 28px; }
+
+  /* Toggle dimensi */
+  .dim-tabs { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .dim-tab {
+    display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--surface); color: var(--muted);
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+  }
+  .dim-tab.active { border-color: #6366f1; color: var(--text); background: color-mix(in srgb, #6366f1 12%, var(--surface)); }
+
+  /* Platform toggle */
+  .platform-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
+  .platform-btn {
+    display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 9px;
+    border: 1.5px solid var(--border); background: var(--surface); color: var(--muted);
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+  }
+  .platform-btn.active-all    { border-color: #6366f1; color: #fff; background: #6366f1; }
+  .platform-btn.active-shopee { border-color: var(--shopee); color: #fff; background: var(--shopee); }
+  .platform-btn.active-tiktok { border-color: var(--tiktok); color: #fff; background: var(--tiktok); }
+
+  /* Toolbar periode */
+  .toolbar {
+    display: flex; align-items: center; gap: 4px; margin-bottom: 16px; flex-wrap: nowrap;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 12px; overflow-x: auto;
+  }
+  .toolbar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 2px; white-space: nowrap; }
+  .toggle {
+    display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: transparent; color: var(--muted);
+    font-size: 11px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer;
+    transition: all .15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .toggle.active { border-color: var(--shopee); color: var(--text); background: color-mix(in srgb, var(--shopee) 15%, transparent); }
+
+  #period-filter {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px;
+  }
+  #period-filter input, #period-filter select {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 12px; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; cursor: pointer;
+  }
+
+  /* Search box */
+  .search-box {
+    margin-bottom: 16px;
+  }
+  .search-box input {
+    width: 100%; max-width: 320px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 14px; color: var(--text); font-size: 12px;
+    font-family: 'Inter', sans-serif;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+
+  /* Rank table */
+  .rank-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+  .rank-card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .rank-card-title { font-size: 13px; font-weight: 700; }
+  .rank-card-title .accent { color: var(--shopee); }
+  .sort-controls { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .sort-controls select {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 11px; padding: 5px 8px; cursor: pointer;
+  }
+
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
+  thead th {
+    text-align: right; padding: 10px 14px; background: var(--surface2);
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  thead th:first-child, thead th:nth-child(2) { text-align: left; }
+  tbody td {
+    text-align: right; padding: 10px 14px; font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap;
+  }
+  tbody td:first-child { text-align: center; font-family: 'Inter', sans-serif; color: var(--muted); width: 40px; }
+  tbody td:nth-child(2) { text-align: left; font-family: 'Inter', sans-serif; font-weight: 600; }
+  tbody tr:hover td { background: var(--surface2); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 800;
+  }
+  .rank-badge.r1 { background: color-mix(in srgb, var(--gold) 22%, transparent); color: var(--gold); }
+  .rank-badge.r2 { background: color-mix(in srgb, var(--silver) 22%, transparent); color: var(--silver); }
+  .rank-badge.r3 { background: color-mix(in srgb, var(--bronze) 22%, transparent); color: var(--bronze); }
+
+  .platform-pill {
+    display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+    margin-left: 6px; vertical-align: middle;
+  }
+  .platform-pill.shopee { background: color-mix(in srgb, var(--shopee) 20%, transparent); color: var(--shopee); }
+  .platform-pill.tiktok { background: color-mix(in srgb, var(--tiktok) 20%, transparent); color: var(--tiktok); }
+
+  .contrib-bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .contrib-track { width: 60px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .contrib-fill { height: 100%; background: var(--shopee); border-radius: 3px; }
+
+  .sum-row td { font-weight: 700; color: #fff; background: var(--surface2); border-top: 2px solid var(--border); }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
+  .empty-state { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-220px); }
+    .content-area { margin-left: 0 !important; width: 100% !important; }
+    .main { padding: 16px; }
+    .header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="toggleSidebar()" title="Tutup sidebar">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="sidebar-brand">
+      <span class="logo">S</span>
+      <div>
+        <div class="sidebar-brand-name">Wookey Weight</div>
+        <div class="sidebar-brand-sub">Official Store</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analytics</div>
+      <a class="sidebar-item" href="marketscope.html"><span class="sidebar-icon">🧭</span>Market Scope</a>
+      <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
+      <a class="sidebar-item" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
+      <a class="sidebar-item active" href="#"><span class="sidebar-icon">🔴</span>Live Streaming</a>
+      <div class="sidebar-submenu">
+        <a class="sidebar-subitem" href="live.html"><span class="dot"></span>Overview Live Streaming</a>
+        <a class="sidebar-subitem active" href="rankby.html"><span class="dot"></span>Rank By</a>
+        <a class="sidebar-subitem disabled" href="#"><span class="dot"></span>Pivot Table By<span style="margin-left:auto;font-size:9px;">Soon</span></a>
+      </div>
+      <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;"><span class="sidebar-icon">📦</span>Produk<span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span></a>
+      <a class="sidebar-item" href="sumber.html"><span class="sidebar-icon">🎯</span>Sumber Penjualan</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Data</div>
+      <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank"><span class="sidebar-icon">📋</span>Google Sheets</a>
+      <a class="sidebar-item" href="https://drive.google.com" target="_blank"><span class="sidebar-icon">📁</span>Google Drive</a>
+    </div>
+    <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Data Master Live Streaming</div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <div class="content-area">
+    <div class="header">
+      <button onclick="toggleSidebar()" style="background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:var(--muted);flex-shrink:0;transition:all .15s;" title="Toggle sidebar" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
+      </button>
+      <span class="logo">S</span>
+      <span class="header-title">Live Streaming — Rank By</span>
+      <span class="header-sub" id="date-range">Memuat...</span>
+    </div>
+
+    <div class="main">
+      <div id="error-container"></div>
+
+      <!-- Toggle dimensi: Shift / Akun / Host Live -->
+      <div class="dim-tabs">
+        <div class="dim-tab active" data-dim="shift" onclick="setDimension('shift', this)">📅 Rank by Shift</div>
+        <div class="dim-tab" data-dim="akun" onclick="setDimension('akun', this)">👤 Rank by Account</div>
+        <div class="dim-tab" data-dim="host" onclick="setDimension('host', this)">🎙️ Rank by Hostlive</div>
+      </div>
+
+      <!-- Platform toggle -->
+      <div class="platform-toggle">
+        <button class="platform-btn active-all" id="btn-all" onclick="setPlatform('all')">🔀 All Platform</button>
+        <button class="platform-btn" id="btn-shopee" onclick="setPlatform('shopee')">🛒 Shopee</button>
+        <button class="platform-btn" id="btn-tiktok" onclick="setPlatform('tiktok')">🎵 TikTok</button>
+      </div>
+
+      <!-- Toolbar Periode -->
+      <div class="toolbar">
+        <span class="toolbar-label">Tampilkan per:</span>
+        <button class="toggle" data-quick="yesterday" onclick="quickSelect('yesterday')">Kemarin</button>
+        <button class="toggle" data-quick="7days" onclick="quickSelect('7days')">7 Hari</button>
+        <button class="toggle active" data-quick="30days" onclick="quickSelect('30days')">30 Hari</button>
+        <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
+        <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
+        <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
+      </div>
+
+      <div id="period-filter" style="display:none;">
+        <span class="toolbar-label">Periode:</span>
+        <div id="filter-month" style="display:none;align-items:center;gap:8px;">
+          <select id="month-from"></select>
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <select id="month-to"></select>
+          <button onclick="applyFilterMonth()" class="toggle active">Terapkan</button>
+        </div>
+        <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
+          <input type="date" id="custom-from">
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <input type="date" id="custom-to">
+          <button onclick="applyFilterCustom()" class="toggle active">Terapkan</button>
+        </div>
+        <button onclick="resetFilter()" class="toggle" style="margin-left:4px;">Reset</button>
+      </div>
+
+      <!-- Search -->
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="🔍 Cari nama shift/akun/host..." oninput="renderTable()">
+      </div>
+
+      <!-- Rank Table -->
+      <div class="rank-card">
+        <div class="rank-card-header">
+          <div class="rank-card-title">Rank by <span class="accent" id="rank-title-dim">Shift</span> <span id="rank-title-count" style="color:var(--muted);font-weight:500;"></span></div>
+          <div class="sort-controls">
+            Urutkan:
+            <select id="sort-select" onchange="renderTable()">
+              <option value="GMV">GMV</option>
+              <option value="Order Number">Order Number</option>
+              <option value="CTR">CTR</option>
+              <option value="CTOR">CTOR</option>
+              <option value="ERR">ERR</option>
+              <option value="AOV">AOV</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-scroll" id="table-container">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+
+const SHEET_MAP = {
+  shift: 'Live RankBy Shift',
+  akun:  'Live RankBy Akun',
+  host:  'Live RankBy Host',
+};
+const DIM_LABEL = { shift: 'Shift', akun: 'Account', host: 'Hostlive' };
+const DIM_COL_LABEL = { shift: 'Shift Live Streaming', akun: 'Akun', host: 'Host Live' };
+
+let currentDim = 'shift';
+let currentPlatform = 'all';
+let rawData = {};      // cache per dimensi: { shift: [...], akun: [...], host: [...] }
+let filteredData = [];
+
+function fmtNum(v) { return Math.round(Number(v)||0).toLocaleString('id-ID'); }
+function fmtRp(v) {
+  v = Number(v) || 0;
+  return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+}
+function fmtPct(v) { return (Number(v)||0).toFixed(2) + '%'; }
+
+async function fetchSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&headers=1&_cb=${Date.now()}`;
+  const res  = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+  let cols = json.table.cols.map(c => c.label);
+  let rows = json.table.rows;
+  if (!cols[0] && rows.length > 0) {
+    cols = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v) : '');
+    rows = rows.slice(1);
+  }
+  return rows.map(row => {
+    const obj = {};
+    cols.forEach((col, i) => {
+      if (!col) return;
+      const cell = row.c[i];
+      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = (col==='Tanggal'||col==='Platform'||col==='Dimensi') ? '' : 0; return; }
+      if (col === 'Tanggal' || col === 'Platform' || col === 'Dimensi') {
+        obj[col] = String(cell.v);
+      } else {
+        const n = parseFloat(String(cell.v).replace(',', '.'));
+        obj[col] = isNaN(n) ? 0 : n;
+      }
+    });
+    return obj;
+  }).filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
+}
+
+async function loadDimension(dim) {
+  if (rawData[dim]) return rawData[dim];
+  const data = await fetchSheet(SHEET_MAP[dim]);
+  rawData[dim] = data;
+  return data;
+}
+
+function applyPlatformFilter(data) {
+  if (currentPlatform === 'all') return data;
+  const targetPlatform = currentPlatform === 'shopee' ? 'Shopee' : 'Tiktok';
+  return data.filter(r => r['Platform'] === targetPlatform);
+}
+
+function getDateRange(data) {
+  const dates = [...new Set(data.map(d => d['Tanggal']))].sort();
+  return dates;
+}
+
+function setDimension(dim, el) {
+  currentDim = dim;
+  document.querySelectorAll('.dim-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('rank-title-dim').textContent = DIM_LABEL[dim];
+  loadAndFilter();
+}
+
+function setPlatform(platform) {
+  currentPlatform = platform;
+  document.getElementById('btn-all').className    = 'platform-btn' + (platform==='all'?' active-all':'');
+  document.getElementById('btn-shopee').className  = 'platform-btn' + (platform==='shopee'?' active-shopee':'');
+  document.getElementById('btn-tiktok').className  = 'platform-btn' + (platform==='tiktok'?' active-tiktok':'');
+  loadAndFilter();
+}
+
+async function loadAndFilter() {
+  document.getElementById('table-container').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const data = await loadDimension(currentDim);
+    const platformFiltered = applyPlatformFilter(data);
+    const dates = getDateRange(platformFiltered);
+    if (!dates.length) {
+      filteredData = [];
+      renderTable();
+      document.getElementById('date-range').textContent = 'Tidak ada data';
+      return;
+    }
+    buildMonthOptions(platformFiltered);
+    quickSelect('30days');
+  } catch (err) {
+    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
+    document.getElementById('table-container').innerHTML = '';
+    console.error(err);
+  }
+}
+
+function quickSelect(val) {
+  const data = applyPlatformFilter(rawData[currentDim] || []);
+  const dates = getDateRange(data);
+  if (!dates.length) { filteredData = []; renderTable(); return; }
+  const last = dates[dates.length - 1];
+  let from = last;
+  if (val === '7days')  { const d = new Date(last); d.setDate(d.getDate()-6);  from = d.toISOString().split('T')[0]; }
+  if (val === '30days') { const d = new Date(last); d.setDate(d.getDate()-29); from = d.toISOString().split('T')[0]; }
+
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+  const qBtn = document.querySelector(`[data-quick="${val}"]`);
+  if (qBtn) qBtn.classList.add('active');
+  document.getElementById('period-filter').style.display = 'none';
+
+  filteredData = val === 'yesterday'
+    ? data.filter(d => d['Tanggal'] === last)
+    : data.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
+
+  renderTable();
+  updateDateRange(filteredData);
+}
+
+function setGroup(group) {
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.toggle('active', b.dataset.group === group));
+  document.getElementById('period-filter').style.display = 'flex';
+  ['month','custom'].forEach(g => {
+    document.getElementById('filter-'+g).style.display = g === group ? 'flex' : 'none';
+  });
+}
+
+function buildMonthOptions(data) {
+  const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const months = {};
+  data.forEach(d => {
+    const date = new Date(d['Tanggal']);
+    const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
+  });
+  const entries = Object.entries(months).sort();
+  ['month-from','month-to'].forEach(id => {
+    const sel = document.getElementById(id); sel.innerHTML = '';
+    entries.forEach(([key, label]) => { const opt = document.createElement('option'); opt.value = key; opt.textContent = label; sel.appendChild(opt); });
+  });
+  if (entries.length) {
+    document.getElementById('month-from').selectedIndex = 0;
+    document.getElementById('month-to').selectedIndex   = entries.length - 1;
+  }
+}
+
+function applyFilterMonth() {
+  const data = applyPlatformFilter(rawData[currentDim] || []);
+  const from = document.getElementById('month-from').value + '-01';
+  const toM  = new Date(document.getElementById('month-to').value + '-01');
+  toM.setMonth(toM.getMonth()+1); toM.setDate(toM.getDate()-1);
+  const to = toM.toISOString().split('T')[0];
+  filteredData = data.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  renderTable(); updateDateRange(filteredData);
+}
+
+function applyFilterCustom() {
+  const data = applyPlatformFilter(rawData[currentDim] || []);
+  const from = document.getElementById('custom-from').value;
+  const to   = document.getElementById('custom-to').value;
+  if (!from || !to) return;
+  filteredData = data.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  renderTable(); updateDateRange(filteredData);
+}
+
+function resetFilter() { quickSelect('30days'); }
+
+function updateDateRange(data) {
+  const dates = [...new Set(data.map(d => d['Tanggal']))].sort();
+  if (!dates.length) { document.getElementById('date-range').textContent = 'Tidak ada data'; return; }
+  document.getElementById('date-range').textContent =
+    dates.length === 1 ? `${dates[0]} · 1 hari` : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+}
+
+function aggregateByDimensi(data) {
+  const agg = {};
+  data.forEach(r => {
+    const key = r['Dimensi'];
+    if (!key) return;
+    if (!agg[key]) agg[key] = { GMV:0, 'Order Number':0, 'Click Product':0, 'Live Watch PV':0, 'Live Show PV':0 };
+    agg[key]['GMV']            += Number(r['GMV'])||0;
+    agg[key]['Order Number']   += Number(r['Order Number'])||0;
+    agg[key]['Click Product']  += Number(r['Click Product'])||0;
+    agg[key]['Live Watch PV']  += Number(r['Live Watch PV'])||0;
+    agg[key]['Live Show PV']   += Number(r['Live Show PV'])||0;
+  });
+  return Object.entries(agg).map(([name, v]) => {
+    const ctr  = v['Live Watch PV'] > 0 ? (v['Click Product'] / v['Live Watch PV']) * 100 : 0;
+    const ctor = v['Click Product'] > 0 ? (v['Order Number']  / v['Click Product']) * 100 : 0;
+    const err  = v['Live Show PV']  > 0 ? (v['Live Watch PV'] / v['Live Show PV'])  * 100 : 0;
+    const aov  = v['Order Number']  > 0 ? v['GMV'] / v['Order Number'] : 0;
+    return { name, ...v, CTR: ctr, CTOR: ctor, ERR: err, AOV: aov };
+  });
+}
+
+function renderTable() {
+  const container = document.getElementById('table-container');
+  const aggregated = aggregateByDimensi(filteredData);
+  const searchTerm = (document.getElementById('search-input').value || '').toLowerCase();
+  let rows = aggregated.filter(r => r.name.toLowerCase().includes(searchTerm));
+
+  document.getElementById('rank-title-count').textContent = rows.length ? `(Top ${rows.length})` : '';
+
+  if (!rows.length) {
+    container.innerHTML = '<div class="empty-state">Tidak ada data untuk filter ini.</div>';
+    return;
+  }
+
+  const sortKey = document.getElementById('sort-select').value;
+  rows.sort((a, b) => (b[sortKey]||0) - (a[sortKey]||0));
+
+  const totalGMV = rows.reduce((s, r) => s + r.GMV, 0);
+  const sums = {
+    GMV: rows.reduce((s,r)=>s+r.GMV,0),
+    'Order Number': rows.reduce((s,r)=>s+r['Order Number'],0),
+    'Click Product': rows.reduce((s,r)=>s+r['Click Product'],0),
+    'Live Watch PV': rows.reduce((s,r)=>s+r['Live Watch PV'],0),
+    'Live Show PV': rows.reduce((s,r)=>s+r['Live Show PV'],0),
+  };
+  const sumCTR  = sums['Live Watch PV'] > 0 ? (sums['Click Product']/sums['Live Watch PV'])*100 : 0;
+  const sumCTOR = sums['Click Product'] > 0 ? (sums['Order Number']/sums['Click Product'])*100 : 0;
+  const sumERR  = sums['Live Show PV'] > 0 ? (sums['Live Watch PV']/sums['Live Show PV'])*100 : 0;
+  const sumAOV  = sums['Order Number'] > 0 ? sums['GMV']/sums['Order Number'] : 0;
+
+  const dimColLabel = DIM_COL_LABEL[currentDim];
+
+  const bodyRows = rows.map((r, i) => {
+    const rank = i + 1;
+    const badgeClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : '';
+    const badgeHtml = badgeClass
+      ? `<span class="rank-badge ${badgeClass}">${rank}</span>`
+      : rank;
+    const contribPct = totalGMV > 0 ? (r.GMV / totalGMV) * 100 : 0;
+    return `
+      <tr>
+        <td>${badgeHtml}</td>
+        <td>${r.name}</td>
+        <td>${fmtNum(r['Live Show PV'])}</td>
+        <td>${fmtNum(r['Live Watch PV'])}</td>
+        <td>${fmtNum(r['Click Product'])}</td>
+        <td>${fmtNum(r['Order Number'])}</td>
+        <td>${fmtRp(r.GMV)}</td>
+        <td>${fmtPct(r.CTR)}</td>
+        <td>${fmtPct(r.CTOR)}</td>
+        <td>${fmtPct(r.ERR)}</td>
+        <td>${fmtRp(r.AOV)}</td>
+        <td>
+          <div class="contrib-bar-cell">
+            <div class="contrib-track"><div class="contrib-fill" style="width:${contribPct}%"></div></div>
+            <span>${contribPct.toFixed(1)}%</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const sumRow = `
+    <tr class="sum-row">
+      <td></td>
+      <td>SUM</td>
+      <td>${fmtNum(sums['Live Show PV'])}</td>
+      <td>${fmtNum(sums['Live Watch PV'])}</td>
+      <td>${fmtNum(sums['Click Product'])}</td>
+      <td>${fmtNum(sums['Order Number'])}</td>
+      <td>${fmtRp(sums.GMV)}</td>
+      <td>${fmtPct(sumCTR)}</td>
+      <td>${fmtPct(sumCTOR)}</td>
+      <td>${fmtPct(sumERR)}</td>
+      <td>${fmtRp(sumAOV)}</td>
+      <td></td>
+    </tr>
+  `;
+
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>${dimColLabel}</th>
+          <th>Live Show PV</th>
+          <th>Live Watch PV</th>
+          <th>Click Product</th>
+          <th>Order Number</th>
+          <th>GMV</th>
+          <th>CTR</th>
+          <th>CTOR</th>
+          <th>ERR</th>
+          <th>AOV</th>
+          <th>% Contribution</th>
+        </tr>
+      </thead>
+      <tbody>${bodyRows}${sumRow}</tbody>
+    </table>
+  `;
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const content = document.querySelector('.content-area');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  if (isCollapsed) {
+    sidebar.classList.remove('collapsed'); content.classList.remove('expanded'); overlay.classList.remove('show');
+    localStorage.setItem('sidebar', 'open');
+  } else {
+    sidebar.classList.add('collapsed'); content.classList.add('expanded');
+    if (window.innerWidth < 900) overlay.classList.add('show');
+    localStorage.setItem('sidebar', 'closed');
+  }
+}
+(function() {
+  const state = localStorage.getItem('sidebar');
+  if (state === 'closed') {
+    const s = document.getElementById('sidebar'); const c = document.querySelector('.content-area');
+    if (s) s.classList.add('collapsed'); if (c) c.classList.add('expanded');
+  }
+})();
+
+loadAndFilter();
+</script>
+</body>
+</html>
