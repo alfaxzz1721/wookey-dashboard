@@ -1047,6 +1047,8 @@ function renderKPI(data) {
 }
 
 let chartInstance = null;
+let shopeeByDateGlobal = {};
+let tiktokByDateGlobal = {};
 function getActive() {
   return [...document.querySelectorAll('.toggle.active[data-metric]')].map(b => b.dataset.metric);
 }
@@ -1158,6 +1160,8 @@ function renderStackedCompareChart(data) {
 
   const shopeeByDate = Object.fromEntries(shopeeRaw.map(d => [d['Tanggal'], d]));
   const tiktokByDate = Object.fromEntries(tiktokRaw.map(d => [d['Tanggal'], d]));
+  shopeeByDateGlobal = shopeeByDate;
+  tiktokByDateGlobal = tiktokByDate;
 
   const active = getActive();
   // Stacked bar paling jelas untuk 1 metrik. Kalau user pilih >1 metrik dengan skala
@@ -1203,16 +1207,40 @@ function renderStackedCompareChart(data) {
               const metricKey = ctx.dataset.label.split(' — ')[0];
               return ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y, METRICS[metricKey]?.format || 'number')}`;
             },
-            footer: items => {
-              // Tampilkan total stack per metrik di footer tooltip
-              const totals = {};
-              items.forEach(it => {
-                const metricKey = it.dataset.label.split(' — ')[0];
-                totals[metricKey] = (totals[metricKey] || 0) + it.parsed.y;
+            footer: (items) => {
+              if (!items.length) return [];
+              const dateLabel = items[0].label;
+              const sRow = shopeeByDateGlobal[dateLabel] || {};
+              const tRow = tiktokByDateGlobal[dateLabel] || {};
+
+              const ratioKeys = ['CTR','CTOR','ERR','AOV','ARPU','ROI'];
+              const metricKeysShown = [...new Set(items.map(it => it.dataset.label.split(' — ')[0]))];
+
+              return metricKeysShown.map(k => {
+                if (ratioKeys.includes(k)) {
+                  // Hitung ulang dari volume gabungan tanggal ini (rata-rata yang benar)
+                  const watchPV = (Number(sRow['Live Watch PV'])||0) + (Number(tRow['Live Watch PV'])||0);
+                  const showPV  = (Number(sRow['Live Show PV'])||0)  + (Number(tRow['Live Show PV'])||0);
+                  const klik    = (Number(sRow['Click Product'])||0) + (Number(tRow['Click Product'])||0);
+                  const order   = (Number(sRow['Order Number'])||0)  + (Number(tRow['Order Number'])||0);
+                  const gmv     = (Number(sRow['GMV'])||0)           + (Number(tRow['GMV'])||0);
+                  const pembeli = (Number(sRow['Pembeli'])||0)       + (Number(tRow['Pembeli'])||0);
+                  const biaya   = (Number(sRow['Biaya Iklan'])||0)   + (Number(tRow['Biaya Iklan'])||0);
+                  let val = 0;
+                  if (k === 'CTR')  val = watchPV > 0 ? (klik/watchPV)*100 : 0;
+                  if (k === 'CTOR') val = klik > 0 ? (order/klik)*100 : 0;
+                  if (k === 'ERR')  val = showPV > 0 ? (watchPV/showPV)*100 : 0;
+                  if (k === 'AOV')  val = order > 0 ? gmv/order : 0;
+                  if (k === 'ARPU') val = pembeli > 0 ? gmv/pembeli : 0;
+                  if (k === 'ROI')  val = biaya > 0 ? gmv/biaya : 0;
+                  return `Rata-Rata ${k}: ${fmt(val, METRICS[k]?.format || 'number')}`;
+                }
+                // Metrik volume: jumlah biasa sudah benar
+                const total = items
+                  .filter(it => it.dataset.label.split(' — ')[0] === k)
+                  .reduce((s, it) => s + it.parsed.y, 0);
+                return `Total ${k}: ${fmt(total, METRICS[k]?.format || 'number')}`;
               });
-              return Object.entries(totals).map(([k, v]) =>
-                `Total ${k}: ${fmt(v, METRICS[k]?.format || 'number')}`
-              );
             }
           }
         }
