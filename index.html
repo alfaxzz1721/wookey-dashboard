@@ -185,6 +185,7 @@
   }
   .kpi-row-top    { grid-template-columns: repeat(5, 1fr); }
   .kpi-row-bottom { grid-template-columns: repeat(7, 1fr); margin-bottom: 20px; }
+  .kpi-row-top.kpi-row-4col, .kpi-row-bottom.kpi-row-4col { grid-template-columns: repeat(4, 1fr); }
 
   /* Shopee vs TikTok Comparison */
   .compare-card {
@@ -569,6 +570,22 @@ const KPI_BOTTOM = [
   { key: 'ERR',           label: 'ERR',           accent: '#e879f9' },
   { key: 'CTR',           label: 'CTR',           accent: '#ec4899' },
   { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
+];
+
+// Khusus toggle "All Platform": tampilan ringkas 8 metrik, 2 baris x 4 kolom
+// Baris 1: GMV | Order Number | Biaya Iklan | ROI
+// Baris 2: CTR | CTOR | ARPU | AOV
+const KPI_ALL_TOP = [
+  { key: 'GMV',          label: 'Total GMV',          accent: '#f59e0b' },
+  { key: 'Order Number', label: 'Total Order Number', accent: '#10b981' },
+  { key: 'Biaya Iklan',  label: 'Total Biaya Iklan',  accent: '#f43f5e' },
+  { key: 'ROI',          label: 'Kalkulasi ROI',      accent: '#a78bfa' },
+];
+const KPI_ALL_BOTTOM = [
+  { key: 'CTR',  label: 'Kalkulasi CTR',  accent: '#ec4899' },
+  { key: 'CTOR', label: 'Kalkulasi CTOR', accent: '#06b6d4' },
+  { key: 'ARPU', label: 'Kalkulasi ARPU', accent: '#34d399' },
+  { key: 'AOV',  label: 'Kalkulasi AOV',  accent: '#f97316' },
 ];
 
 // Untuk backward compat (chart toolbar dll)
@@ -977,7 +994,7 @@ function makeKpiCard(k, kpi, days, hasAds) {
     : fmt(val, type);
   const fullVal = isMoney
     ? `<div class="kpi-full">Rp ${Math.round(val).toLocaleString('id-ID')}</div>` : '';
-  const sub = ['ERR','CTOR','CTR','AOV','ARPU'].includes(k.key)
+  const sub = ['ERR','CTOR','CTR','AOV','ARPU','ROI'].includes(k.key)
     ? `<div class="kpi-delta">Kalkulasi ${days} hari</div>`
     : `<div class="kpi-delta">Total ${days} hari</div>`;
   return `<div class="kpi" style="--accent:${k.accent}">
@@ -992,13 +1009,26 @@ function renderKPI(data) {
   const days = data.length;
   const src  = SOURCES[currentPlatform];
 
+  const topEl = document.getElementById('kpi-top');
+  const bottomEl = document.getElementById('kpi-bottom');
+
+  if (currentPlatform === 'all') {
+    // Tampilan ringkas khusus All Platform: 8 metrik, 2 baris x 4 kolom
+    topEl.classList.add('kpi-row-4col');
+    bottomEl.classList.add('kpi-row-4col');
+    topEl.innerHTML = KPI_ALL_TOP.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
+    bottomEl.innerHTML = KPI_ALL_BOTTOM.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
+    return;
+  }
+
+  topEl.classList.remove('kpi-row-4col');
+  bottomEl.classList.remove('kpi-row-4col');
+
   // Tingkat atas: GMV, AOV, ARPU, Biaya Iklan, ROI
-  document.getElementById('kpi-top').innerHTML =
-    KPI_TOP.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
+  topEl.innerHTML = KPI_TOP.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
 
   // Tingkat bawah: Live Show PV, Live Watch PV, Click Product, Order Number, ERR, CTR, CTOR
-  document.getElementById('kpi-bottom').innerHTML =
-    KPI_BOTTOM.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
+  bottomEl.innerHTML = KPI_BOTTOM.map(k => makeKpiCard(k, kpi, days, src.hasAds)).join('');
 }
 
 let chartInstance = null;
