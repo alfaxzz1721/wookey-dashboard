@@ -210,20 +210,19 @@
     font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
     color: var(--muted); margin-bottom: 10px;
   }
-  .compare-bars { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-  .compare-bar-row { display: flex; align-items: center; gap: 8px; }
+  .compare-bars { display: flex; flex-direction: column; gap: 7px; margin-bottom: 8px; }
+  .compare-bar-row { display: flex; align-items: center; gap: 7px; }
   .compare-bar-platform { width: 14px; font-size: 9px; font-weight: 800; flex-shrink: 0; }
   .compare-bar-track {
-    flex: 1; height: 16px; background: var(--bg); border-radius: 5px; overflow: hidden; position: relative;
+    flex: 1; height: 14px; background: var(--bg); border-radius: 5px; overflow: hidden; position: relative; min-width: 30px;
   }
   .compare-bar-fill {
     height: 100%; border-radius: 5px; transition: width .4s ease;
-    display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
     min-width: 2px;
   }
   .compare-bar-value {
-    font-size: 9.5px; font-weight: 700; color: #fff; font-family: 'JetBrains Mono', monospace;
-    text-shadow: 0 1px 2px rgba(0,0,0,.4); white-space: nowrap;
+    font-size: 10.5px; font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap; flex-shrink: 0; min-width: 64px; text-align: right;
   }
   .compare-diff {
     font-size: 10px; font-weight: 600; padding-top: 6px; border-top: 1px dashed var(--border);
@@ -774,18 +773,16 @@ function renderCompareSection(dateFrom, dateTo) {
           <div class="compare-bar-row">
             <span class="compare-bar-platform" style="color:var(--shopee)">S</span>
             <div class="compare-bar-track">
-              <div class="compare-bar-fill" style="width:${sPct}%;background:var(--shopee);">
-                <span class="compare-bar-value">${fmtCompareValue(s.val, s.type)}</span>
-              </div>
+              <div class="compare-bar-fill" style="width:${sPct}%;background:var(--shopee);"></div>
             </div>
+            <span class="compare-bar-value">${fmtCompareValue(s.val, s.type)}</span>
           </div>
           <div class="compare-bar-row">
             <span class="compare-bar-platform" style="color:var(--tiktok)">T</span>
             <div class="compare-bar-track">
-              <div class="compare-bar-fill" style="width:${tPct}%;background:var(--tiktok);">
-                <span class="compare-bar-value">${fmtCompareValue(t.val, t.type)}</span>
-              </div>
+              <div class="compare-bar-fill" style="width:${tPct}%;background:var(--tiktok);"></div>
             </div>
+            <span class="compare-bar-value">${fmtCompareValue(t.val, t.type)}</span>
           </div>
         </div>
         <div class="compare-diff ${diffClass}">${diffText}</div>
