@@ -94,6 +94,21 @@
   .sidebar-item:hover { background: var(--surface2); color: var(--text); }
   .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
   .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+
+  /* Sub-menu Live Streaming */
+  .sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
+  .sidebar-subitem {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 1px;
+  }
+  .sidebar-subitem:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-subitem.active { background: color-mix(in srgb, var(--shopee) 12%, transparent); color: var(--text); font-weight: 600; }
+  .sidebar-subitem .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .sidebar-subitem.active .dot { background: var(--shopee); }
+  .sidebar-subitem.disabled { opacity: .4; pointer-events: none; }
   .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
   .sidebar-badge {
     margin-left: auto; background: var(--live); color: white;
@@ -228,6 +243,11 @@
       <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
       <a class="sidebar-item" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
       <a class="sidebar-item active" href="#"><span class="sidebar-icon">🔴</span>Live Streaming</a>
+      <div class="sidebar-submenu">
+        <a class="sidebar-subitem active" href="live.html"><span class="dot"></span>Overview Live Streaming</a>
+        <a class="sidebar-subitem disabled" href="#"><span class="dot"></span>Rank By<span style="margin-left:auto;font-size:9px;">Soon</span></a>
+        <a class="sidebar-subitem disabled" href="#"><span class="dot"></span>Pivot Table By<span style="margin-left:auto;font-size:9px;">Soon</span></a>
+      </div>
       <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;"><span class="sidebar-icon">📦</span>Produk<span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span></a>
       <a class="sidebar-item" href="sumber.html"><span class="sidebar-icon">🎯</span>Sumber Penjualan</a>
     </div>
