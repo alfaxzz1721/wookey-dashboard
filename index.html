@@ -1261,6 +1261,7 @@ function renderChartCompareSummary(active, shopeeRaw, tiktokRaw) {
     }
 
     const fmtType = METRICS[key]?.format || 'number';
+    const isAverage = isRatio(key) || key === 'AOV' || key === 'ARPU' || isRoi(key);
     return `
       <div class="chart-summary-pill">
         <span class="label">${key}</span>
@@ -1268,7 +1269,7 @@ function renderChartCompareSummary(active, shopeeRaw, tiktokRaw) {
           <span class="v-shopee">S: ${fmt(sVal, fmtType)}</span>
           <span class="sep">·</span>
           <span class="v-tiktok">T: ${fmt(tVal, fmtType)}</span>
-          <span class="v-total">${isRatio(key) || isRoi(key) ? 'Kalkulasi' : 'Total'}: ${fmt(totVal, fmtType)}</span>
+          <span class="v-total">${isAverage ? 'Rata-Rata' : 'Total'}: ${fmt(totVal, fmtType)}</span>
         </span>
       </div>
     `;
