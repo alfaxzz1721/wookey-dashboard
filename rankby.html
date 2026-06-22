@@ -322,8 +322,8 @@ a { text-decoration: none; }
         <p class="sec-label">Periode</p>
         <div class="period-row">
           <span class="period-lbl">Tampilkan</span>
-          <button class="pill" onclick="setPeriod(this,'kemarin')">Kemarin</button>
-          <button class="pill active" onclick="setPeriod(this,'hari')">Per Hari</button>
+          <button class="pill active" onclick="setPeriod(this,'kemarin')">Kemarin</button>
+          <button class="pill" onclick="setPeriod(this,'hari')">Per Hari</button>
           <button class="pill" onclick="setPeriod(this,'minggu')">Per Minggu</button>
           <button class="pill" onclick="setPeriod(this,'bulan')">Per Bulan</button>
           <button class="pill" onclick="setPeriod(this,'custom')">Custom</button>
@@ -457,7 +457,7 @@ const DIM_META = {
 
 const SORT_MAP = { gmv:'gmv', gmvps:'gmvps', sesi:'sesi', durasi:'durasi', impresi:'impresi', tayangan:'tayangan', penonton:'penonton', err:'err', ctr:'ctr', ctor:'ctor' };
 
-let allData=[], sortDir='asc', activeDim='host', activePeriod='hari';
+let allData=[], sortDir='asc', activeDim='host', activePeriod='kemarin';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function findCol(row, variants) {
@@ -747,6 +747,24 @@ async function init() {
     document.getElementById('loadingArea').style.display='none';
     document.getElementById('headerCtx').textContent=`${allData.length} baris data`;
     applyFilter();
+
+    // Kalau kemarin tidak ada data, otomatis fallback ke data terakhir yang ada
+    const rows = getFilteredRows();
+    if (!rows.length && activePeriod === 'kemarin') {
+      const dates = allData.map(r=>String(findCol(r,COLS.tanggal)||'').slice(0,10)).filter(Boolean).sort();
+      if (dates.length) {
+        const lastDate = dates[dates.length - 1];
+        // Set custom ke tanggal terakhir
+        document.getElementById('dateFrom').value = lastDate;
+        document.getElementById('dateTo').value   = lastDate;
+        document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+        document.querySelector('.pill[onclick*="custom"]').classList.add('active');
+        document.getElementById('customRow').className = 'custom-row show';
+        activePeriod = 'custom';
+        applyFilter();
+        document.getElementById('headerCtx').textContent = `${allData.length} baris data · otomatis ke ${lastDate}`;
+      }
+    }
 
   } catch(err) {
     document.getElementById('loadingArea').style.display='none';
