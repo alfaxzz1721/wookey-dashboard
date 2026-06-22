@@ -749,7 +749,7 @@ async function init() {
     applyFilter();
 
     // Kalau kemarin tidak ada data, otomatis fallback ke data terakhir yang ada
-    const rows = getFilteredRows();
+    const rows = filterRows();
     if (!rows.length && activePeriod === 'kemarin') {
       const dates = allData.map(r=>String(findCol(r,COLS.tanggal)||'').slice(0,10)).filter(Boolean).sort();
       if (dates.length) {
