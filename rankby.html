@@ -4,212 +4,208 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wookey Weight — Rank By</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-  :root {
-    --bg:        #0c0e14;
-    --surface:   #13151f;
-    --surface2:  #1a1d2a;
-    --border:    #252836;
-    --text:      #e8eaf2;
-    --muted:     #5a6070;
-    --shopee:    #EE4D2D;
-    --tiktok:    #ff0050;
-    --green:     #10b981;
-    --red:       #ef4444;
-    --gold:      #fbbf24;
-    --silver:    #cbd5e1;
-    --bronze:    #f97316;
-  }
+:root {
+  --bg:       #0c0e14;
+  --surface:  #13151f;
+  --surface2: #1a1d2a;
+  --border:   #252836;
+  --text:     #e8eaf2;
+  --muted:    #5a6070;
+  --shopee:   #EE4D2D;
+  --amber:    #f59e0b;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --live:     #ef4444;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
-  .app-layout { display: flex; min-height: 100vh; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+a { text-decoration: none; }
+.app-layout { display: flex; min-height: 100vh; }
 
-  /* ── Sidebar ─────────────────────────────────────── */
-  .sidebar {
-    width: 220px; min-width: 220px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    position: fixed; top: 0; left: 0;
-    height: 100vh; z-index: 200; overflow-y: auto;
-    transition: transform .25s cubic-bezier(.4,0,.2,1);
-  }
-  .sidebar.collapsed { transform: translateX(-220px); }
-  .sidebar-close {
-    position: absolute; top: 14px; right: 10px;
-    width: 28px; height: 28px;
-    background: transparent; border: none;
-    border-radius: 6px; cursor: pointer;
-    color: var(--muted); font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all .15s;
-  }
-  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
-  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 199; }
-  .sidebar-overlay.show { display: block; }
-  .content-area {
-    margin-left: 220px; width: calc(100% - 220px);
-    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
-    transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
-  }
-  .content-area.expanded { margin-left: 0; width: 100%; }
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px; min-width: 220px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100vh; z-index: 200; overflow-y: auto;
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.sidebar.collapsed { transform: translateX(-220px); }
+.sidebar-close {
+  position: absolute; top: 14px; right: 10px; width: 28px; height: 28px;
+  background: transparent; border: none; border-radius: 6px; cursor: pointer;
+  color: var(--muted); font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.sidebar-close:hover { background: var(--surface2); color: var(--text); }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 199; }
+.sidebar-overlay.show { display: block; }
+.content-area {
+  margin-left: 220px; width: calc(100% - 220px);
+  flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+  transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
+}
+.content-area.expanded { margin-left: 0; width: 100%; }
+.sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.sidebar-brand .logo { font-size: 10px; padding: 4px 10px; }
+.sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.sidebar-brand-sub { font-size: 10px; color: var(--muted); }
+.sidebar-section { padding: 16px 12px 8px; }
+.sidebar-section-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
+.sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; text-decoration: none; transition: all .15s; margin-bottom: 2px; }
+.sidebar-item:hover { background: var(--surface2); color: var(--text); }
+.sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+.sidebar-item.active .sidebar-icon { color: var(--shopee); }
+.sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
+.sidebar-subitem { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; text-decoration: none; transition: all .15s; margin-bottom: 1px; }
+.sidebar-subitem:hover { background: var(--surface2); color: var(--text); }
+.sidebar-subitem.active { background: color-mix(in srgb, var(--shopee) 12%, transparent); color: var(--text); font-weight: 600; }
+.sidebar-subitem .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+.sidebar-subitem.active .dot { background: var(--shopee); }
+.sidebar-subitem.disabled { opacity: .4; pointer-events: none; }
+.sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
 
-  .sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-  .logo { background: var(--shopee); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
-  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
-  .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
-  .sidebar-section { padding: 16px 12px 8px; }
-  .sidebar-section-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
-  .sidebar-item {
-    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 7px;
-    font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; text-decoration: none;
-    transition: all .15s; margin-bottom: 2px;
-  }
-  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
-  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
-  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
-  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+/* ── Header ── */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+.logo { background: var(--shopee); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 5px 12px; border-radius: 4px; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.header-title { font-size: 16px; font-weight: 600; }
+.header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
+.hamburger { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; display: none; align-items: center; margin-right: 4px; padding: 0; }
 
-  .sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
-  .sidebar-subitem {
-    display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 6px;
-    font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; text-decoration: none;
-    transition: all .15s; margin-bottom: 1px;
-  }
-  .sidebar-subitem:hover { background: var(--surface2); color: var(--text); }
-  .sidebar-subitem.active { background: color-mix(in srgb, var(--shopee) 12%, transparent); color: var(--text); font-weight: 600; }
-  .sidebar-subitem .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
-  .sidebar-subitem.active .dot { background: var(--shopee); }
-  .sidebar-subitem.disabled { opacity: .4; pointer-events: none; }
+/* ── Main ── */
+.main { padding: 24px 28px; max-width: 1100px; }
 
-  .header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .header-title { font-size: 16px; font-weight: 600; }
-  .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
-  .main { padding: 24px 28px; }
+/* ── Filter Card ── */
+.filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+.sec-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 10px; }
 
-  /* Toggle dimensi */
-  .dim-tabs { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-  .dim-tab {
-    display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
-    border: 1.5px solid var(--border); background: var(--surface); color: var(--muted);
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
-  }
-  .dim-tab.active { border-color: #6366f1; color: var(--text); background: color-mix(in srgb, #6366f1 12%, var(--surface)); }
+/* Rank-by toggle */
+.dim-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: fit-content; margin-bottom: 14px; }
+.dim-btn { display: flex; align-items: center; gap: 7px; padding: 9px 18px; background: transparent; color: var(--muted); border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; border-right: 1px solid var(--border); transition: all .15s; }
+.dim-btn:last-child { border-right: none; }
+.dim-btn.active { background: var(--amber); color: #1a1a1a; }
+.dim-btn i { font-size: 15px; }
 
-  /* Platform toggle */
-  .platform-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
-  .platform-btn {
-    display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 9px;
-    border: 1.5px solid var(--border); background: var(--surface); color: var(--muted);
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
-  }
-  .platform-btn.active-all    { border-color: #6366f1; color: #fff; background: #6366f1; }
-  .platform-btn.active-shopee { border-color: var(--shopee); color: #fff; background: var(--shopee); }
-  .platform-btn.active-tiktok { border-color: var(--tiktok); color: #fff; background: var(--tiktok); }
+.dim-note { display: flex; align-items: flex-start; gap: 8px; background: color-mix(in srgb, var(--amber) 8%, transparent); border: 1px solid color-mix(in srgb, var(--amber) 20%, transparent); border-radius: 8px; padding: 9px 14px; font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+.dim-note i { color: var(--amber); flex-shrink: 0; margin-top: 1px; }
 
-  /* Toolbar periode */
-  .toolbar {
-    display: flex; align-items: center; gap: 4px; margin-bottom: 16px; flex-wrap: nowrap;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 8px 12px; overflow-x: auto;
-  }
-  .toolbar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 2px; white-space: nowrap; }
-  .toggle {
-    display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 20px;
-    border: 1.5px solid var(--border); background: transparent; color: var(--muted);
-    font-size: 11px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer;
-    transition: all .15s; white-space: nowrap; flex-shrink: 0;
-  }
-  .toggle.active { border-color: var(--shopee); color: var(--text); background: color-mix(in srgb, var(--shopee) 15%, transparent); }
+/* Filter grid */
+.filter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.fi { display: flex; flex-direction: column; gap: 5px; }
+.fi label { font-size: 11px; font-weight: 500; color: var(--muted); }
+.fi select, .fi input[type=date] {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 7px;
+  color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif;
+  padding: 7px 10px; cursor: pointer; width: 100%; outline: none; transition: border-color .15s;
+}
+.fi select:focus, .fi input:focus { border-color: var(--amber); }
+.fi.dimmed { opacity: .35; pointer-events: none; }
+.fi.dimmed label::after { content: ' — dimensi aktif'; font-style: italic; opacity: .7; }
 
-  #period-filter {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px;
-  }
-  #period-filter input, #period-filter select {
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-size: 12px; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; cursor: pointer;
-  }
+/* Period pills */
+.period-row { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.period-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-right: 4px; white-space: nowrap; }
+.pill { font-size: 12px; padding: 5px 13px; border: 1px solid var(--border); border-radius: 20px; background: transparent; color: var(--muted); cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap; transition: all .15s; }
+.pill.active { background: var(--amber); color: #1a1a1a; border-color: var(--amber); font-weight: 600; }
+.pill:hover:not(.active) { border-color: var(--amber); color: var(--text); }
+.custom-row { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.custom-row.show { display: grid; }
 
-  /* Search box */
-  .search-box {
-    margin-bottom: 16px;
-  }
-  .search-box input {
-    width: 100%; max-width: 320px; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 9px 14px; color: var(--text); font-size: 12px;
-    font-family: 'Inter', sans-serif;
-  }
-  .search-box input::placeholder { color: var(--muted); }
+/* Sort row */
+.sort-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.sort-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); white-space: nowrap; }
+.sort-select { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; padding: 7px 10px; flex: 1; cursor: pointer; outline: none; }
+.sort-select:focus { border-color: var(--amber); }
+.dir-toggle { display: flex; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; flex-shrink: 0; }
+.dir-btn { display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 7px 12px; background: transparent; color: var(--muted); cursor: pointer; border: none; font-family: 'Inter', sans-serif; white-space: nowrap; transition: all .15s; }
+.dir-btn:first-child { border-right: 1px solid var(--border); }
+.dir-btn.active { background: var(--surface2); color: var(--text); font-weight: 600; }
 
-  /* Rank table */
-  .rank-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-  .rank-card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  .rank-card-title { font-size: 13px; font-weight: 700; }
-  .rank-card-title .accent { color: var(--shopee); }
-  .sort-controls { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
-  .sort-controls select {
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-size: 11px; padding: 5px 8px; cursor: pointer;
-  }
+/* Apply button */
+.apply-btn { width: 100%; padding: 10px; background: var(--amber); color: #1a1a1a; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; }
+.apply-btn:hover { background: #d97706; }
 
-  .table-scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
-  thead th {
-    text-align: right; padding: 10px 14px; background: var(--surface2);
-    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap;
-  }
-  thead th:first-child, thead th:nth-child(2) { text-align: left; }
-  tbody td {
-    text-align: right; padding: 10px 14px; font-family: 'JetBrains Mono', monospace;
-    border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap;
-  }
-  tbody td:first-child { text-align: center; font-family: 'Inter', sans-serif; color: var(--muted); width: 40px; }
-  tbody td:nth-child(2) { text-align: left; font-family: 'Inter', sans-serif; font-weight: 600; }
-  tbody tr:hover td { background: var(--surface2); }
-  tbody tr:last-child td { border-bottom: none; }
+/* ── Baseline ── */
+.baseline-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; }
+.bl-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.bl-hdr-l { display: flex; align-items: center; gap: 8px; }
+.bl-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.bl-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: color-mix(in srgb, var(--amber) 15%, transparent); color: var(--amber); font-weight: 600; border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent); }
+.bl-ctx { font-size: 11px; color: var(--muted); }
+.bl-grid { display: grid; grid-template-columns: repeat(5, 1fr); }
+.bm { padding: 10px 12px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.bm:nth-child(5n) { border-right: none; }
+.bm:nth-child(n+6) { border-bottom: none; }
+.bm-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; line-height: 1.3; }
+.bm-val { font-size: 15px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.bm-unit { font-size: 9px; color: var(--muted); margin-top: 2px; }
 
-  .rank-badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 800;
-  }
-  .rank-badge.r1 { background: color-mix(in srgb, var(--gold) 22%, transparent); color: var(--gold); }
-  .rank-badge.r2 { background: color-mix(in srgb, var(--silver) 22%, transparent); color: var(--silver); }
-  .rank-badge.r3 { background: color-mix(in srgb, var(--bronze) 22%, transparent); color: var(--bronze); }
+/* ── Rank list ── */
+.rank-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.rank-title-txt { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.sort-badge { font-size: 11px; color: var(--muted); }
+.rank-scroll { max-height: 620px; overflow-y: auto; padding-right: 2px; }
+.rank-scroll::-webkit-scrollbar { width: 3px; }
+.rank-scroll::-webkit-scrollbar-track { background: var(--surface2); }
+.rank-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.rank-list { display: flex; flex-direction: column; gap: 7px; }
+.rk-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; transition: border-color .15s; }
+.rk-card:hover { border-color: color-mix(in srgb, var(--amber) 40%, transparent); }
+.rk-card.r1 { border: 1.5px solid #f59e0b; background: color-mix(in srgb, #f59e0b 7%, transparent); }
+.rk-card.r2 { border: 1.5px solid #6b7280; background: color-mix(in srgb, #6b7280 7%, transparent); }
+.rk-card.r3 { border: 1.5px solid var(--shopee); background: color-mix(in srgb, var(--shopee) 7%, transparent); }
+.medal { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+.m1 { background: color-mix(in srgb,#f59e0b 20%,transparent); color: #f59e0b; border: 1px solid #f59e0b; }
+.m2 { background: color-mix(in srgb,#6b7280 20%,transparent); color: #9ca3af; border: 1px solid #6b7280; }
+.m3 { background: color-mix(in srgb,var(--shopee) 20%,transparent); color: var(--shopee); border: 1px solid var(--shopee); }
+.mn { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.ci { flex: 1; min-width: 0; }
+.cname { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tags { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
+.tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
+.t-pagi   { background: color-mix(in srgb,#3b82f6 15%,transparent); color:#60a5fa; border:1px solid color-mix(in srgb,#3b82f6 30%,transparent); }
+.t-siang  { background: color-mix(in srgb,#10b981 15%,transparent); color:#34d399; border:1px solid color-mix(in srgb,#10b981 30%,transparent); }
+.t-malam  { background: color-mix(in srgb,#8b5cf6 15%,transparent); color:#a78bfa; border:1px solid color-mix(in srgb,#8b5cf6 30%,transparent); }
+.t-dalu   { background: color-mix(in srgb,#6b7280 15%,transparent); color:#9ca3af; border:1px solid color-mix(in srgb,#6b7280 30%,transparent); }
+.t-shopee { background: color-mix(in srgb,#EE4D2D 15%,transparent); color:#f87171; border:1px solid color-mix(in srgb,#EE4D2D 30%,transparent); }
+.t-tiktok { background: color-mix(in srgb,#ff0050 15%,transparent); color:#fb7185; border:1px solid color-mix(in srgb,#ff0050 30%,transparent); }
+.t-amber  { background: color-mix(in srgb,#f59e0b 15%,transparent); color:#fbbf24; border:1px solid color-mix(in srgb,#f59e0b 30%,transparent); }
+.bar-row { display: flex; align-items: center; gap: 8px; }
+.bar-lbl { font-size: 10px; color: var(--muted); white-space: nowrap; }
+.bar-bg { flex: 1; height: 4px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+.bar-pct { font-size: 11px; font-weight: 600; color: var(--muted); min-width: 38px; text-align: right; font-family: 'JetBrains Mono', monospace; }
+.cr { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.cmain { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.cs1 { font-size: 11px; color: var(--muted); }
+.cs2 { font-size: 11px; color: var(--amber); font-weight: 600; }
+.cs3 { font-size: 10px; color: var(--muted); }
+.scroll-hint { font-size: 10px; color: var(--muted); text-align: right; margin-bottom: 5px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.rank-footer { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
 
-  .platform-pill {
-    display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
-    margin-left: 6px; vertical-align: middle;
-  }
-  .platform-pill.shopee { background: color-mix(in srgb, var(--shopee) 20%, transparent); color: var(--shopee); }
-  .platform-pill.tiktok { background: color-mix(in srgb, var(--tiktok) 20%, transparent); color: var(--tiktok); }
+/* ── Loading / Error ── */
+.loading { display: flex; align-items: center; justify-content: center; height: 180px; color: var(--muted); gap: 12px; font-size: 14px; }
+.spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--amber); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 14px 16px; color: #f87171; font-size: 13px; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: color-mix(in srgb,var(--amber) 8%,transparent); border: 1px solid color-mix(in srgb,var(--amber) 25%,transparent); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
 
-  .contrib-bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
-  .contrib-track { width: 60px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
-  .contrib-fill { height: 100%; background: var(--shopee); border-radius: 3px; }
-
-  .sum-row td { font-weight: 700; color: #fff; background: var(--surface2); border-top: 2px solid var(--border); }
-
-  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
-  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
-  .empty-state { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
-
-  @media (max-width: 900px) {
-    .sidebar { transform: translateX(-220px); }
-    .content-area { margin-left: 0 !important; width: 100% !important; }
-    .main { padding: 16px; }
-    .header { padding: 12px 16px; }
-  }
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-220px); }
+  .content-area { margin-left: 0 !important; width: 100% !important; }
+  .main { padding: 16px; }
+  .filter-grid { grid-template-columns: 1fr 1fr; }
+  .bl-grid { grid-template-columns: repeat(3,1fr); }
+  .hamburger { display: flex !important; }
+  .header { padding: 12px 16px; }
+}
 </style>
 </head>
 <body>
@@ -217,9 +213,7 @@
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
-    <button class="sidebar-close" onclick="toggleSidebar()" title="Tutup sidebar">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    </button>
+    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
     <div class="sidebar-brand">
       <span class="logo">S</span>
       <div>
@@ -247,426 +241,526 @@
       <a class="sidebar-item" href="https://drive.google.com" target="_blank"><span class="sidebar-icon">📁</span>Google Drive</a>
     </div>
     <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
-      <div style="font-size:10px;color:var(--muted);text-align:center;">Data Master Live Streaming</div>
+      <div style="font-size:10px;color:var(--muted);text-align:center;">Auto-update setiap hari 15:05</div>
     </div>
   </aside>
+  <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-  <div class="content-area">
+  <!-- Content -->
+  <div class="content-area" id="content">
     <div class="header">
-      <button onclick="toggleSidebar()" style="background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:var(--muted);flex-shrink:0;transition:all .15s;" title="Toggle sidebar" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
+      <button class="hamburger" onclick="toggleSidebar()" style="display:none">
+        <i class="ti ti-menu-2"></i>
       </button>
-      <span class="logo">S</span>
-      <span class="header-title">Live Streaming — Rank By</span>
-      <span class="header-sub" id="date-range">Memuat...</span>
+      <span class="logo">LIVE</span>
+      <div class="live-dot"></div>
+      <span class="header-title">Rank By — Live Streaming</span>
+      <span class="header-sub" id="headerCtx">Memuat...</span>
     </div>
 
     <div class="main">
-      <div id="error-container"></div>
+      <div id="errorContainer"></div>
 
-      <!-- Toggle dimensi: Shift / Akun / Host Live -->
-      <div class="dim-tabs">
-        <div class="dim-tab active" data-dim="shift" onclick="setDimension('shift', this)">📅 Rank by Shift</div>
-        <div class="dim-tab" data-dim="akun" onclick="setDimension('akun', this)">👤 Rank by Account</div>
-        <div class="dim-tab" data-dim="host" onclick="setDimension('host', this)">🎙️ Rank by Hostlive</div>
-      </div>
+      <!-- Filter Card -->
+      <div class="filter-card">
 
-      <!-- Platform toggle -->
-      <div class="platform-toggle">
-        <button class="platform-btn active-all" id="btn-all" onclick="setPlatform('all')">🔀 All Platform</button>
-        <button class="platform-btn" id="btn-shopee" onclick="setPlatform('shopee')">🛒 Shopee</button>
-        <button class="platform-btn" id="btn-tiktok" onclick="setPlatform('tiktok')">🎵 TikTok</button>
-      </div>
-
-      <!-- Toolbar Periode -->
-      <div class="toolbar">
-        <span class="toolbar-label">Tampilkan per:</span>
-        <button class="toggle" data-quick="yesterday" onclick="quickSelect('yesterday')">Kemarin</button>
-        <button class="toggle" data-quick="7days" onclick="quickSelect('7days')">7 Hari</button>
-        <button class="toggle active" data-quick="30days" onclick="quickSelect('30days')">30 Hari</button>
-        <div style="width:1px;height:16px;background:var(--border);margin:0 4px;"></div>
-        <button class="toggle" data-group="month" onclick="setGroup('month')">Per Bulan</button>
-        <button class="toggle" data-group="custom" onclick="setGroup('custom')">Custom</button>
-      </div>
-
-      <div id="period-filter" style="display:none;">
-        <span class="toolbar-label">Periode:</span>
-        <div id="filter-month" style="display:none;align-items:center;gap:8px;">
-          <select id="month-from"></select>
-          <span style="color:var(--muted);font-size:12px;">s/d</span>
-          <select id="month-to"></select>
-          <button onclick="applyFilterMonth()" class="toggle active">Terapkan</button>
+        <!-- Rank By Toggle -->
+        <p class="sec-label">Rank by</p>
+        <div class="dim-toggle">
+          <button class="dim-btn active" id="dimHost" onclick="setDim('host')">
+            <i class="ti ti-user" aria-hidden="true"></i> Hostlive
+          </button>
+          <button class="dim-btn" id="dimShift" onclick="setDim('shift')">
+            <i class="ti ti-clock" aria-hidden="true"></i> Shift
+          </button>
+          <button class="dim-btn" id="dimAcc" onclick="setDim('acc')">
+            <i class="ti ti-building-store" aria-hidden="true"></i> Account
+          </button>
         </div>
-        <div id="filter-custom" style="display:none;align-items:center;gap:8px;">
-          <input type="date" id="custom-from">
-          <span style="color:var(--muted);font-size:12px;">s/d</span>
-          <input type="date" id="custom-to">
-          <button onclick="applyFilterCustom()" class="toggle active">Terapkan</button>
+
+        <div class="dim-note" id="dimNote">
+          <i class="ti ti-info-circle" style="font-size:14px" aria-hidden="true"></i>
+          <span id="dimNoteText">Ranking dikelompokkan per <strong>Hostlive</strong>. Filter Shift & Account berlaku sebagai penyaring data.</span>
         </div>
-        <button onclick="resetFilter()" class="toggle" style="margin-left:4px;">Reset</button>
-      </div>
 
-      <!-- Search -->
-      <div class="search-box">
-        <input type="text" id="search-input" placeholder="🔍 Cari nama shift/akun/host..." oninput="renderTable()">
-      </div>
-
-      <!-- Rank Table -->
-      <div class="rank-card">
-        <div class="rank-card-header">
-          <div class="rank-card-title">Rank by <span class="accent" id="rank-title-dim">Shift</span> <span id="rank-title-count" style="color:var(--muted);font-weight:500;"></span></div>
-          <div class="sort-controls">
-            Urutkan:
-            <select id="sort-select" onchange="renderTable()">
-              <option value="GMV">GMV</option>
-              <option value="Order Number">Order Number</option>
-              <option value="CTR">CTR</option>
-              <option value="CTOR">CTOR</option>
-              <option value="ERR">ERR</option>
-              <option value="AOV">AOV</option>
+        <!-- Filter Grid -->
+        <p class="sec-label">Filter data</p>
+        <div class="filter-grid">
+          <div class="fi">
+            <label>Platform</label>
+            <select id="fPlatform">
+              <option value="all">All Platform</option>
+              <option value="shopee">Shopee</option>
+              <option value="tiktok">TikTok</option>
+            </select>
+          </div>
+          <div class="fi" id="fiShift">
+            <label>Shift</label>
+            <select id="fShift">
+              <option value="all">All Shift</option>
+              <option value="Pagi">Pagi</option>
+              <option value="Siang">Siang</option>
+              <option value="Malam">Malam</option>
+              <option value="Dalu">Dalu</option>
+            </select>
+          </div>
+          <div class="fi" id="fiAcc">
+            <label>Account</label>
+            <select id="fAccount">
+              <option value="all">All Account</option>
+            </select>
+          </div>
+          <div class="fi" id="fiHost">
+            <label>Hostlive</label>
+            <select id="fHost">
+              <option value="all">All Hostlive</option>
             </select>
           </div>
         </div>
-        <div class="table-scroll" id="table-container">
-          <div class="loading"><div class="spinner"></div></div>
+
+        <!-- Period -->
+        <p class="sec-label">Periode</p>
+        <div class="period-row">
+          <span class="period-lbl">Tampilkan</span>
+          <button class="pill" onclick="setPeriod(this,'kemarin')">Kemarin</button>
+          <button class="pill active" onclick="setPeriod(this,'hari')">Per Hari</button>
+          <button class="pill" onclick="setPeriod(this,'minggu')">Per Minggu</button>
+          <button class="pill" onclick="setPeriod(this,'bulan')">Per Bulan</button>
+          <button class="pill" onclick="setPeriod(this,'custom')">Custom</button>
+        </div>
+        <div class="custom-row" id="customRow">
+          <div class="fi"><label>Dari tanggal</label><input type="date" id="dateFrom"></div>
+          <div class="fi"><label>Sampai tanggal</label><input type="date" id="dateTo"></div>
+        </div>
+
+        <!-- Sort -->
+        <p class="sec-label">Urutkan berdasarkan</p>
+        <div class="sort-row">
+          <span class="sort-lbl">Metrik</span>
+          <select class="sort-select" id="sortMetric" onchange="updateSortBadge()">
+            <option value="gmv">Total GMV</option>
+            <option value="gmvps">GMV Per Session</option>
+            <option value="sesi">Sesi Live</option>
+            <option value="durasi">Durasi Per Session</option>
+            <option value="impresi">Impresi Per Session</option>
+            <option value="tayangan">Tayangan Per Session</option>
+            <option value="penonton">Avr. Penonton</option>
+            <option value="err">ERR</option>
+            <option value="ctr">CTR</option>
+            <option value="ctor">CTOR</option>
+          </select>
+          <div class="dir-toggle">
+            <button class="dir-btn" id="btnDesc" onclick="setDir('desc')">
+              <i class="ti ti-arrow-down" aria-hidden="true"></i> Desc
+            </button>
+            <button class="dir-btn active" id="btnAsc" onclick="setDir('asc')">
+              <i class="ti ti-arrow-up" aria-hidden="true"></i> Asc
+            </button>
+          </div>
+        </div>
+
+        <button class="apply-btn" onclick="applyFilter()">
+          <i class="ti ti-chart-bar" aria-hidden="true"></i> Tampilkan Ranking
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div id="loadingArea" class="loading" style="display:none">
+        <div class="spinner"></div> Memuat data live streaming...
+      </div>
+
+      <!-- Baseline -->
+      <div class="baseline-card" id="baselineCard" style="display:none">
+        <div class="bl-hdr">
+          <div class="bl-hdr-l">
+            <i class="ti ti-line-dashed" style="font-size:14px;color:var(--muted)" aria-hidden="true"></i>
+            <span class="bl-title">Baseline</span>
+            <span class="bl-badge" id="blBadge">—</span>
+          </div>
+          <span class="bl-ctx" id="blCtx">—</span>
+        </div>
+        <div class="bl-grid">
+          <div class="bm"><div class="bm-label">Total GMV</div><div class="bm-val" id="bm-gmv">—</div><div class="bm-unit">dari live</div></div>
+          <div class="bm"><div class="bm-label">GMV Per Session</div><div class="bm-val" id="bm-gmvps">—</div><div class="bm-unit">rata-rata</div></div>
+          <div class="bm"><div class="bm-label">Sesi Live</div><div class="bm-val" id="bm-sesi">—</div><div class="bm-unit">total sesi</div></div>
+          <div class="bm"><div class="bm-label">Durasi Per Session</div><div class="bm-val" id="bm-durasi">—</div><div class="bm-unit">menit rata-rata</div></div>
+          <div class="bm"><div class="bm-label">Impresi Per Session</div><div class="bm-val" id="bm-impresi">—</div><div class="bm-unit">rata-rata</div></div>
+          <div class="bm"><div class="bm-label">Tayangan Per Session</div><div class="bm-val" id="bm-tayangan">—</div><div class="bm-unit">rata-rata</div></div>
+          <div class="bm"><div class="bm-label">Avr. Penonton</div><div class="bm-val" id="bm-penonton">—</div><div class="bm-unit">per sesi</div></div>
+          <div class="bm"><div class="bm-label">ERR</div><div class="bm-val" id="bm-err">—</div><div class="bm-unit">engagement rate</div></div>
+          <div class="bm"><div class="bm-label">CTR</div><div class="bm-val" id="bm-ctr">—</div><div class="bm-unit">click-through</div></div>
+          <div class="bm"><div class="bm-label">CTOR</div><div class="bm-val" id="bm-ctor">—</div><div class="bm-unit">click-to-order</div></div>
         </div>
       </div>
-    </div>
-  </div>
+
+      <!-- Ranking -->
+      <div id="rankSection" style="display:none">
+        <div class="rank-hdr">
+          <span class="rank-title-txt">Ranking — <span id="rkCount">0</span> <span id="rkDimLbl">item</span></span>
+          <span class="sort-badge" id="sortBadge">Total GMV · Ascending</span>
+        </div>
+        <div class="scroll-hint">
+          <i class="ti ti-mouse" style="font-size:12px" aria-hidden="true"></i> scroll untuk lihat semua
+        </div>
+        <div class="rank-scroll">
+          <div class="rank-list" id="rankList"></div>
+        </div>
+        <div class="rank-footer" id="rankFooter"></div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /content -->
 </div>
 
 <script>
 const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+const SOURCES  = { shopee: 'Shopee Live Harian', tiktok: 'TikTok Live Harian' };
 
-const SHEET_MAP = {
-  shift: 'Live RankBy Shift',
-  akun:  'Live RankBy Akun',
-  host:  'Live RankBy Host',
+// Column variants
+const COLS = {
+  tanggal:  ['Tanggal','Date','Tgl'],
+  hostlive: ['Hostlive','Host','Nama Host','Nama Hostlive','Host Live','HL'],
+  shift:    ['Shift','Waktu Shift','Periode Shift'],
+  account:  ['Account','Akun','Nama Akun','Username'],
+  gmv:      ['GMV','GMV dari LIVE','GMV Live'],
+  order:    ['Order Number','Order','Jumlah Order'],
+  click:    ['Click Product','Click','Klik Produk'],
+  watch:    ['Live Watch PV','Watch PV','Tayangan'],
+  show:     ['Live Show PV','Show PV','Impresi'],
+  durasi:   ['Durasi','Durasi Live','Durasi (menit)','Duration'],
+  penonton: ['Avr. Penonton','Avg Penonton','Penonton','Peak Viewer'],
 };
-const DIM_LABEL = { shift: 'Shift', akun: 'Account', host: 'Hostlive' };
-const DIM_COL_LABEL = { shift: 'Shift Live Streaming', akun: 'Akun', host: 'Host Live' };
 
-let currentDim = 'shift';
-let currentPlatform = 'all';
-let rawData = {};      // cache per dimensi: { shift: [...], akun: [...], host: [...] }
-let filteredData = [];
+const DIM_META = {
+  host: {
+    label:'Hostlive', dimLbl:'hostlive',
+    note:'Ranking dikelompokkan per <strong>Hostlive</strong>. Filter Shift & Account berlaku sebagai penyaring data.',
+    disabledFi: [], groupFn: r => findCol(r,COLS.hostlive)||'Unknown',
+    tagFn: r => { const s=findCol(r,COLS.shift); return s?[shiftTag(s)]:[]; },
+    platTagFn: r => [platTag(r._plat)],
+  },
+  shift: {
+    label:'Shift', dimLbl:'shift',
+    note:'Ranking dikelompokkan per <strong>Shift</strong>. Filter Shift dinonaktifkan karena menjadi dimensi ranking.',
+    disabledFi: ['fiShift'], groupFn: r => findCol(r,COLS.shift)||'—',
+    tagFn: r => [platTag(r._plat)],
+    platTagFn: ()=>[],
+  },
+  acc: {
+    label:'Account', dimLbl:'account',
+    note:'Ranking dikelompokkan per <strong>Account</strong>. Filter Account dinonaktifkan karena menjadi dimensi ranking.',
+    disabledFi: ['fiAcc'], groupFn: r => findCol(r,COLS.account)||'Unknown',
+    tagFn: r => { const s=findCol(r,COLS.shift); return s?[shiftTag(s)]:[]; },
+    platTagFn: r => [platTag(r._plat)],
+  },
+};
 
-function fmtNum(v) { return Math.round(Number(v)||0).toLocaleString('id-ID'); }
-function fmtRp(v) {
-  v = Number(v) || 0;
-  return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+const SORT_MAP = { gmv:'gmv', gmvps:'gmvps', sesi:'sesi', durasi:'durasi', impresi:'impresi', tayangan:'tayangan', penonton:'penonton', err:'err', ctr:'ctr', ctor:'ctor' };
+
+let allData=[], sortDir='asc', activeDim='host', activePeriod='hari';
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+function findCol(row, variants) {
+  for (const v of variants) {
+    if (row[v] !== undefined && row[v] !== '') return row[v];
+  }
+  return '';
 }
-function fmtPct(v) { return (Number(v)||0).toFixed(2) + '%'; }
 
-async function fetchSheet(sheetName) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&headers=1&_cb=${Date.now()}`;
+function shiftTag(s) {
+  const m = { Pagi:'t-pagi', Siang:'t-siang', Malam:'t-malam', Dalu:'t-dalu' };
+  return { cls: m[s]||'t-dalu', lbl: s };
+}
+function platTag(p) {
+  if (p==='shopee') return { cls:'t-shopee', lbl:'Shopee' };
+  if (p==='tiktok') return { cls:'t-tiktok', lbl:'TikTok' };
+  return { cls:'t-amber', lbl: p };
+}
+
+function fmtRp(v) { if(v>=1e9)return'Rp '+(v/1e9).toFixed(1)+'M'; if(v>=1e6)return'Rp '+(v/1e6).toFixed(1)+'jt'; return'Rp '+Math.round(v).toLocaleString('id-ID'); }
+function fmtN(v)  { if(v>=1e6)return(v/1e6).toFixed(1)+'M'; if(v>=1e3)return(v/1e3).toFixed(1)+'K'; return Math.round(v).toLocaleString('id-ID'); }
+function fmtP(v)  { return (+v).toFixed(2)+'%'; }
+function fmtM(v)  { return Math.round(v)+' min'; }
+
+// ── fetch ────────────────────────────────────────────────────────────────────
+async function fetchSheet(name, plat) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1&_cb=${Date.now()}`;
   const res  = await fetch(url);
   const text = await res.text();
-  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
-  let cols = json.table.cols.map(c => c.label);
-  let rows = json.table.rows;
-  if (!cols[0] && rows.length > 0) {
-    cols = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v) : '');
-    rows = rows.slice(1);
-  }
-  return rows.map(row => {
-    const obj = {};
-    cols.forEach((col, i) => {
-      if (!col) return;
-      const cell = row.c[i];
-      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = (col==='Tanggal'||col==='Platform'||col==='Dimensi') ? '' : 0; return; }
-      if (col === 'Tanggal' || col === 'Platform' || col === 'Dimensi') {
-        obj[col] = String(cell.v);
-      } else {
-        const n = parseFloat(String(cell.v).replace(',', '.'));
-        obj[col] = isNaN(n) ? 0 : n;
-      }
-    });
+  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s,'$1'));
+  const cols = json.table.cols.map(c=>c.label);
+  return json.table.rows.map(row=>{
+    const obj={_plat:plat};
+    cols.forEach((c,i)=>{ const cell=row.c[i]; obj[c]=(!cell||cell.v===null||cell.v===undefined)?'':cell.v; });
     return obj;
-  }).filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
+  }).filter(r=>{ const t=findCol(r,COLS.tanggal); return t&&t!=='0'&&t!==''; });
 }
 
-async function loadDimension(dim) {
-  if (rawData[dim]) return rawData[dim];
-  const data = await fetchSheet(SHEET_MAP[dim]);
-  rawData[dim] = data;
-  return data;
+// ── filter rows ──────────────────────────────────────────────────────────────
+function getDateRange() {
+  const today=new Date(); const fmt=d=>d.toISOString().split('T')[0];
+  const yest=new Date(today); yest.setDate(today.getDate()-1);
+  if (activePeriod==='kemarin') return [fmt(yest),fmt(yest)];
+  if (activePeriod==='hari')    return [fmt(today),fmt(today)];
+  if (activePeriod==='minggu')  { const m=new Date(today); m.setDate(today.getDate()-today.getDay()+1); return [fmt(m),fmt(today)]; }
+  if (activePeriod==='bulan')   return [fmt(new Date(today.getFullYear(),today.getMonth(),1)),fmt(today)];
+  if (activePeriod==='custom')  return [document.getElementById('dateFrom').value, document.getElementById('dateTo').value];
+  return ['',''];
 }
 
-function applyPlatformFilter(data) {
-  if (currentPlatform === 'all') return data;
-  const targetPlatform = currentPlatform === 'shopee' ? 'Shopee' : 'Tiktok';
-  return data.filter(r => r['Platform'] === targetPlatform);
-}
+function filterRows() {
+  const plat = document.getElementById('fPlatform').value;
+  const shift = document.getElementById('fShift').value;
+  const acc   = document.getElementById('fAccount').value;
+  const host  = document.getElementById('fHost').value;
+  const [from,to] = getDateRange();
+  const meta = DIM_META[activeDim];
 
-function getDateRange(data) {
-  const dates = [...new Set(data.map(d => d['Tanggal']))].sort();
-  return dates;
-}
-
-function setDimension(dim, el) {
-  currentDim = dim;
-  document.querySelectorAll('.dim-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('rank-title-dim').textContent = DIM_LABEL[dim];
-  loadAndFilter();
-}
-
-function setPlatform(platform) {
-  currentPlatform = platform;
-  document.getElementById('btn-all').className    = 'platform-btn' + (platform==='all'?' active-all':'');
-  document.getElementById('btn-shopee').className  = 'platform-btn' + (platform==='shopee'?' active-shopee':'');
-  document.getElementById('btn-tiktok').className  = 'platform-btn' + (platform==='tiktok'?' active-tiktok':'');
-  loadAndFilter();
-}
-
-async function loadAndFilter() {
-  document.getElementById('table-container').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  try {
-    const data = await loadDimension(currentDim);
-    const platformFiltered = applyPlatformFilter(data);
-    const dates = getDateRange(platformFiltered);
-    if (!dates.length) {
-      filteredData = [];
-      renderTable();
-      document.getElementById('date-range').textContent = 'Tidak ada data';
-      return;
+  return allData.filter(r=>{
+    if (plat!=='all' && r._plat!==plat) return false;
+    if (activeDim!=='shift' && shift!=='all') {
+      const rs=findCol(r,COLS.shift); if(rs&&rs!==shift) return false;
     }
-    buildMonthOptions(platformFiltered);
-    quickSelect('30days');
-  } catch (err) {
-    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
-    document.getElementById('table-container').innerHTML = '';
-    console.error(err);
-  }
-}
-
-function quickSelect(val) {
-  const data = applyPlatformFilter(rawData[currentDim] || []);
-  const dates = getDateRange(data);
-  if (!dates.length) { filteredData = []; renderTable(); return; }
-  const last = dates[dates.length - 1];
-  let from = last;
-  if (val === '7days')  { const d = new Date(last); d.setDate(d.getDate()-6);  from = d.toISOString().split('T')[0]; }
-  if (val === '30days') { const d = new Date(last); d.setDate(d.getDate()-29); from = d.toISOString().split('T')[0]; }
-
-  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
-  const qBtn = document.querySelector(`[data-quick="${val}"]`);
-  if (qBtn) qBtn.classList.add('active');
-  document.getElementById('period-filter').style.display = 'none';
-
-  filteredData = val === 'yesterday'
-    ? data.filter(d => d['Tanggal'] === last)
-    : data.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
-
-  renderTable();
-  updateDateRange(filteredData);
-}
-
-function setGroup(group) {
-  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('[data-group]').forEach(b => b.classList.toggle('active', b.dataset.group === group));
-  document.getElementById('period-filter').style.display = 'flex';
-  ['month','custom'].forEach(g => {
-    document.getElementById('filter-'+g).style.display = g === group ? 'flex' : 'none';
+    if (activeDim!=='acc' && acc!=='all') {
+      const ra=findCol(r,COLS.account); if(ra&&ra!==acc) return false;
+    }
+    if (activeDim==='host' && host!=='all') {
+      if(findCol(r,COLS.hostlive)!==host) return false;
+    }
+    const rd=String(findCol(r,COLS.tanggal)||'').slice(0,10);
+    if(from&&rd<from) return false;
+    if(to&&rd>to) return false;
+    return true;
   });
 }
 
-function buildMonthOptions(data) {
-  const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const months = {};
-  data.forEach(d => {
-    const date = new Date(d['Tanggal']);
-    const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
-    if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
+// ── aggregate ────────────────────────────────────────────────────────────────
+function aggregate(rows) {
+  const meta=DIM_META[activeDim]; const map={};
+  rows.forEach(r=>{
+    const key=meta.groupFn(r);
+    if (!map[key]) map[key]={key,_plat:r._plat,_shift:findCol(r,COLS.shift),_acc:findCol(r,COLS.account),sesi:0,gmv:0,order:0,click:0,watch:0,show:0,dur:0,pen:0};
+    const d=map[key];
+    d.sesi++;
+    d.gmv   +=Number(findCol(r,COLS.gmv))     ||0;
+    d.order +=Number(findCol(r,COLS.order))   ||0;
+    d.click +=Number(findCol(r,COLS.click))   ||0;
+    d.watch +=Number(findCol(r,COLS.watch))   ||0;
+    d.show  +=Number(findCol(r,COLS.show))    ||0;
+    d.dur   +=Number(findCol(r,COLS.durasi))  ||0;
+    d.pen   +=Number(findCol(r,COLS.penonton))||0;
   });
-  const entries = Object.entries(months).sort();
-  ['month-from','month-to'].forEach(id => {
-    const sel = document.getElementById(id); sel.innerHTML = '';
-    entries.forEach(([key, label]) => { const opt = document.createElement('option'); opt.value = key; opt.textContent = label; sel.appendChild(opt); });
-  });
-  if (entries.length) {
-    document.getElementById('month-from').selectedIndex = 0;
-    document.getElementById('month-to').selectedIndex   = entries.length - 1;
-  }
-}
-
-function applyFilterMonth() {
-  const data = applyPlatformFilter(rawData[currentDim] || []);
-  const from = document.getElementById('month-from').value + '-01';
-  const toM  = new Date(document.getElementById('month-to').value + '-01');
-  toM.setMonth(toM.getMonth()+1); toM.setDate(toM.getDate()-1);
-  const to = toM.toISOString().split('T')[0];
-  filteredData = data.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
-  renderTable(); updateDateRange(filteredData);
-}
-
-function applyFilterCustom() {
-  const data = applyPlatformFilter(rawData[currentDim] || []);
-  const from = document.getElementById('custom-from').value;
-  const to   = document.getElementById('custom-to').value;
-  if (!from || !to) return;
-  filteredData = data.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
-  renderTable(); updateDateRange(filteredData);
-}
-
-function resetFilter() { quickSelect('30days'); }
-
-function updateDateRange(data) {
-  const dates = [...new Set(data.map(d => d['Tanggal']))].sort();
-  if (!dates.length) { document.getElementById('date-range').textContent = 'Tidak ada data'; return; }
-  document.getElementById('date-range').textContent =
-    dates.length === 1 ? `${dates[0]} · 1 hari` : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
-}
-
-function aggregateByDimensi(data) {
-  const agg = {};
-  data.forEach(r => {
-    const key = r['Dimensi'];
-    if (!key) return;
-    if (!agg[key]) agg[key] = { GMV:0, 'Order Number':0, 'Click Product':0, 'Live Watch PV':0, 'Live Show PV':0 };
-    agg[key]['GMV']            += Number(r['GMV'])||0;
-    agg[key]['Order Number']   += Number(r['Order Number'])||0;
-    agg[key]['Click Product']  += Number(r['Click Product'])||0;
-    agg[key]['Live Watch PV']  += Number(r['Live Watch PV'])||0;
-    agg[key]['Live Show PV']   += Number(r['Live Show PV'])||0;
-  });
-  return Object.entries(agg).map(([name, v]) => {
-    const ctr  = v['Live Watch PV'] > 0 ? (v['Click Product'] / v['Live Watch PV']) * 100 : 0;
-    const ctor = v['Click Product'] > 0 ? (v['Order Number']  / v['Click Product']) * 100 : 0;
-    const err  = v['Live Show PV']  > 0 ? (v['Live Watch PV'] / v['Live Show PV'])  * 100 : 0;
-    const aov  = v['Order Number']  > 0 ? v['GMV'] / v['Order Number'] : 0;
-    return { name, ...v, CTR: ctr, CTOR: ctor, ERR: err, AOV: aov };
+  return Object.values(map).map(d=>{
+    const s=d.sesi||1;
+    return { ...d,
+      gmvps: d.gmv/s,
+      durasi: d.dur/s,
+      impresi: d.show/s,
+      tayangan: d.watch/s,
+      penonton: d.pen/s,
+      err:  d.show >0?(d.watch/d.show)*100:0,
+      ctr:  d.watch>0?(d.click/d.watch)*100:0,
+      ctor: d.click>0?(d.order/d.click)*100:0,
+    };
   });
 }
 
-function renderTable() {
-  const container = document.getElementById('table-container');
-  const aggregated = aggregateByDimensi(filteredData);
-  const searchTerm = (document.getElementById('search-input').value || '').toLowerCase();
-  let rows = aggregated.filter(r => r.name.toLowerCase().includes(searchTerm));
-
-  document.getElementById('rank-title-count').textContent = rows.length ? `(Top ${rows.length})` : '';
-
-  if (!rows.length) {
-    container.innerHTML = '<div class="empty-state">Tidak ada data untuk filter ini.</div>';
-    return;
-  }
-
-  const sortKey = document.getElementById('sort-select').value;
-  rows.sort((a, b) => (b[sortKey]||0) - (a[sortKey]||0));
-
-  const totalGMV = rows.reduce((s, r) => s + r.GMV, 0);
-  const sums = {
-    GMV: rows.reduce((s,r)=>s+r.GMV,0),
-    'Order Number': rows.reduce((s,r)=>s+r['Order Number'],0),
-    'Click Product': rows.reduce((s,r)=>s+r['Click Product'],0),
-    'Live Watch PV': rows.reduce((s,r)=>s+r['Live Watch PV'],0),
-    'Live Show PV': rows.reduce((s,r)=>s+r['Live Show PV'],0),
+function calcBaseline(agg) {
+  const t={sesi:0,gmv:0,order:0,click:0,watch:0,show:0,dur:0,pen:0};
+  agg.forEach(d=>{ t.sesi+=d.sesi; t.gmv+=d.gmv; t.order+=d.order; t.click+=d.click; t.watch+=d.watch; t.show+=d.show; t.dur+=d.dur; t.pen+=d.pen; });
+  const s=t.sesi||1;
+  return { gmv:t.gmv, gmvps:t.gmv/s, sesi:t.sesi, durasi:t.dur/s, impresi:t.show/s, tayangan:t.watch/s, penonton:t.pen/s,
+    err:  t.show >0?(t.watch/t.show)*100:0,
+    ctr:  t.watch>0?(t.click/t.watch)*100:0,
+    ctor: t.click>0?(t.order/t.click)*100:0,
   };
-  const sumCTR  = sums['Live Watch PV'] > 0 ? (sums['Click Product']/sums['Live Watch PV'])*100 : 0;
-  const sumCTOR = sums['Click Product'] > 0 ? (sums['Order Number']/sums['Click Product'])*100 : 0;
-  const sumERR  = sums['Live Show PV'] > 0 ? (sums['Live Watch PV']/sums['Live Show PV'])*100 : 0;
-  const sumAOV  = sums['Order Number'] > 0 ? sums['GMV']/sums['Order Number'] : 0;
+}
 
-  const dimColLabel = DIM_COL_LABEL[currentDim];
+// ── render ───────────────────────────────────────────────────────────────────
+function renderBaseline(bl, count, badge) {
+  document.getElementById('baselineCard').style.display='';
+  document.getElementById('blBadge').textContent=badge;
+  document.getElementById('blCtx').textContent=count+' '+DIM_META[activeDim].dimLbl+' · '+document.querySelector('.pill.active').textContent;
+  document.getElementById('bm-gmv').textContent=fmtRp(bl.gmv);
+  document.getElementById('bm-gmvps').textContent=fmtRp(bl.gmvps);
+  document.getElementById('bm-sesi').textContent=bl.sesi;
+  document.getElementById('bm-durasi').textContent=fmtM(bl.durasi);
+  document.getElementById('bm-impresi').textContent=fmtN(bl.impresi);
+  document.getElementById('bm-tayangan').textContent=fmtN(bl.tayangan);
+  document.getElementById('bm-penonton').textContent=Math.round(bl.penonton);
+  document.getElementById('bm-err').textContent=fmtP(bl.err);
+  document.getElementById('bm-ctr').textContent=fmtP(bl.ctr);
+  document.getElementById('bm-ctor').textContent=fmtP(bl.ctor);
+}
 
-  const bodyRows = rows.map((r, i) => {
-    const rank = i + 1;
-    const badgeClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : '';
-    const badgeHtml = badgeClass
-      ? `<span class="rank-badge ${badgeClass}">${rank}</span>`
-      : rank;
-    const contribPct = totalGMV > 0 ? (r.GMV / totalGMV) * 100 : 0;
-    return `
-      <tr>
-        <td>${badgeHtml}</td>
-        <td>${r.name}</td>
-        <td>${fmtNum(r['Live Show PV'])}</td>
-        <td>${fmtNum(r['Live Watch PV'])}</td>
-        <td>${fmtNum(r['Click Product'])}</td>
-        <td>${fmtNum(r['Order Number'])}</td>
-        <td>${fmtRp(r.GMV)}</td>
-        <td>${fmtPct(r.CTR)}</td>
-        <td>${fmtPct(r.CTOR)}</td>
-        <td>${fmtPct(r.ERR)}</td>
-        <td>${fmtRp(r.AOV)}</td>
-        <td>
-          <div class="contrib-bar-cell">
-            <div class="contrib-track"><div class="contrib-fill" style="width:${contribPct}%"></div></div>
-            <span>${contribPct.toFixed(1)}%</span>
-          </div>
-        </td>
-      </tr>
-    `;
+const RANK_COLORS=['#f59e0b','#6b7280','#EE4D2D','#374151','#374151','#374151','#374151','#374151','#374151','#374151'];
+const MED_CLS=['m1','m2','m3','mn','mn','mn','mn','mn','mn','mn'];
+const CARD_CLS=['rk-card r1','rk-card r2','rk-card r3','rk-card','rk-card','rk-card','rk-card','rk-card','rk-card','rk-card'];
+
+function renderRanking(sorted, totalGmv) {
+  const meta=DIM_META[activeDim];
+  const metricKey=SORT_MAP[document.getElementById('sortMetric').value]||'gmv';
+  const maxVal=sorted.length?Math.max(...sorted.map(d=>d[metricKey])):1;
+
+  document.getElementById('rankSection').style.display='';
+  document.getElementById('rkCount').textContent=sorted.length;
+  document.getElementById('rkDimLbl').textContent=meta.dimLbl;
+  updateSortBadge();
+
+  const list=document.getElementById('rankList');
+  list.innerHTML=sorted.map((d,i)=>{
+    const rank=i+1;
+    const kontribusi=totalGmv>0?(d.gmv/totalGmv*100).toFixed(1):'0.0';
+    const barW=maxVal>0?Math.round(d[metricKey]/maxVal*100):0;
+    const clsCard=CARD_CLS[Math.min(i,9)];
+    const clsMed=MED_CLS[Math.min(i,9)];
+    const medInner=rank===1?'<i class="ti ti-trophy" style="font-size:13px" aria-hidden="true"></i>':rank;
+    const barColor=RANK_COLORS[Math.min(i,9)];
+
+    const tags=[...meta.tagFn(d),...meta.platTagFn(d)];
+    const tagHtml=tags.map(t=>`<span class="tag ${t.cls}">${t.lbl}</span>`).join('');
+
+    return `<div class="${clsCard}">
+      <div class="medal ${clsMed}">${medInner}</div>
+      <div class="ci">
+        <div class="cname">${d.key}</div>
+        <div class="tags">${tagHtml}</div>
+        <div class="bar-row">
+          <span class="bar-lbl">Kontribusi GMV</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${barW}%;background:${barColor}"></div></div>
+          <span class="bar-pct">${kontribusi}%</span>
+        </div>
+      </div>
+      <div class="cr">
+        <span class="cmain">${fmtRp(d.gmv)}</span>
+        <span class="cs1">${d.order} order</span>
+        <span class="cs2">ERR ${fmtP(d.err)}</span>
+        <span class="cs3">${fmtN(d.watch)} Watch PV</span>
+      </div>
+    </div>`;
   }).join('');
 
-  const sumRow = `
-    <tr class="sum-row">
-      <td></td>
-      <td>SUM</td>
-      <td>${fmtNum(sums['Live Show PV'])}</td>
-      <td>${fmtNum(sums['Live Watch PV'])}</td>
-      <td>${fmtNum(sums['Click Product'])}</td>
-      <td>${fmtNum(sums['Order Number'])}</td>
-      <td>${fmtRp(sums.GMV)}</td>
-      <td>${fmtPct(sumCTR)}</td>
-      <td>${fmtPct(sumCTOR)}</td>
-      <td>${fmtPct(sumERR)}</td>
-      <td>${fmtRp(sumAOV)}</td>
-      <td></td>
-    </tr>
-  `;
+  const metricLabel=document.getElementById('sortMetric').options[document.getElementById('sortMetric').selectedIndex].text;
+  document.getElementById('rankFooter').textContent=`${sorted.length} ${meta.dimLbl} ditampilkan · Sorted by ${metricLabel} · ${sortDir==='asc'?'Ascending':'Descending'}`;
+}
 
-  container.innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>${dimColLabel}</th>
-          <th>Live Show PV</th>
-          <th>Live Watch PV</th>
-          <th>Click Product</th>
-          <th>Order Number</th>
-          <th>GMV</th>
-          <th>CTR</th>
-          <th>CTOR</th>
-          <th>ERR</th>
-          <th>AOV</th>
-          <th>% Contribution</th>
-        </tr>
-      </thead>
-      <tbody>${bodyRows}${sumRow}</tbody>
-    </table>
-  `;
+// ── apply filter ─────────────────────────────────────────────────────────────
+function applyFilter() {
+  const rows=filterRows();
+  if (!rows.length) {
+    document.getElementById('rankSection').style.display='';
+    document.getElementById('rankList').innerHTML='<div class="error-box">Tidak ada data untuk filter yang dipilih. Coba ubah periode atau filter lainnya.</div>';
+    document.getElementById('baselineCard').style.display='none';
+    return;
+  }
+  const agg=aggregate(rows);
+  const metricKey=SORT_MAP[document.getElementById('sortMetric').value]||'gmv';
+  const sorted=[...agg].sort((a,b)=>sortDir==='desc'?b[metricKey]-a[metricKey]:a[metricKey]-b[metricKey]);
+  const bl=calcBaseline(agg);
+
+  const plat=document.getElementById('fPlatform').options[document.getElementById('fPlatform').selectedIndex].text;
+  const shift=document.getElementById('fShift').options[document.getElementById('fShift').selectedIndex].text;
+  const host=document.getElementById('fHost').options[document.getElementById('fHost').selectedIndex].text;
+  const badge=host!=='All Hostlive'?host:plat+' · '+shift;
+
+  renderBaseline(bl,agg.length,badge);
+  renderRanking(sorted,bl.gmv);
+  document.getElementById('headerCtx').textContent=`${agg.length} ${DIM_META[activeDim].dimLbl} · ${rows.length} sesi`;
+}
+
+// ── UI controls ───────────────────────────────────────────────────────────────
+function setDim(d) {
+  activeDim=d;
+  ['host','shift','acc'].forEach(k=>{
+    document.getElementById('dim'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('active',k===d);
+  });
+  const meta=DIM_META[d];
+  document.getElementById('dimNoteText').innerHTML=meta.note;
+  ['fiShift','fiAcc','fiHost'].forEach(id=>{
+    document.getElementById(id).classList.remove('dimmed');
+  });
+  meta.disabledFi.forEach(id=>document.getElementById(id).classList.add('dimmed'));
+}
+
+function setPeriod(el,type) {
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active'); activePeriod=type;
+  document.getElementById('customRow').className='custom-row'+(type==='custom'?' show':'');
+}
+
+function setDir(d) {
+  sortDir=d;
+  document.getElementById('btnAsc').classList.toggle('active',d==='asc');
+  document.getElementById('btnDesc').classList.toggle('active',d==='desc');
+  updateSortBadge();
+}
+
+function updateSortBadge() {
+  const m=document.getElementById('sortMetric').options[document.getElementById('sortMetric').selectedIndex].text;
+  document.getElementById('sortBadge').textContent=m+' · '+(sortDir==='asc'?'Ascending':'Descending');
 }
 
 function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const content = document.querySelector('.content-area');
-  const overlay = document.getElementById('sidebar-overlay');
-  const isCollapsed = sidebar.classList.contains('collapsed');
-  if (isCollapsed) {
-    sidebar.classList.remove('collapsed'); content.classList.remove('expanded'); overlay.classList.remove('show');
-    localStorage.setItem('sidebar', 'open');
-  } else {
-    sidebar.classList.add('collapsed'); content.classList.add('expanded');
-    if (window.innerWidth < 900) overlay.classList.add('show');
-    localStorage.setItem('sidebar', 'closed');
+  const sb=document.getElementById('sidebar');
+  const ca=document.getElementById('content');
+  const ov=document.getElementById('overlay');
+  const col=sb.classList.toggle('collapsed');
+  ov.classList.toggle('show',col);
+  if(window.innerWidth>900) ca.classList.toggle('expanded',col);
+}
+
+// ── init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  document.getElementById('loadingArea').style.display='flex';
+  try {
+    const [shopee,tiktok]=await Promise.all([
+      fetchSheet(SOURCES.shopee,'shopee').catch(()=>[]),
+      fetchSheet(SOURCES.tiktok,'tiktok').catch(()=>[]),
+    ]);
+    allData=[...shopee,...tiktok];
+    if (!allData.length) throw new Error('Tidak ada data di sheet Live Harian.');
+
+    const dates=allData.map(r=>String(findCol(r,COLS.tanggal)||'').slice(0,10)).filter(Boolean).sort();
+    if (dates.length) {
+      document.getElementById('dateFrom').value=dates[0];
+      document.getElementById('dateTo').value=dates[dates.length-1];
+    }
+
+    // Populate Account dropdown
+    const accs=new Set(); allData.forEach(r=>{ const a=findCol(r,COLS.account); if(a) accs.add(a); });
+    const selAcc=document.getElementById('fAccount');
+    [...accs].sort().forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; selAcc.appendChild(o); });
+    if (!accs.size) { const o=document.createElement('option'); o.value='wookeyweight.id'; o.textContent='wookeyweight.id'; selAcc.appendChild(o); }
+
+    // Populate Hostlive dropdown
+    const hosts=new Set(); allData.forEach(r=>{ const h=findCol(r,COLS.hostlive); if(h) hosts.add(h); });
+    const selHost=document.getElementById('fHost');
+    [...hosts].sort().forEach(h=>{ const o=document.createElement('option'); o.value=h; o.textContent=h; selHost.appendChild(o); });
+
+    if (!hosts.size) {
+      document.getElementById('errorContainer').innerHTML=
+        '<div class="info-box">⚠️ Kolom Hostlive belum terdeteksi di sheet. Tambahkan kolom <code>Hostlive</code> ke sheet Live Harian agar ranking per host aktif. Mode Shift & Account tetap bisa digunakan.</div>';
+    }
+
+    document.getElementById('loadingArea').style.display='none';
+    document.getElementById('headerCtx').textContent=`${allData.length} baris data`;
+    applyFilter();
+
+  } catch(err) {
+    document.getElementById('loadingArea').style.display='none';
+    document.getElementById('errorContainer').innerHTML=`<div class="error-box">❌ Gagal memuat: ${err.message}</div>`;
   }
 }
-(function() {
-  const state = localStorage.getItem('sidebar');
-  if (state === 'closed') {
-    const s = document.getElementById('sidebar'); const c = document.querySelector('.content-area');
-    if (s) s.classList.add('collapsed'); if (c) c.classList.add('expanded');
+
+(function(){
+  if(window.innerWidth<=900){
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.getElementById('content').classList.add('expanded');
+    document.querySelector('.hamburger').style.display='flex';
   }
 })();
 
-loadAndFilter();
+init();
 </script>
 </body>
 </html>
