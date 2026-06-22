@@ -414,21 +414,21 @@ a { text-decoration: none; }
 
 <script>
 const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
-const SOURCES  = { shopee: 'Shopee Live Harian', tiktok: 'TikTok Live Harian' };
+const SOURCES  = { live: 'Live Sesi' };
 
-// Column variants
+// Column variants — disesuaikan dengan header sheet "Live Sesi"
 const COLS = {
   tanggal:  ['Tanggal','Date','Tgl'],
-  hostlive: ['Hostlive','Host','Nama Host','Nama Hostlive','Host Live','HL'],
-  shift:    ['Shift','Waktu Shift','Periode Shift'],
+  hostlive: ['Hostlive','Host Live','Host','Nama Host','Nama Hostlive','HL'],
+  shift:    ['Shift','Jadwal Shift','Waktu Shift','Periode Shift'],
   account:  ['Account','Akun','Nama Akun','Username'],
-  gmv:      ['GMV','GMV dari LIVE','GMV Live'],
-  order:    ['Order Number','Order','Jumlah Order'],
-  click:    ['Click Product','Click','Klik Produk'],
-  watch:    ['Live Watch PV','Watch PV','Tayangan'],
-  show:     ['Live Show PV','Show PV','Impresi'],
+  gmv:      ['GMV','Live GMV','GMV dari LIVE','GMV Live'],
+  order:    ['Order Number','Jumlah Pesanan (SKU Product)','Order','Jumlah Order'],
+  click:    ['Click Product','Klik Produk','Click','Klik'],
+  watch:    ['Tayangan','Live Watch PV','Watch PV'],
+  show:     ['Impresi','Live Show PV','Show PV'],
   durasi:   ['Durasi','Durasi Live','Durasi (menit)','Duration'],
-  penonton: ['Avr. Penonton','Avg Penonton','Penonton','Peak Viewer'],
+  penonton: ['Penonton','Avr. Penonton','Avg Penonton','Peak Viewer'],
 };
 
 const DIM_META = {
@@ -483,15 +483,18 @@ function fmtP(v)  { return (+v).toFixed(2)+'%'; }
 function fmtM(v)  { return Math.round(v)+' min'; }
 
 // ── fetch ────────────────────────────────────────────────────────────────────
-async function fetchSheet(name, plat) {
+async function fetchSheet(name) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1&_cb=${Date.now()}`;
   const res  = await fetch(url);
   const text = await res.text();
   const json = JSON.parse(text.replace(/^.*?({.*}).*$/s,'$1'));
   const cols = json.table.cols.map(c=>c.label);
   return json.table.rows.map(row=>{
-    const obj={_plat:plat};
+    const obj={};
     cols.forEach((c,i)=>{ const cell=row.c[i]; obj[c]=(!cell||cell.v===null||cell.v===undefined)?'':cell.v; });
+    // Normalize platform value
+    const plat = String(obj['Platform']||'').toLowerCase().trim();
+    obj._plat = plat.includes('shop') ? 'shopee' : plat.includes('tik') ? 'tiktok' : plat;
     return obj;
   }).filter(r=>{ const t=findCol(r,COLS.tanggal); return t&&t!=='0'&&t!==''; });
 }
@@ -713,11 +716,10 @@ function toggleSidebar() {
 async function init() {
   document.getElementById('loadingArea').style.display='flex';
   try {
-    const [shopee,tiktok]=await Promise.all([
-      fetchSheet(SOURCES.shopee,'shopee').catch(()=>[]),
-      fetchSheet(SOURCES.tiktok,'tiktok').catch(()=>[]),
+    const [liveData]=await Promise.all([
+      fetchSheet(SOURCES.live).catch(()=>[]),
     ]);
-    allData=[...shopee,...tiktok];
+    allData=liveData;
     if (!allData.length) throw new Error('Tidak ada data di sheet Live Harian.');
 
     const dates=allData.map(r=>String(findCol(r,COLS.tanggal)||'').slice(0,10)).filter(Boolean).sort();
