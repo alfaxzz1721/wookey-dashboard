@@ -460,13 +460,10 @@
       <!-- Toolbar Metrik -->
       <div class="toolbar" id="toolbar-metrics">
         <span class="toolbar-label">Tampilkan:</span>
-        <button class="toggle" data-metric="Live Show PV" style="--accent:var(--c-show)"><span class="dot"></span>Live Show PV</button>
-        <button class="toggle active" data-metric="Live Watch PV" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
+        <button class="toggle active" data-metric="Pengunjung" style="--accent:var(--c-watch)"><span class="dot"></span>Pengunjung</button>
         <button class="toggle active" data-metric="Click Product" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
-        <button class="toggle active" data-metric="Order Number" style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
+        <button class="toggle active" data-metric="Pesanan" style="--accent:var(--c-order)"><span class="dot"></span>Pesanan</button>
         <button class="toggle active" data-metric="GMV" style="--accent:var(--c-gmv)"><span class="dot"></span>GMV</button>
-        <button class="toggle" data-metric="ERR" style="--accent:var(--c-err)"><span class="dot"></span>ERR</button>
-        <button class="toggle" data-metric="CTR" style="--accent:var(--c-ctr)"><span class="dot"></span>CTR</button>
         <button class="toggle" data-metric="CTOR" style="--accent:var(--c-ctor)"><span class="dot"></span>CTOR</button>
         <button class="toggle" data-metric="AOV" style="--accent:var(--c-aov)"><span class="dot"></span>AOV</button>
         <button class="toggle" data-metric="ARPU" style="--accent:#34d399"><span class="dot" style="background:#34d399"></span>ARPU</button>
@@ -533,14 +530,11 @@ const SOURCES = {
 };
 
 const METRICS = {
-  'Live Show PV':  { color: '#64748b', format: 'number', axis: 'y2' },
-  'Live Watch PV': { color: '#8b5cf6', format: 'number', axis: 'y2' },
+  'Pengunjung':    { color: '#8b5cf6', format: 'number', axis: 'y2' },
   'Click Product': { color: '#3b82f6', format: 'number', axis: 'y2' },
-  'Order Number':  { color: '#10b981', format: 'number', axis: 'y2' },
+  'Pesanan':       { color: '#10b981', format: 'number', axis: 'y2' },
   'GMV':           { color: '#f59e0b', format: 'rp',     axis: 'y1' },
-  'ERR':           { color: '#e879f9', format: 'pct',    axis: 'y3' },
   'CTOR':          { color: '#06b6d4', format: 'pct',    axis: 'y3' },
-  'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
   'AOV':           { color: '#f97316', format: 'rp',     axis: 'y1' },
   'ARPU':          { color: '#34d399', format: 'rp',     axis: 'y1' },
   'Biaya Iklan':   { color: '#f43f5e', format: 'rp',     axis: 'y1' },
@@ -558,12 +552,10 @@ const KPI_TOP = [
 
 // Tingkat bawah: metrik traffic & konversi
 const KPI_BOTTOM = [
-  { key: 'Live Show PV',  label: 'Live Show PV',  accent: '#64748b' },
-  { key: 'Live Watch PV', label: 'Live Watch PV', accent: '#8b5cf6' },
+  { key: 'Pengunjung',    label: 'Pengunjung',    accent: '#8b5cf6' },
   { key: 'Click Product', label: 'Click Product', accent: '#3b82f6' },
-  { key: 'Order Number',  label: 'Order Number',  accent: '#10b981' },
-  { key: 'ERR',           label: 'ERR',           accent: '#e879f9' },
-  { key: 'CTR',           label: 'CTR',           accent: '#ec4899' },
+  { key: 'Pesanan',       label: 'Pesanan',       accent: '#10b981' },
+
   { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
 ];
 
@@ -572,12 +564,11 @@ const KPI_BOTTOM = [
 // Baris 2: CTR | CTOR | ARPU | AOV
 const KPI_ALL_TOP = [
   { key: 'GMV',          label: 'Total GMV',          accent: '#f59e0b' },
-  { key: 'Order Number', label: 'Total Order Number', accent: '#10b981' },
+  { key: 'Pesanan',      label: 'Total Pesanan',      accent: '#10b981' },
   { key: 'Biaya Iklan',  label: 'Total Biaya Iklan',  accent: '#f43f5e' },
   { key: 'ROI',          label: 'Kalkulasi ROI',      accent: '#a78bfa' },
 ];
 const KPI_ALL_BOTTOM = [
-  { key: 'CTR',  label: 'Kalkulasi CTR',  accent: '#ec4899' },
   { key: 'CTOR', label: 'Kalkulasi CTOR', accent: '#06b6d4' },
   { key: 'ARPU', label: 'Kalkulasi ARPU', accent: '#34d399' },
   { key: 'AOV',  label: 'Kalkulasi AOV',  accent: '#f97316' },
@@ -652,14 +643,20 @@ async function fetchSheetData(sheetName) {
     // CTR/CTOR/ERR: hitung ulang langsung dari volume mentah (Click/Watch/Order/Show)
     // supaya akurat dan konsisten untuk SEMUA platform — tidak bergantung pada
     // nilai kolom CTR/CTOR/ERR di sheet yang formatnya bisa beda-beda (desimal vs persen).
-    const klikRaw  = Number(obj['Click Product'])  || 0;
-    const watchRaw = Number(obj['Live Watch PV'])  || 0;
-    const orderRaw = Number(obj['Order Number'])   || 0;
-    const showRaw  = Number(obj['Live Show PV'])   || 0;
+    const klikRaw  = Number(obj['Click Product'])                        || 0;
+    const watchRaw = Number(obj['Pengunjung']    || obj['Live Watch PV']) || 0;
+    const orderRaw = Number(obj['Pesanan']       || obj['Order Number'])  || 0;
+    const showRaw  = Number(obj['Live Show PV'])                          || 0;
 
-    obj['CTR']  = watchRaw > 0 ? (klikRaw  / watchRaw) * 100 : 0;
+    // Normalisasi ke nama universal (kompatibel Shopee baru + TikTok lama)
+    obj['Pengunjung']    = watchRaw;
+    obj['Live Watch PV'] = watchRaw;
+    obj['Pesanan']       = orderRaw;
+    obj['Order Number']  = orderRaw;
+
     obj['CTOR'] = klikRaw  > 0 ? (orderRaw / klikRaw)  * 100 : 0;
     obj['ERR']  = showRaw  > 0 ? (watchRaw / showRaw)  * 100 : 0;
+    obj['CTR']  = watchRaw > 0 ? (klikRaw  / watchRaw) * 100 : 0;
     obj['Biaya Iklan'] = Number(obj['Biaya Iklan']) || 0;
     return obj;
   }).filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
@@ -686,7 +683,7 @@ async function loadAllPlatforms() {
 
   // Gabungkan per tanggal: jumlahkan semua kolom numerik
   const merged = {};
-  const numCols = ['GMV','Order Number','Click Product','Live Watch PV','Live Show PV','Pembeli','Biaya Iklan'];
+  const numCols = ['GMV','Pesanan','Order Number','Click Product','Pengunjung','Live Watch PV','Pembeli','Biaya Iklan'];
 
   [...shopeeData, ...tiktokData].forEach(row => {
     const tgl = row['Tanggal'];
@@ -700,9 +697,9 @@ async function loadAllPlatforms() {
   // Hitung rasio dari total gabungan
   return Object.values(merged).map(d => {
     const gmv   = d['GMV']           || 0;
-    const order = d['Order Number']  || 0;
+    const order = d['Pesanan'] || d['Order Number'] || 0;
     const klik  = d['Click Product'] || 0;
-    const watch = d['Live Watch PV'] || 0;
+    const watch = d['Pengunjung'] || d['Live Watch PV'] || 0;
     const show  = d['Live Show PV']  || 0;
     const buyer = d['Pembeli']       || 0;
     const biaya = d['Biaya Iklan']   || 0;
