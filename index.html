@@ -944,9 +944,9 @@ function setPlatform(platform) {
 
 function calcKPI(data) {
   const totalShowPV  = data.reduce((s, d) => s + (d['Live Show PV']  || 0), 0);
-  const totalWatchPV = data.reduce((s, d) => s + (d['Live Watch PV'] || 0), 0);
+  const totalWatchPV = data.reduce((s, d) => s + (Number(d['Pengunjung'] || d['Live Watch PV']) || 0), 0);
   const totalClick   = data.reduce((s, d) => s + (d['Click Product'] || 0), 0);
-  const totalOrder   = data.reduce((s, d) => s + (d['Order Number']  || 0), 0);
+  const totalOrder   = data.reduce((s, d) => s + (Number(d['Pesanan'] || d['Order Number']) || 0), 0);
   const totalGMV     = data.reduce((s, d) => s + (d['GMV']           || 0), 0);
   const totalPembeli = data.reduce((s, d) => s + (Number(d['Pembeli']) || 0), 0);
   const totalBiaya   = data.reduce((s, d) => s + (Number(d['Biaya Iklan']) || 0), 0);
@@ -961,6 +961,7 @@ function calcKPI(data) {
 
   return {
     'Live Show PV': totalShowPV, 'Live Watch PV': totalWatchPV,
+    'Pengunjung': totalWatchPV, 'Pesanan': totalOrder,
     'Click Product': totalClick, 'Order Number': totalOrder,
     'GMV': totalGMV, 'ERR': err, 'CTR': ctr, 'CTOR': ctor,
     'AOV': aov, 'ARPU': arpu, 'Biaya Iklan': totalBiaya, 'ROI': roi,
@@ -977,7 +978,7 @@ function makeKpiCard(k, kpi, days, hasAds) {
   }
   const val  = kpi[k.key] || 0;
   const type = METRICS[k.key]?.format || 'number';
-  const isVolume = ['Live Show PV','Live Watch PV','Click Product','Order Number'].includes(k.key);
+  const isVolume = ['Live Show PV','Live Watch PV','Pengunjung','Click Product','Order Number','Pesanan'].includes(k.key);
   const isMoney  = ['GMV','Biaya Iklan'].includes(k.key);
   const isARPU   = k.key === 'ARPU';
   const displayVal = isVolume
