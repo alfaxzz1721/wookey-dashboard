@@ -94,27 +94,23 @@
   .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
   .main { padding: 24px 28px; }
 
-  /* ── PERIOD SELECTOR ── */
-  .period-bar {
-    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px 16px; margin-bottom: 20px;
+  /* ── TOOLBAR / PERIOD (sama persis dengan Overview) ── */
+  .toolbar {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+    flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
   }
-  .period-lbl { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-right: 4px; }
-  .period-pill {
-    font-size: 12px; padding: 5px 14px; border: 1px solid var(--border);
-    border-radius: 20px; background: transparent; color: var(--muted);
-    cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s;
+  .toolbar-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 2px; white-space: nowrap; }
+  .toggle {
+    display: flex; align-items: center; gap: 6px; padding: 5px 11px;
+    border-radius: 20px; border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); font-size: 12px; font-weight: 500;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: all .15s;
   }
-  .period-pill.active { background: var(--c-cons); color: #1a1a1a; border-color: var(--c-cons); font-weight: 600; }
-  .period-pill:hover:not(.active) { border-color: var(--c-cons); color: var(--text); }
-  .custom-row { display: none; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); width: 100%; }
-  .custom-row.show { display: flex; }
-  .custom-row input[type=date] {
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-size: 12px; padding: 5px 8px; font-family: 'JetBrains Mono', monospace;
+  .toggle.active {
+    border-color: var(--accent, #94a3b8); color: var(--text);
+    background: color-mix(in srgb, var(--accent, #94a3b8) 15%, transparent);
   }
-  .custom-row span { color: var(--muted); font-size: 12px; }
 
   /* ── SECTION TITLE ── */
   .section-title {
@@ -309,20 +305,42 @@
     <div class="main">
       <div id="error-container"></div>
 
-      <!-- PERIOD SELECTOR -->
-      <div class="period-bar">
-        <span class="period-lbl">Tampilkan</span>
-        <button class="period-pill" onclick="setPeriod(this,'kemarin')">Kemarin</button>
-        <button class="period-pill" onclick="setPeriod(this,'7hari')">7 Hari</button>
-        <button class="period-pill active" onclick="setPeriod(this,'30hari')">30 Hari</button>
-        <button class="period-pill" onclick="setPeriod(this,'bulan')">Per Bulan</button>
-        <button class="period-pill" onclick="setPeriod(this,'custom')">Custom</button>
-        <div class="custom-row" id="customRow">
-          <input type="date" id="dateFrom">
-          <span>s/d</span>
-          <input type="date" id="dateTo">
-          <button class="period-pill active" onclick="applyCustom()">Terapkan</button>
+      <!-- TOOLBAR PERIODE (identik dengan Overview) -->
+      <div class="toolbar">
+        <span class="toolbar-label">Tampilkan per:</span>
+        <button class="toggle" data-quick="yesterday" onclick="msQuickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+        <button class="toggle" data-quick="7days"     onclick="msQuickSelect('7days')"     style="--accent:#94a3b8">7 Hari</button>
+        <button class="toggle" data-quick="30days"    onclick="msQuickSelect('30days')"    style="--accent:#94a3b8">30 Hari</button>
+        <div style="width:1px;height:16px;background:var(--border);margin:0 2px;"></div>
+        <button class="toggle active" data-group="day"    onclick="msSetGroup('day')">Per Hari</button>
+        <button class="toggle"        data-group="week"   onclick="msSetGroup('week')">Per Minggu</button>
+        <button class="toggle"        data-group="month"  onclick="msSetGroup('month')">Per Bulan</button>
+        <button class="toggle"        data-group="custom" onclick="msSetGroup('custom')">Custom</button>
+      </div>
+
+      <div class="toolbar" id="ms-period-filter" style="display:flex;">
+        <span class="toolbar-label">Periode:</span>
+        <div id="ms-filter-day" style="display:flex;align-items:center;gap:8px;">
+          <input type="date" id="ms-date-single" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <button onclick="msApplyDay()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
         </div>
+        <div id="ms-filter-week" style="display:none;align-items:center;gap:8px;">
+          <select id="ms-week-select" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="msApplyWeek()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="ms-filter-month" style="display:none;align-items:center;gap:8px;">
+          <select id="ms-month-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <select id="ms-month-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;"></select>
+          <button onclick="msApplyMonth()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <div id="ms-filter-custom" style="display:none;align-items:center;gap:8px;">
+          <input type="date" id="ms-custom-from" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <span style="color:var(--muted);font-size:12px;">s/d</span>
+          <input type="date" id="ms-custom-to" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace;">
+          <button onclick="msApplyCustom()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
+        <button onclick="msResetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
       </div>
 
       <!-- FUNNEL -->
@@ -545,60 +563,126 @@ function closeInfo() {
 document.addEventListener('click', closeInfo);
 
 // ── PERIOD ──
-var activePeriod = '30hari';
 var allData = [];
 var allAudienceData = [];
-var customFrom = '', customTo = '';
+var msCurrentGroup = 'day';
+var msFilteredData = [];
 
-function setPeriod(el, key) {
-  document.querySelectorAll('.period-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  activePeriod = key;
-  var cr = document.getElementById('customRow');
-  cr.className = key === 'custom' ? 'custom-row show' : 'custom-row';
-  if (key !== 'custom') applyPeriod();
+// ── PERIOD FUNCTIONS (identik dengan Overview) ──
+function msSetGroup(group) {
+  msCurrentGroup = group;
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.toggle('active', b.dataset.group === group));
+  document.getElementById('ms-period-filter').style.display = 'flex';
+  ['day','week','month','custom'].forEach(g => {
+    document.getElementById('ms-filter-'+g).style.display = g === group ? 'flex' : 'none';
+  });
+  msFilteredData = [...allData];
+  renderAll(msFilteredData);
 }
 
-function applyCustom() {
-  customFrom = document.getElementById('dateFrom').value;
-  customTo   = document.getElementById('dateTo').value;
-  if (!customFrom || !customTo) return;
-  applyPeriod();
+function msQuickSelect(val) {
+  if (!allData.length) return;
+  var dates = [...new Set(allData.map(d => d['Tanggal']))].sort();
+  var last  = dates[dates.length - 1];
+  var from  = last;
+  if (val === '7days')  { var d7 = new Date(last); d7.setDate(d7.getDate()-6);  from = d7.toISOString().split('T')[0]; }
+  if (val === '30days') { var d30= new Date(last); d30.setDate(d30.getDate()-29); from = d30.toISOString().split('T')[0]; }
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-quick="'+val+'"]')?.classList.add('active');
+  document.getElementById('ms-period-filter').style.display = 'none';
+  msFilteredData = val === 'yesterday'
+    ? allData.filter(d => d['Tanggal'] === last)
+    : allData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
+  if (!msFilteredData.length) return;
+  renderAll(msFilteredData);
 }
 
-function filterByPeriod(data) {
-  if (!data.length) return data;
-  var sorted = data.slice().sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
-  var last = sorted[sorted.length-1]['Tanggal'];
-  if (!last) return sorted;
-  var lastDate = new Date(last);
-  if (activePeriod === 'kemarin') {
-    var prev = new Date(lastDate); prev.setDate(prev.getDate()-1);
-    var prevStr = prev.toISOString().split('T')[0];
-    return sorted.filter(r => r['Tanggal'] === prevStr);
-  }
-  if (activePeriod === '7hari') {
-    var cut7 = new Date(lastDate); cut7.setDate(cut7.getDate()-6);
-    return sorted.filter(r => r['Tanggal'] >= cut7.toISOString().split('T')[0]);
-  }
-  if (activePeriod === '30hari') {
-    var cut30 = new Date(lastDate); cut30.setDate(cut30.getDate()-29);
-    return sorted.filter(r => r['Tanggal'] >= cut30.toISOString().split('T')[0]);
-  }
-  if (activePeriod === 'bulan') {
-    var thisMonth = last.substring(0,7);
-    return sorted.filter(r => String(r['Tanggal']).substring(0,7) === thisMonth);
-  }
-  if (activePeriod === 'custom' && customFrom && customTo) {
-    return sorted.filter(r => r['Tanggal'] >= customFrom && r['Tanggal'] <= customTo);
-  }
-  return sorted;
+function msApplyDay() {
+  var date = document.getElementById('ms-date-single').value;
+  if (!date) return;
+  msFilteredData = allData.filter(d => d['Tanggal'] === date);
+  if (!msFilteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Tidak ada data untuk tanggal ini.</div>'; return; }
+  document.getElementById('error-container').innerHTML = '';
+  renderAll(msFilteredData);
 }
 
-function applyPeriod() {
-  var filtered = filterByPeriod(allData);
-  renderAll(filtered);
+function msBuildWeekOptions() {
+  var sel = document.getElementById('ms-week-select'); sel.innerHTML = '';
+  var weeks = {};
+  allData.forEach(d => {
+    var date = new Date(d['Tanggal']), day = date.getDay(), diff = (day===0?-6:1-day);
+    var mon = new Date(date); mon.setDate(date.getDate()+diff);
+    var sun = new Date(mon); sun.setDate(mon.getDate()+6);
+    var key = mon.toISOString().split('T')[0];
+    if (!weeks[key]) { var fmt = dd => dd.toLocaleDateString('id-ID',{day:'numeric',month:'short'}); weeks[key] = fmt(mon)+' – '+fmt(sun); }
+  });
+  Object.entries(weeks).sort().forEach(function([key,label]) { var o = document.createElement('option'); o.value=key; o.textContent=label; sel.appendChild(o); });
+  if (sel.options.length) sel.selectedIndex = sel.options.length-1;
 }
+
+function msApplyWeek() {
+  var monday = document.getElementById('ms-week-select').value;
+  var sun = new Date(monday); sun.setDate(sun.getDate()+6);
+  var sunStr = sun.toISOString().split('T')[0];
+  msFilteredData = allData.filter(d => d['Tanggal'] >= monday && d['Tanggal'] <= sunStr);
+  if (!msFilteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Tidak ada data.</div>'; return; }
+  document.getElementById('error-container').innerHTML = '';
+  renderAll(msFilteredData);
+}
+
+function msBuildMonthOptions() {
+  var BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  var months = {};
+  allData.forEach(d => {
+    var date = new Date(d['Tanggal']);
+    var key = date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
+    if (!months[key]) months[key] = BULAN[date.getMonth()]+' '+date.getFullYear();
+  });
+  var entries = Object.entries(months).sort();
+  ['ms-month-from','ms-month-to'].forEach(function(id) {
+    var sel = document.getElementById(id); sel.innerHTML = '';
+    entries.forEach(function([key,label]) { var o = document.createElement('option'); o.value=key; o.textContent=label; sel.appendChild(o); });
+  });
+  var mf = document.getElementById('ms-month-from'), mt = document.getElementById('ms-month-to');
+  if (mf.options.length) mf.selectedIndex = 0;
+  if (mt.options.length) mt.selectedIndex = mt.options.length-1;
+}
+
+function msApplyMonth() {
+  var from = document.getElementById('ms-month-from').value, to = document.getElementById('ms-month-to').value;
+  var fromDate = from+'-01';
+  var toObj = new Date(to+'-01'); toObj.setMonth(toObj.getMonth()+1); toObj.setDate(toObj.getDate()-1);
+  var toDate = toObj.toISOString().split('T')[0];
+  msFilteredData = allData.filter(d => d['Tanggal'] >= fromDate && d['Tanggal'] <= toDate);
+  if (!msFilteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Tidak ada data.</div>'; return; }
+  document.getElementById('error-container').innerHTML = '';
+  renderAll(msFilteredData);
+}
+
+function msApplyCustom() {
+  var from = document.getElementById('ms-custom-from').value, to = document.getElementById('ms-custom-to').value;
+  if (!from || !to) return;
+  msFilteredData = allData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
+  if (!msFilteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Tidak ada data.</div>'; return; }
+  document.getElementById('error-container').innerHTML = '';
+  renderAll(msFilteredData);
+}
+
+function msResetFilter() {
+  msFilteredData = [...allData];
+  document.querySelectorAll('[data-quick]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-group]').forEach(b => b.classList.toggle('active', b.dataset.group === 'day'));
+  document.getElementById('ms-period-filter').style.display = 'flex';
+  ['day','week','month','custom'].forEach(g => {
+    document.getElementById('ms-filter-'+g).style.display = g === 'day' ? 'flex' : 'none';
+  });
+  renderAll(msFilteredData);
+}
+
+function filterByPeriod(data) { return data; } // legacy compat
+function applyPeriod() { renderAll(msFilteredData.length ? msFilteredData : allData); }
 
 // ── DATA FETCH ──
 async function fetchSheet(sheetName) {
@@ -917,8 +1001,18 @@ async function init() {
 
     allData = validTrend;
     allAudienceData = audienceData;
-    var filtered = filterByPeriod(allData);
-    renderAll(filtered);
+    msFilteredData = [...allData];
+
+    // Set default date input ke tanggal terbaru
+    var lastDate = validTrend[validTrend.length-1]['Tanggal'] || '';
+    if (lastDate) document.getElementById('ms-date-single').value = lastDate;
+
+    // Build week/month options
+    msBuildWeekOptions();
+    msBuildMonthOptions();
+
+    // Default: Per Hari aktif, filter semua data
+    renderAll(msFilteredData);
 
   } catch(err) {
     document.getElementById('error-container').innerHTML = '<div class="error-box">❌ Gagal memuat data: ' + err.message + '</div>';
