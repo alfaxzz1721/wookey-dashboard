@@ -9,65 +9,52 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
   :root {
-    --bg:        #0c0e14;
-    --surface:   #13151f;
-    --surface2:  #1a1d2a;
-    --border:    #252836;
-    --text:      #e8eaf2;
-    --muted:     #5a6070;
-    --shopee:    #EE4D2D;
-    --green:     #10b981;
-    --red:       #ef4444;
-    --tiktok:    #25F4EE;
-
-    --c-aware: #3b82f6;
-    --c-cons:  #f59e0b;
-    --c-conv:  #10b981;
+    --bg:       #0c0e14;
+    --surface:  #13151f;
+    --surface2: #1a1d2a;
+    --border:   #252836;
+    --text:     #e8eaf2;
+    --muted:    #5a6070;
+    --shopee:   #EE4D2D;
+    --green:    #10b981;
+    --red:      #ef4444;
+    --tiktok:   #25F4EE;
+    --c-aware:  #3b82f6;
+    --c-cons:   #f59e0b;
+    --c-conv:   #10b981;
+    --c-rate:   #8b5cf6;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
   .app-layout { display: flex; min-height: 100vh; }
 
+  /* ── SIDEBAR ── */
   .sidebar {
     width: 220px; min-width: 220px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
+    background: var(--surface); border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
-    position: fixed; top: 0; left: 0;
-    height: 100vh; z-index: 200; overflow-y: auto;
+    position: fixed; top: 0; left: 0; height: 100vh; z-index: 200; overflow-y: auto;
     transition: transform .25s cubic-bezier(.4,0,.2,1);
   }
   .sidebar.collapsed { transform: translateX(-220px); }
   .sidebar-close {
     position: absolute; top: 14px; right: 10px;
-    width: 28px; height: 28px;
-    background: transparent; border: none;
-    border-radius: 6px; cursor: pointer;
-    color: var(--muted); font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all .15s;
+    width: 28px; height: 28px; background: transparent; border: none;
+    border-radius: 6px; cursor: pointer; color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
   }
   .sidebar-close:hover { background: var(--surface2); color: var(--text); }
-  .sidebar-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.5); z-index: 199;
-  }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 199; }
   .sidebar-overlay.show { display: block; }
   .content-area {
-    margin-left: 220px;
-    width: calc(100% - 220px);
-    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
-    transition: margin-left .25s cubic-bezier(.4,0,.2,1),
-                width .25s cubic-bezier(.4,0,.2,1);
+    margin-left: 220px; width: calc(100% - 220px); flex: 1;
+    display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
   }
   .content-area.expanded { margin-left: 0; width: 100%; }
 
-  .sidebar-brand {
-    padding: 20px 16px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
+  .sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
   .logo { background: var(--shopee); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
   .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
   .sidebar-brand-sub { font-size: 10px; color: var(--muted); }
@@ -84,7 +71,20 @@
   .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
   .sidebar-item.active .sidebar-icon { color: var(--shopee); }
   .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+  .sidebar-sub { display: flex; flex-direction: column; padding-left: 8px; }
+  .sidebar-sub-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px; border-radius: 7px;
+    font-size: 12px; font-weight: 400; color: var(--muted);
+    cursor: pointer; text-decoration: none;
+    transition: all .15s; margin-bottom: 1px;
+  }
+  .sidebar-sub-item:before { content: '•'; font-size: 10px; width: 10px; text-align: center; }
+  .sidebar-sub-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-sub-item.active { color: var(--text); font-weight: 500; }
+  .sidebar-sub-item.active:before { color: var(--shopee); }
 
+  /* ── HEADER ── */
   .header {
     background: var(--surface); border-bottom: 1px solid var(--border);
     padding: 14px 28px; display: flex; align-items: center; gap: 16px;
@@ -94,76 +94,168 @@
   .header-sub { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-left: auto; }
   .main { padding: 24px 28px; }
 
+  /* ── PERIOD SELECTOR ── */
+  .period-bar {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 20px;
+  }
+  .period-lbl { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-right: 4px; }
+  .period-pill {
+    font-size: 12px; padding: 5px 14px; border: 1px solid var(--border);
+    border-radius: 20px; background: transparent; color: var(--muted);
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s;
+  }
+  .period-pill.active { background: var(--c-cons); color: #1a1a1a; border-color: var(--c-cons); font-weight: 600; }
+  .period-pill:hover:not(.active) { border-color: var(--c-cons); color: var(--text); }
+  .custom-row { display: none; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); width: 100%; }
+  .custom-row.show { display: flex; }
+  .custom-row input[type=date] {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 12px; padding: 5px 8px; font-family: 'JetBrains Mono', monospace;
+  }
+  .custom-row span { color: var(--muted); font-size: 12px; }
+
+  /* ── SECTION TITLE ── */
   .section-title {
-    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
-    color: var(--text); margin: 28px 0 14px; display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--text); margin: 24px 0 14px; display: flex; align-items: center; gap: 8px;
   }
   .section-title:first-child { margin-top: 0; }
-  .section-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .section-title .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  /* Funnel */
-  .funnel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  /* ── FUNNEL ── */
+  .funnel-row {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr 32px 1fr 32px 1fr;
+    align-items: center; gap: 0; margin-bottom: 20px;
+  }
   .funnel-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-top: 3px solid var(--accent); border-radius: 10px; padding: 18px 20px;
+    border-top: 2px solid var(--accent); border-radius: 10px; padding: 16px;
   }
-  .funnel-label { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-  .funnel-value { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
-  .funnel-bm { font-size: 11px; color: var(--muted); }
-  .funnel-bm b { color: var(--text); }
-  .funnel-arrow { display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 18px; }
-
-  /* KPI grid (Brand Diagnosis) */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .kpi {
-    background: var(--surface); border: 1px solid var(--border);
-    border-top: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px;
+  .fc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .fc-lbl { font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+  .info-btn {
+    background: none; border: none; cursor: pointer; color: var(--border);
+    font-size: 14px; padding: 0; line-height: 1; transition: color .15s;
+    display: flex; align-items: center;
   }
-  .kpi-label { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  .kpi-value { font-size: 18px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px; }
-  .kpi-bm { font-size: 10px; color: var(--muted); }
+  .info-btn:hover { color: var(--muted); }
+  .fc-num { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+  .fc-bench { font-size: 10px; color: var(--muted); margin-bottom: 5px; }
+  .fc-bench b { color: var(--text); }
+  .fc-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; display: inline-block; }
+  .tag-red { background: rgba(239,68,68,.12); color: #f87171; }
+  .tag-green { background: rgba(16,185,129,.12); color: #34d399; }
+  .funnel-arrow { color: var(--border); font-size: 20px; text-align: center; user-select: none; }
 
-  /* Audience grid */
-  .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-  .audience-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
-  .audience-card-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 14px; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 12px; }
-  .bar-label { width: 130px; flex-shrink: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bar-track { flex: 1; height: 18px; background: var(--surface2); border-radius: 4px; overflow: hidden; position: relative; display: flex; }
-  .bar-fill { height: 100%; border-radius: 4px 0 0 4px; transition: width .3s; }
-  .bar-fill.brand { background: var(--tiktok); }
-  .bar-fill.benchmark { background: var(--muted); opacity: .5; }
-  .bar-value { width: 55px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); flex-shrink:0; }
+  /* ── MID GRID ── */
+  .mid-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px; }
 
-  .legend-row { display: flex; gap: 16px; margin-bottom: 12px; font-size: 11px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
-  .legend-sw { width: 10px; height: 10px; border-radius: 2px; }
+  /* ── BOTTOM GRID ── */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+  /* ── GENERIC CARD ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .card-title { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .card-sub { font-size: 10px; color: var(--muted); }
+
+  /* Vertical share */
+  .vs-big { font-size: 34px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--c-cons); margin: 6px 0 3px; }
+  .vs-sub { font-size: 10px; color: var(--muted); }
+  .bar-wrap { margin: 12px 0 4px; }
+  .bar-row-lbl { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+  .bar-bg { height: 5px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .divider-sm { height: 1px; background: var(--border); margin: 12px 0; }
+
+  /* Personas */
+  .persona-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .pr-row { display: flex; align-items: center; gap: 8px; }
+  .pr-name { font-size: 11px; color: #9ca3af; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pr-bar-bg { width: 80px; height: 4px; background: var(--border); border-radius: 4px; flex-shrink: 0; overflow: hidden; }
+  .pr-bar-fill { height: 100%; border-radius: 4px; }
+  .pr-pct { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text); min-width: 34px; text-align: right; }
+  .legend-row { display: flex; gap: 14px; margin-top: 10px; font-size: 10px; }
+  .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; color: var(--muted); }
+
+  /* NSR */
+  .nsr-big { text-align: center; padding: 14px 0 8px; }
+  .nsr-num { font-size: 44px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #34d399; }
+  .nsr-label { font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .nsr-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 12px; }
+  .nsr-mini { background: var(--surface2); border-radius: 8px; padding: 8px; text-align: center; }
+  .nsr-mini-n { font-size: 15px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .nsr-mini-l { font-size: 9px; color: var(--muted); margin-top: 2px; }
+  .bench-row-sm { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
 
   /* Chart */
-  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 20px; }
-  .chart-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
-  .chart-wrap { position: relative; height: 280px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .chart-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .chart-legend { display: flex; gap: 14px; }
+  .cleg-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+  .cleg-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .chart-wrap { position: relative; height: 220px; }
 
-  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); gap: 12px; font-size: 14px; }
-  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
+  /* Audience section */
+  .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .audience-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .audience-card-title { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .bar-row-aud { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
+  .bar-label { width: 130px; flex-shrink: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+  .bar-track { flex: 1; height: 16px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .bar-fill-aud { height: 100%; border-radius: 4px; }
+  .bar-fill-aud.brand { background: var(--tiktok); }
+  .bar-fill-aud.benchmark { background: var(--muted); opacity: .4; }
+  .bar-val { width: 55px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; }
+
+  /* Loading / error */
+  .loading { display: flex; align-items: center; justify-content: center; height: 160px; color: var(--muted); gap: 12px; font-size: 13px; }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--shopee); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error { background: #2d1515; border: 1px solid #5c2020; border-radius: 8px; padding: 16px; color: #f87171; font-size: 13px; margin-bottom: 16px; }
-  .info-note { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--muted); font-size: 11px; margin-bottom: 16px; }
+  .error-box { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 8px; padding: 14px; color: #f87171; font-size: 12px; margin-bottom: 16px; }
+  .info-note { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--muted); font-size: 11px; margin-bottom: 14px; }
+  .empty-val { color: var(--muted); font-size: 14px; }
 
+  /* ── INFO POPUP ── */
+  .info-popup {
+    position: fixed; z-index: 9999;
+    background: #1a1d2a; border: 1px solid #374151;
+    border-radius: 10px; padding: 14px 16px;
+    max-width: 260px; box-shadow: 0 8px 32px rgba(0,0,0,.6);
+    display: none;
+  }
+  .ip-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .ip-body { font-size: 11px; color: #9ca3af; line-height: 1.65; }
+  .ip-example { font-size: 10px; color: var(--muted); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); font-style: italic; }
+  .ip-close { position: absolute; top: 8px; right: 10px; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; line-height: 1; }
+  .ip-close:hover { color: var(--text); }
+
+  /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
     .sidebar { transform: translateX(-220px); }
     .content-area { margin-left: 0 !important; width: 100% !important; }
-    .main { padding: 16px; }
-    .funnel-grid { grid-template-columns: 1fr; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .main { padding: 14px; }
+    .funnel-row { grid-template-columns: 1fr; gap: 8px; }
+    .funnel-arrow { display: none; }
+    .mid-grid, .bottom-grid { grid-template-columns: 1fr; }
     .audience-grid { grid-template-columns: 1fr; }
     .header { padding: 12px 16px; }
   }
+
+  /* Auto-update indicator */
+  .auto-update { font-size: 10px; color: var(--muted); }
 </style>
 </head>
 <body>
 <div class="app-layout">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <button class="sidebar-close" onclick="toggleSidebar()" title="Tutup sidebar">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -177,10 +269,17 @@
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">Analytics</div>
-      <a class="sidebar-item active" href="#"><span class="sidebar-icon">🧭</span>Market Scope</a>
+      <a class="sidebar-item active" href="marketscope.html"><span class="sidebar-icon">🧭</span>Market Scope</a>
       <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
       <a class="sidebar-item" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
-      <a class="sidebar-item" href="live.html"><span class="sidebar-icon">🔴</span>Live Streaming</a>
+      <div class="sidebar-item" style="flex-direction:column;align-items:flex-start;padding-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%;"><span class="sidebar-icon">🔴</span><span>Live Streaming</span></div>
+        <div class="sidebar-sub" style="width:100%;margin-top:4px;">
+          <a class="sidebar-sub-item" href="live.html">Overview Live Streaming</a>
+          <a class="sidebar-sub-item" href="rankby.html">Rank By</a>
+          <a class="sidebar-sub-item" style="opacity:.5;pointer-events:none;">Pivot Table By <span style="margin-left:auto;font-size:9px;">Soon</span></a>
+        </div>
+      </div>
       <a class="sidebar-item" href="#" style="opacity:.5;pointer-events:none;"><span class="sidebar-icon">📦</span>Produk<span style="margin-left:auto;font-size:9px;color:var(--muted);">Soon</span></a>
       <a class="sidebar-item" href="sumber.html"><span class="sidebar-icon">🎯</span>Sumber Penjualan</a>
     </div>
@@ -189,19 +288,20 @@
       <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME" target="_blank"><span class="sidebar-icon">📋</span>Google Sheets</a>
       <a class="sidebar-item" href="https://drive.google.com" target="_blank"><span class="sidebar-icon">📁</span>Google Drive</a>
     </div>
-    <div style="margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);">
-      <div style="font-size:10px;color:var(--muted);text-align:center;">Data Market Scope (TikTok)</div>
+    <div style="margin-top:auto;padding:14px 12px;border-top:1px solid var(--border);">
+      <div class="auto-update" id="auto-update-note">Auto-update setiap hari</div>
     </div>
   </aside>
 
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <div class="content-area">
+    <!-- HEADER -->
     <div class="header">
       <button onclick="toggleSidebar()" style="background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;color:var(--muted);flex-shrink:0;transition:all .15s;" title="Toggle sidebar" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
       </button>
-      <span class="logo">S</span>
+      <span class="logo" style="background:#25F4EE;color:#000;">TT</span>
       <span class="header-title">Market Scope — TikTok Brand Insights</span>
       <span class="header-sub" id="date-range">Memuat...</span>
     </div>
@@ -209,283 +309,619 @@
     <div class="main">
       <div id="error-container"></div>
 
-      <!-- ═══════ BRAND DIAGNOSIS ═══════ -->
-      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand Diagnosis — Marketing Funnel</div>
-
-      <div class="funnel-grid" id="funnel-grid">
-        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+      <!-- PERIOD SELECTOR -->
+      <div class="period-bar">
+        <span class="period-lbl">Tampilkan</span>
+        <button class="period-pill" onclick="setPeriod(this,'kemarin')">Kemarin</button>
+        <button class="period-pill" onclick="setPeriod(this,'7hari')">7 Hari</button>
+        <button class="period-pill active" onclick="setPeriod(this,'30hari')">30 Hari</button>
+        <button class="period-pill" onclick="setPeriod(this,'bulan')">Per Bulan</button>
+        <button class="period-pill" onclick="setPeriod(this,'custom')">Custom</button>
+        <div class="custom-row" id="customRow">
+          <input type="date" id="dateFrom">
+          <span>s/d</span>
+          <input type="date" id="dateTo">
+          <button class="period-pill active" onclick="applyCustom()">Terapkan</button>
+        </div>
       </div>
 
-      <div class="kpi-grid" id="diag-kpi-grid"></div>
-
-      <div class="chart-card">
-        <div class="chart-title">Tren Impressions & Search Volume</div>
-        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      <!-- FUNNEL -->
+      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
+      <div class="funnel-row" id="funnel-row">
+        <div class="loading" style="grid-column:1/-1;height:120px;"><div class="spinner"></div> Memuat data funnel...</div>
       </div>
 
-      <!-- ═══════ AUDIENCE ANALYSIS ═══════ -->
+      <!-- MID: Chart + Vertical Share -->
+      <div class="mid-grid">
+        <div class="chart-card">
+          <div class="chart-title-row">
+            <div class="card-title">
+              Tren Impressions Harian
+              <button class="info-btn" onclick="showInfo(event,'impressions')" aria-label="Info Impressions">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="chart-legend">
+              <span class="cleg-item"><span class="cleg-dot" style="background:#f59e0b"></span>Wookey</span>
+              <span class="cleg-item"><span class="cleg-dot" style="background:#374151"></span>Benchmark</span>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Line chart impressions harian Wookey vs benchmark">Tren impressions Wookey dibanding benchmark.</canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              Vertical Share
+              <button class="info-btn" onclick="showInfo(event,'vertical_share')" aria-label="Info Vertical Share">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="vs-big" id="vs-val">—</div>
+          <div class="vs-sub">dari total tayangan F&B di TikTok</div>
+          <div class="bar-wrap">
+            <div style="margin-bottom:8px">
+              <div class="bar-row-lbl"><span>Wookey</span><span id="vs-wookey-lbl" style="color:var(--c-cons)">—</span></div>
+              <div class="bar-bg"><div class="bar-fill" id="vs-bar-wookey" style="background:var(--c-cons);width:0"></div></div>
+            </div>
+            <div>
+              <div class="bar-row-lbl"><span>Benchmark Top 5</span><span id="vs-bench-lbl" style="color:var(--muted)">—</span></div>
+              <div class="bar-bg"><div class="bar-fill" id="vs-bar-bench" style="background:#374151;width:0"></div></div>
+            </div>
+          </div>
+          <div class="divider-sm"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="card-title" style="font-size:11px">
+              Search Volume
+              <button class="info-btn" onclick="showInfo(event,'search_volume')" aria-label="Info Search Volume">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div style="text-align:right">
+              <div id="sv-val" style="font-size:17px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--c-aware)">—</div>
+              <div id="sv-bench" style="font-size:9px;color:var(--muted)">Bench: —</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM: Personas + NSR -->
+      <div class="bottom-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              Audience Personas
+              <button class="info-btn" onclick="showInfo(event,'personas')" aria-label="Info Audience Personas">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <span class="card-sub" id="persona-date">—</span>
+          </div>
+          <div class="persona-list" id="persona-list">
+            <div class="loading" style="height:100px"><div class="spinner"></div></div>
+          </div>
+          <div class="legend-row">
+            <span class="leg-item"><span class="leg-dot" style="background:#7F77DD"></span>Low spenders</span>
+            <span class="leg-item"><span class="leg-dot" style="background:#1D9E75"></span>High spenders</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              Net Sentiment Rate
+              <button class="info-btn" onclick="showInfo(event,'nsr')" aria-label="Info Net Sentiment Rate">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <span class="card-sub">Persepsi merek</span>
+          </div>
+          <div class="nsr-big">
+            <div class="nsr-num" id="nsr-val">—</div>
+            <div class="nsr-label" id="nsr-label">Memuat...</div>
+          </div>
+          <div class="nsr-3">
+            <div class="nsr-mini"><div class="nsr-mini-n" id="nsr-pos" style="color:#34d399">—</div><div class="nsr-mini-l">Positif</div></div>
+            <div class="nsr-mini"><div class="nsr-mini-n" id="nsr-neu" style="color:#9ca3af">—</div><div class="nsr-mini-l">Netral</div></div>
+            <div class="nsr-mini"><div class="nsr-mini-n" id="nsr-neg" style="color:#f87171">—</div><div class="nsr-mini-l">Negatif</div></div>
+          </div>
+          <div class="bench-row-sm">
+            <span>Benchmark Top 5</span>
+            <span id="nsr-bench" style="color:#9ca3af">—</span>
+          </div>
+          <div style="margin-top:8px">
+            <div class="bar-bg"><div class="bar-fill" id="nsr-bar" style="background:#10b981;width:0%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--border);margin-top:3px">
+              <span>0%</span><span id="nsr-bar-label" style="color:#34d399"></span><span>100%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIENCE DEMOGRAPHICS -->
       <div class="section-title"><span class="dot" style="background:var(--c-conv)"></span>Audience Analysis — Demografi Snapshot</div>
       <div class="info-note" id="audience-date-note">Memuat tanggal snapshot...</div>
-
-      <div class="legend-row">
-        <div class="legend-item"><span class="legend-sw" style="background:var(--tiktok)"></span>Brand (Wookey Weight)</div>
-        <div class="legend-item"><span class="legend-sw" style="background:var(--muted);opacity:.5"></span>Benchmark (Top 5 Vertical)</div>
+      <div style="display:flex;gap:14px;margin-bottom:12px;font-size:11px;">
+        <span class="leg-item"><span class="leg-dot" style="background:var(--tiktok)"></span>Wookey Weight</span>
+        <span class="leg-item"><span class="leg-dot" style="background:var(--muted);opacity:.5"></span>Benchmark Top 5</span>
       </div>
-
       <div class="audience-grid" id="audience-grid">
-        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data audiens...</div>
       </div>
+
     </div>
   </div>
 </div>
 
+<!-- INFO POPUP -->
+<div class="info-popup" id="infoPopup">
+  <button class="ip-close" onclick="closeInfo()">✕</button>
+  <div class="ip-title" id="ipTitle"></div>
+  <div class="ip-body" id="ipBody"></div>
+  <div class="ip-example" id="ipExample"></div>
+</div>
+
 <script>
 const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
-const URL_TREND    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Harian')}&headers=1&_cb=${Date.now()}`;
-const URL_AUDIENCE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Market Scope Audience')}&headers=1&_cb=${Date.now()}`;
 
+// ── INFO POPUP DATA ──
+const INFO = {
+  awareness: {
+    title: 'Awareness',
+    body: 'Jumlah user TikTok yang pernah terekspos konten Wookey — melalui video organik, iklan, atau konten kreator. Ini adalah puncak corong, tahap paling awal sebelum seseorang mengenal merek.',
+    example: 'Contoh: 25,8jt artinya 25,8 juta user TikTok sudah pernah melihat konten Wookey setidaknya satu kali.'
+  },
+  consideration: {
+    title: 'Consideration',
+    body: 'User yang sudah menunjukkan sinyal minat aktif: menonton video Wookey berulang kali, like, share, komentar, atau mencari nama merek. Mereka jauh lebih dekat ke pembelian dibanding yang hanya Aware.',
+    example: 'Pengguna di tahap ini 14–16× lebih mungkin melakukan konversi dibanding yang hanya di tahap Awareness.'
+  },
+  conversion: {
+    title: 'Conversion',
+    body: 'User yang sudah melakukan pembelian produk Wookey melalui TikTok Shop. Ini adalah ujung corong — tahap paling akhir yang menghasilkan GMV langsung.',
+    example: 'Conversion Rate Wookey 28,2% vs benchmark 12,9% — artinya hampir 1 dari 3 yang sudah Consideration akhirnya membeli. Sangat kuat.'
+  },
+  consideration_rate: {
+    title: 'Consideration Rate',
+    body: 'Persentase dari total audience Awareness yang berhasil masuk ke tahap Consideration. Semakin tinggi, semakin efektif konten dan iklan Wookey mengubah penonton pasif menjadi calon pembeli aktif.',
+    example: 'Wookey 4,07% vs benchmark 5,37% — ada ruang untuk ditingkatkan lewat konten yang lebih engaging dan relevan.'
+  },
+  conversion_rate: {
+    title: 'Conversion Rate',
+    body: 'Persentase dari audience Consideration yang akhirnya melakukan pembelian. Ini dipengaruhi oleh kualitas produk, harga, ulasan, dan pengalaman belanja di TikTok Shop.',
+    example: 'Wookey 28,2% vs benchmark 12,9% — ini keunggulan kompetitif nyata. Produk Wookey sangat relevan bagi yang sudah berminat.'
+  },
+  impressions: {
+    title: 'Impressions Harian',
+    body: 'Total tayangan konten Wookey di TikTok per hari, mencakup semua jenis konten: video organik, iklan berbayar, konten kreator/KOL, dan live streaming. Berbeda dengan Watch PV yang hanya menghitung yang benar-benar ditonton.',
+    example: 'Tren naik menunjukkan visibilitas merek meningkat. Bandingkan dengan benchmark untuk tahu posisi Wookey di kategori F&B.'
+  },
+  vertical_share: {
+    title: 'Vertical Share',
+    body: 'Porsi tayangan Wookey dari total tayangan semua merek di kategori Food & Beverage TikTok Indonesia. Menggambarkan seberapa dominan Wookey dibandingkan kompetitor di kategorinya.',
+    example: '3,04% artinya dari setiap 100 tayangan konten F&B di TikTok, sekitar 3 adalah konten Wookey. Target jangka panjang: mendekati atau melampaui benchmark 6,21%.'
+  },
+  search_volume: {
+    title: 'Search Volume',
+    body: 'Berapa kali user TikTok mencari keyword terkait merek Wookey. Ini adalah indikator brand recall — orang yang aktif mencari sudah punya niat tinggi dan sangat dekat ke pembelian.',
+    example: 'Search volume masih jauh di bawah benchmark (3.153 vs 72.458). Strategi untuk meningkatkan: lebih banyak konten branded hashtag, kolaborasi kreator, dan iklan brand awareness.'
+  },
+  personas: {
+    title: 'Audience Personas',
+    body: 'TikTok mengelompokkan audience Wookey ke 8 segmen berdasarkan kombinasi usia dan pola pengeluaran. Data ini membantu menentukan strategi konten, targeting iklan, dan pengembangan produk.',
+    example: 'Gen Z (29,6%) mendominasi — strategi: konten yang relatable, authentic, tren-driven. High spenders perlu diretarget dengan penawaran premium atau bundle untuk mendorong konversi lebih tinggi.'
+  },
+  nsr: {
+    title: 'Net Sentiment Rate (NSR)',
+    body: 'Persentase bersih komentar positif dikurangi negatif di seluruh konten Wookey di TikTok. NSR tinggi menandakan persepsi merek yang sehat dan audiens merespons konten dengan antusias.',
+    example: 'NSR +72,4% Wookey lebih tinggi dari benchmark +58,1%. Ini aset merek yang sangat berharga — perlu dijaga dengan konsistensi kualitas produk dan respons aktif terhadap komentar.'
+  }
+};
+
+var activeInfo = null;
+function showInfo(e, key) {
+  e.stopPropagation();
+  var popup = document.getElementById('infoPopup');
+  if (activeInfo === key && popup.style.display === 'block') { closeInfo(); return; }
+  activeInfo = key;
+  var d = INFO[key] || { title: key, body: 'Informasi tidak tersedia.', example: '' };
+  document.getElementById('ipTitle').textContent = d.title;
+  document.getElementById('ipBody').textContent = d.body;
+  document.getElementById('ipExample').textContent = d.example;
+  popup.style.display = 'block';
+  var btn = e.currentTarget.getBoundingClientRect();
+  var pw = 260;
+  var left = btn.left - pw - 10;
+  if (left < 8) left = btn.right + 10;
+  var top = Math.max(8, btn.top - 8);
+  popup.style.left = left + 'px';
+  popup.style.top  = top + 'px';
+}
+function closeInfo() {
+  document.getElementById('infoPopup').style.display = 'none';
+  activeInfo = null;
+}
+document.addEventListener('click', closeInfo);
+
+// ── PERIOD ──
+var activePeriod = '30hari';
+var allData = [];
+var allAudienceData = [];
+var customFrom = '', customTo = '';
+
+function setPeriod(el, key) {
+  document.querySelectorAll('.period-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  activePeriod = key;
+  var cr = document.getElementById('customRow');
+  cr.className = key === 'custom' ? 'custom-row show' : 'custom-row';
+  if (key !== 'custom') applyPeriod();
+}
+
+function applyCustom() {
+  customFrom = document.getElementById('dateFrom').value;
+  customTo   = document.getElementById('dateTo').value;
+  if (!customFrom || !customTo) return;
+  applyPeriod();
+}
+
+function filterByPeriod(data) {
+  if (!data.length) return data;
+  var sorted = data.slice().sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
+  var last = sorted[sorted.length-1]['Tanggal'];
+  if (!last) return sorted;
+  var lastDate = new Date(last);
+  if (activePeriod === 'kemarin') {
+    var prev = new Date(lastDate); prev.setDate(prev.getDate()-1);
+    var prevStr = prev.toISOString().split('T')[0];
+    return sorted.filter(r => r['Tanggal'] === prevStr);
+  }
+  if (activePeriod === '7hari') {
+    var cut7 = new Date(lastDate); cut7.setDate(cut7.getDate()-6);
+    return sorted.filter(r => r['Tanggal'] >= cut7.toISOString().split('T')[0]);
+  }
+  if (activePeriod === '30hari') {
+    var cut30 = new Date(lastDate); cut30.setDate(cut30.getDate()-29);
+    return sorted.filter(r => r['Tanggal'] >= cut30.toISOString().split('T')[0]);
+  }
+  if (activePeriod === 'bulan') {
+    var thisMonth = last.substring(0,7);
+    return sorted.filter(r => String(r['Tanggal']).substring(0,7) === thisMonth);
+  }
+  if (activePeriod === 'custom' && customFrom && customTo) {
+    return sorted.filter(r => r['Tanggal'] >= customFrom && r['Tanggal'] <= customTo);
+  }
+  return sorted;
+}
+
+function applyPeriod() {
+  var filtered = filterByPeriod(allData);
+  renderAll(filtered);
+}
+
+// ── DATA FETCH ──
+async function fetchSheet(sheetName) {
+  var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+    '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(sheetName) +
+    '&headers=1&_cb=' + Date.now();
+  var res  = await fetch(url);
+  var text = await res.text();
+  var json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
+  var cols = json.table.cols.map(c => c.label);
+  var rows = json.table.rows;
+  if (!cols[0] && rows.length) {
+    cols = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v) : '');
+    rows = rows.slice(1);
+  }
+  return rows.map(row => {
+    var obj = {};
+    cols.forEach((col, i) => {
+      if (!col) return;
+      var cell = row.c[i];
+      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = ''; return; }
+      var raw = cell.v;
+      var n = parseFloat(String(raw).replace(',','.'));
+      obj[col] = (isNaN(n) || ['Tanggal','Category','Label','Tanggal Snapshot'].includes(col)) ? raw : n;
+    });
+    return obj;
+  });
+}
+
+// ── FORMAT ──
 function fmtNum(v) {
   v = Number(v) || 0;
   if (v >= 1e6) return (v/1e6).toFixed(2) + 'jt';
   if (v >= 1e3) return (v/1e3).toFixed(1) + 'rb';
   return Math.round(v).toLocaleString('id-ID');
 }
-function fmtPct(v) { return (Number(v)*100).toFixed(2) + '%'; }
+function fmtPct(v) {
+  v = Number(v) || 0;
+  // handle fraction (0.04) vs already pct (4.07)
+  if (Math.abs(v) < 2) v = v * 100;
+  return v.toFixed(2) + '%';
+}
+function fmtPctRaw(v) { return (Number(v)*100).toFixed(2) + '%'; }
 function fmtFull(v) { return Math.round(Number(v)||0).toLocaleString('id-ID'); }
 
-async function fetchSheet(url) {
-  const res  = await fetch(url);
-  const text = await res.text();
-  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, '$1'));
-  let cols = json.table.cols.map(c => c.label);
-  let rows = json.table.rows;
-  if (!cols[0] && rows.length > 0) {
-    cols = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v) : '');
-    rows = rows.slice(1);
-  }
-  return rows.map(row => {
-    const obj = {};
-    cols.forEach((col, i) => {
-      if (!col) return;
-      const cell = row.c[i];
-      if (!cell || cell.v === null || cell.v === undefined) { obj[col] = ''; return; }
-      const raw = cell.v;
-      const n = parseFloat(String(raw).replace(',', '.'));
-      obj[col] = isNaN(n) || col === 'Tanggal' || col === 'Category' || col === 'Label' ? raw : n;
-    });
-    return obj;
-  });
-}
-
+// ── RENDER FUNNEL ──
 function renderFunnel(data) {
   if (!data.length) {
-    document.getElementById('funnel-grid').innerHTML = '<div class="error">Belum ada data funnel.</div>';
+    document.getElementById('funnel-row').innerHTML = '<div class="loading" style="grid-column:1/-1;height:120px">Belum ada data funnel.</div>';
     return;
   }
-  const latest = data[data.length - 1];
-  const stages = [
-    { key: 'funnel_awareness', bmKey: 'funnel_awareness_bm', label: 'Awareness', accent: 'var(--c-aware)' },
-    { key: 'funnel_consideration', bmKey: 'funnel_consideration_bm', label: 'Consideration', accent: 'var(--c-cons)' },
-    { key: 'funnel_conversion', bmKey: 'funnel_conversion_bm', label: 'Conversion', accent: 'var(--c-conv)' },
-  ];
-  document.getElementById('funnel-grid').innerHTML = stages.map(s => {
-    const val = latest[s.key] || 0;
-    const bm  = latest[s.bmKey] || 0;
-    return `<div class="funnel-card" style="--accent:${s.accent}">
-      <div class="funnel-label">${s.label}</div>
-      <div class="funnel-value">${fmtNum(val)}</div>
-      <div class="funnel-bm">Benchmark: <b>${fmtNum(bm)}</b></div>
-    </div>`;
-  }).join('');
+  // Aggregate: sum for latest period
+  var aware = data.reduce((s,d)=>s+(Number(d['funnel_awareness'])||0),0);
+  var awareBm = data[data.length-1]['funnel_awareness_bm'] || 0;
+  var cons  = data.reduce((s,d)=>s+(Number(d['funnel_consideration'])||0),0);
+  var consBm = data[data.length-1]['funnel_consideration_bm'] || 0;
+  var conv  = data.reduce((s,d)=>s+(Number(d['funnel_conversion'])||0),0);
+  var convBm = data[data.length-1]['funnel_conversion_bm'] || 0;
+
+  var consRate = aware > 0 ? (cons/aware*100) : 0;
+  var consRateBm = awareBm > 0 ? (consBm/awareBm*100) : 0;
+  var convRate = cons > 0 ? (conv/cons*100) : 0;
+  var convRateBm = consBm > 0 ? (convBm/consBm*100) : 0;
+
+  var awareTag = awareBm > 0 ? (aware >= awareBm ? 'tag-green' : 'tag-red') : '';
+  var awareTxt = awareBm > 0 ? ((aware/awareBm*100).toFixed(1) + (aware >= awareBm ? '% di atas' : '% di bawah') + ' bench') : '';
+  var convTag = convRate > 0 && convRateBm > 0 ? (convRate >= convRateBm ? 'tag-green' : 'tag-red') : '';
+  var convTxt = convRateBm > 0 ? ((convRate/convRateBm).toFixed(1) + '× vs benchmark') : '';
+
+  function card(label, infoKey, color, valStr, benchStr, tagClass, tagTxt) {
+    return '<div class="funnel-card" style="--accent:'+color+'">' +
+      '<div class="fc-top"><span class="fc-lbl">'+label+'</span>' +
+      '<button class="info-btn" onclick="showInfo(event,\''+infoKey+'\')" aria-label="Info '+label+'">' +
+        '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>' +
+      '</button></div>' +
+      '<div class="fc-num" style="color:'+color+'">'+valStr+'</div>' +
+      (benchStr ? '<div class="fc-bench">Bench: <b>'+benchStr+'</b></div>' : '') +
+      (tagTxt ? '<span class="fc-tag '+tagClass+'">'+tagTxt+'</span>' : '') +
+      '</div>';
+  }
+
+  function rateCard(label, infoKey, color, rateWookey, rateBench) {
+    var pct = Math.max(0, Math.min(100, rateWookey / (rateBench > 0 ? rateBench*1.5 : rateWookey*1.5 || 100) * 100));
+    return '<div class="funnel-card" style="--accent:'+color+'">' +
+      '<div class="fc-top"><span class="fc-lbl">'+label+'</span>' +
+      '<button class="info-btn" onclick="showInfo(event,\''+infoKey+'\')" aria-label="Info '+label+'">' +
+        '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>' +
+      '</button></div>' +
+      '<div class="fc-num" style="color:'+color+'">'+rateWookey.toFixed(2)+'%</div>' +
+      (rateBench > 0 ? '<div class="fc-bench">Bench: <b>'+rateBench.toFixed(2)+'%</b></div>' : '') +
+      '<div class="bar-bg" style="margin-top:8px"><div class="bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>' +
+      '</div>';
+  }
+
+  document.getElementById('funnel-row').innerHTML =
+    card('Awareness','awareness','#3b82f6', fmtNum(aware), awareBm ? fmtNum(awareBm) : '', awareTag, awareTxt) +
+    '<div class="funnel-arrow">→</div>' +
+    card('Consideration','consideration','#f59e0b', fmtNum(cons), consBm ? fmtNum(consBm) : '', '', '') +
+    '<div class="funnel-arrow">→</div>' +
+    card('Conversion','conversion','#10b981', fmtNum(conv), convBm ? fmtNum(convBm) : '', convTag, convTxt) +
+    '<div class="funnel-arrow"></div>' +
+    '<div style="display:grid;gap:8px">' +
+      rateCard('Consideration Rate','consideration_rate','#8b5cf6', consRate, consRateBm) +
+    '</div>';
 }
 
-function renderDiagKPI(data) {
-  if (!data.length) return;
-  const latest = data[data.length - 1];
-  const kpis = [
-    { key: 'diag_net_sentiment_rate', label: 'Net Sentiment Rate', type: 'pct', accent: '#10b981' },
-    { key: 'diag_awareness_audience_penetration', label: 'Awareness Penetration', type: 'pct', accent: '#3b82f6' },
-    { key: 'diag_reach', label: 'Reach', type: 'num', accent: '#f59e0b' },
-    { key: 'diag_frequency', label: 'Frequency', type: 'dec', accent: '#e879f9' },
-    { key: 'diag_consideration_cost', label: 'Consideration Cost', type: 'rp', accent: '#06b6d4' },
-    { key: 'diag_conversion_cost', label: 'Conversion Cost', type: 'rp', accent: '#ef4444' },
-    { key: 'diag_ad_engagements', label: 'Ad Engagements', type: 'num', accent: '#8b5cf6' },
-    { key: 'diag_search_volume_bd', label: 'Search Volume', type: 'num', accent: '#f97316' },
-  ];
-  document.getElementById('diag-kpi-grid').innerHTML = kpis.map(k => {
-    const v = latest[k.key];
-    let display;
-    if (v === undefined || v === '' || v === null) display = '-';
-    else if (k.type === 'pct') display = fmtPct(v);
-    else if (k.type === 'rp') display = 'Rp ' + fmtFull(v);
-    else if (k.type === 'dec') display = Number(v).toFixed(2);
-    else display = fmtNum(v);
-    return `<div class="kpi" style="--accent:${k.accent}">
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${display}</div>
-    </div>`;
-  }).join('');
-}
+// ── RENDER CHART ──
+var impChart = null;
+function renderImpChart(data) {
+  var labels = data.map(d => d['Tanggal']);
+  var wookey = data.map(d => Number(d['trend_impressions']) || 0);
+  var bench  = data.map(d => Number(d['trend_impressions_bm']) || 0);
 
-let chartInstance = null;
-function renderTrendChart(data) {
-  const dates = data.map(d => d['Tanggal']);
-  const impressions = data.map(d => d['trend_impressions'] || 0);
-  const searchVol    = data.map(d => d['overview_search_volume'] || 0);
-
-  if (chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(document.getElementById('trendChart').getContext('2d'), {
+  if (impChart) impChart.destroy();
+  impChart = new Chart(document.getElementById('impChart').getContext('2d'), {
     type: 'line',
     data: {
-      labels: dates,
+      labels: labels,
       datasets: [
-        { label: 'Impressions', data: impressions, borderColor: '#3b82f6', backgroundColor: '#3b82f622', tension: .3, yAxisID: 'y1', pointRadius: dates.length===1?6:3 },
-        { label: 'Search Volume', data: searchVol, borderColor: '#f59e0b', backgroundColor: '#f59e0b22', tension: .3, yAxisID: 'y2', pointRadius: dates.length===1?6:3 },
+        { label:'Wookey', data:wookey, borderColor:'#f59e0b', backgroundColor:'#f59e0b14', tension:.35, fill:true, pointRadius: data.length===1?6:3, borderWidth:2, pointBackgroundColor:'#f59e0b' },
+        { label:'Benchmark', data:bench, borderColor:'#374151', backgroundColor:'transparent', tension:.35, fill:false, pointRadius: data.length===1?6:2, borderWidth:1.5, borderDash:[4,3], pointBackgroundColor:'#374151' }
       ]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: '#e8eaf2', font: { size: 11 } } },
-        tooltip: {
-          backgroundColor: '#13151f', borderColor: '#252836', borderWidth: 1,
-          titleColor: '#e8eaf2', bodyColor: '#9ca3af', padding: 12,
-          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtFull(ctx.parsed.y)}` }
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          backgroundColor:'#13151f', borderColor:'#374151', borderWidth:1,
+          titleColor:'#e8eaf2', bodyColor:'#9ca3af', padding:10,
+          callbacks:{ label: ctx => ' ' + ctx.dataset.label + ': ' + fmtNum(ctx.parsed.y) }
         }
       },
-      scales: {
-        x: { ticks: { color: '#5a6070', font: { size: 10, family: 'JetBrains Mono' } }, grid: { color: '#252836' } },
-        y1: { position: 'left', ticks: { color: '#3b82f6', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { color: '#252836' } },
-        y2: { position: 'right', ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => fmtNum(v) }, grid: { display: false } },
+      scales:{
+        x:{ grid:{ color:'#252836' }, ticks:{ color:'#5a6070', font:{ size:10, family:'JetBrains Mono' }, maxTicksLimit:8 } },
+        y:{ grid:{ color:'#252836' }, ticks:{ color:'#5a6070', font:{ size:10 }, callback: v => fmtNum(v) } }
       }
     }
   });
 }
 
-function renderAudienceBars(containerId, items, maxBrand) {
-  const el = document.getElementById(containerId);
-  if (!items.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;">Tidak ada data</div>'; return; }
-  el.innerHTML = items.map(item => {
-    const brandPct = maxBrand > 0 ? (item.brand / maxBrand * 100) : 0;
-    const bmPct    = item.benchmark !== '' && item.benchmark !== null && maxBrand > 0 ? (item.benchmark / maxBrand * 100) : 0;
-    return `
-      <div class="bar-row">
-        <div class="bar-label" title="${item.label}">${item.label}</div>
-        <div class="bar-track">
-          <div class="bar-fill brand" style="width:${Math.min(brandPct,100)}%"></div>
-        </div>
-        <div class="bar-value">${fmtPct(item.brand)}</div>
-      </div>
-      ${item.benchmark !== '' && item.benchmark !== null ? `
-      <div class="bar-row" style="margin-top:-6px;margin-bottom:14px;">
-        <div class="bar-label"></div>
-        <div class="bar-track">
-          <div class="bar-fill benchmark" style="width:${Math.min(bmPct,100)}%"></div>
-        </div>
-        <div class="bar-value" style="opacity:.6">${fmtPct(item.benchmark)}</div>
-      </div>` : ''}
-    `;
+// ── RENDER VERTICAL SHARE & SEARCH ──
+function renderVShare(data) {
+  if (!data.length) return;
+  var latest = data[data.length-1];
+  var vs = Number(latest['trend_vertical_share']) || 0;
+  var vsBm = Number(latest['trend_vertical_share_bm']) || 0;
+  var sv = data.reduce((s,d) => s+(Number(d['overview_search_volume'])||0), 0);
+  var svBm = Number(latest['overview_search_volume_bm']) || 0;
+
+  var vsDisplay = vs < 1 ? (vs*100).toFixed(2)+'%' : vs.toFixed(2)+'%';
+  var vsBmDisplay = vsBm < 1 ? (vsBm*100).toFixed(2)+'%' : vsBm.toFixed(2)+'%';
+  var maxVs = Math.max(vs, vsBm) || 1;
+
+  document.getElementById('vs-val').textContent = vsDisplay;
+  document.getElementById('vs-wookey-lbl').textContent = vsDisplay;
+  document.getElementById('vs-bench-lbl').textContent = vsBmDisplay;
+  document.getElementById('vs-bar-wookey').style.width = (vs/maxVs*100).toFixed(1) + '%';
+  document.getElementById('vs-bar-bench').style.width  = (vsBm/maxVs*100).toFixed(1) + '%';
+  document.getElementById('sv-val').textContent = fmtNum(sv);
+  document.getElementById('sv-bench').textContent = svBm ? 'Bench: ' + fmtNum(svBm) : 'Bench: —';
+}
+
+// ── RENDER NSR ──
+function renderNSR(data) {
+  if (!data.length) return;
+  var latest = data[data.length-1];
+  var nsr = Number(latest['diag_net_sentiment_rate']) || 0;
+  var nsrBm = Number(latest['diag_net_sentiment_rate_bm']) || 0;
+  var nsrPos = Number(latest['diag_nsr_positive']) || 0;
+  var nsrNeu = Number(latest['diag_nsr_neutral']) || 0;
+  var nsrNeg = Number(latest['diag_nsr_negative']) || 0;
+
+  var nsrPct = nsr < 2 ? (nsr*100).toFixed(1)+'%' : nsr.toFixed(1)+'%';
+  var nsrBmPct = nsrBm ? (nsrBm < 2 ? (nsrBm*100).toFixed(1)+'%' : nsrBm.toFixed(1)+'%') : '—';
+  var nsrVal = nsr < 2 ? nsr*100 : nsr;
+
+  document.getElementById('nsr-val').textContent = nsrVal > 0 ? '+'+nsrVal.toFixed(1)+'%' : nsrVal.toFixed(1)+'%';
+  document.getElementById('nsr-label').textContent = nsrVal >= 60 ? 'Sangat Positif' : nsrVal >= 30 ? 'Positif' : nsrVal >= 0 ? 'Netral' : 'Negatif';
+  document.getElementById('nsr-bench').textContent = nsrBmPct;
+  document.getElementById('nsr-bar').style.width = Math.min(nsrVal, 100).toFixed(0) + '%';
+  document.getElementById('nsr-bar-label').textContent = nsrVal.toFixed(1) + '%';
+
+  if (nsrPos) document.getElementById('nsr-pos').textContent = fmtPctRaw(nsrPos);
+  if (nsrNeu) document.getElementById('nsr-neu').textContent = fmtPctRaw(nsrNeu);
+  if (nsrNeg) document.getElementById('nsr-neg').textContent = fmtPctRaw(nsrNeg);
+}
+
+// ── RENDER PERSONAS ──
+function renderPersonas(audienceData) {
+  if (!audienceData.length) {
+    document.getElementById('persona-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Belum ada data personas.</div>';
+    return;
+  }
+  var snapDate = audienceData[0]['Tanggal Snapshot'] || audienceData[0]['Tanggal'] || '';
+  document.getElementById('persona-date').textContent = snapDate;
+
+  var personas = audienceData.filter(r => r['Category'] === 'personas' && r['Label'] && r['Label'] !== 'Label');
+  if (!personas.length) {
+    document.getElementById('persona-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Data personas belum tersedia.</div>';
+    return;
+  }
+  personas.sort((a,b) => (Number(b['Brand'])||0) - (Number(a['Brand'])||0));
+  var max = Math.max(...personas.map(p => Number(p['Brand'])||0)) || 1;
+
+  var isHighSpender = label => label.toLowerCase().includes('high');
+  document.getElementById('persona-list').innerHTML = personas.slice(0,7).map(p => {
+    var val = Number(p['Brand']) || 0;
+    var pct = val < 1 ? (val*100).toFixed(1) : val.toFixed(1);
+    var barW = (val/max*100).toFixed(1);
+    var color = isHighSpender(p['Label']) ? '#1D9E75' : '#7F77DD';
+    return '<div class="pr-row">' +
+      '<span class="pr-name">'+p['Label']+'</span>' +
+      '<div class="pr-bar-bg"><div class="pr-bar-fill" style="width:'+barW+'%;background:'+color+'"></div></div>' +
+      '<span class="pr-pct">'+pct+'%</span>' +
+      '</div>';
   }).join('');
 }
 
-function renderAudience(rows) {
-  if (!rows.length) {
-    document.getElementById('audience-grid').innerHTML = '<div class="error">Belum ada data audience.</div>';
+// ── RENDER AUDIENCE DEMOGRAPHICS ──
+function renderAudience(audienceData) {
+  if (!audienceData.length) {
+    document.getElementById('audience-grid').innerHTML = '<div class="loading" style="grid-column:1/-1">Belum ada data audiens.</div>';
     return;
   }
+  var snap = audienceData[0]['Tanggal Snapshot'] || audienceData[0]['Tanggal'] || '-';
+  document.getElementById('audience-date-note').textContent = '📅 Snapshot terbaru: ' + snap + ' (data demografi update sesuai ketersediaan dari TikTok)';
 
-  const snapDate = rows[0]['Tanggal Snapshot'] || rows[0]['Tanggal'];
-  document.getElementById('audience-date-note').textContent =
-    `📅 Snapshot terbaru: ${snapDate || '-'} (data demografi update sesuai ketersediaan dari TikTok)`;
-
-  // Filter baris header berulang
-  const dataRows = rows.filter(r => r['Category'] && r['Category'] !== 'Category');
-
-  const byCategory = {};
+  var dataRows = audienceData.filter(r => r['Category'] && r['Category'] !== 'Category' && r['Label'] && r['Label'] !== 'Label');
+  var byCat = {};
   dataRows.forEach(r => {
-    const cat = r['Category'];
-    if (!byCategory[cat]) byCategory[cat] = [];
-    byCategory[cat].push({ label: r['Label'], brand: Number(r['Brand'])||0, benchmark: r['Benchmark'] });
+    var cat = r['Category'];
+    if (!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push({ label: r['Label'], brand: Number(r['Brand'])||0, bm: r['Benchmark'] });
   });
 
-  const cards = [
-    { key: 'age', title: 'Usia' },
-    { key: 'gender', title: 'Gender' },
-    { key: 'device_os', title: 'Device OS' },
-    { key: 'location', title: 'Lokasi (Top 10)' },
-    { key: 'personas', title: 'Persona Audiens' },
-    { key: 'interests', title: 'Top 10 Interests' },
+  var cards = [
+    { key:'age', title:'Usia' }, { key:'gender', title:'Gender' },
+    { key:'device_os', title:'Device OS' }, { key:'location', title:'Lokasi (Top 10)' },
+    { key:'interests', title:'Top 10 Interests' }, { key:'personas', title:'Persona Audiens' },
   ];
 
-  document.getElementById('audience-grid').innerHTML = cards.map(c => `
-    <div class="audience-card">
-      <div class="audience-card-title">${c.title}</div>
-      <div id="aud-${c.key}"></div>
-    </div>
-  `).join('');
-
-  cards.forEach(c => {
-    const items = byCategory[c.key] || [];
-    const maxBrand = Math.max(...items.map(i => i.brand), 0.001);
-    renderAudienceBars(`aud-${c.key}`, items, maxBrand);
-  });
+  document.getElementById('audience-grid').innerHTML = cards.filter(c => byCat[c.key]).map(c => {
+    var items = (byCat[c.key] || []).sort((a,b) => b.brand - a.brand);
+    var maxB = Math.max(...items.map(i=>i.brand), 0.001);
+    var rows = items.map(item => {
+      var bPct = (item.brand/maxB*100).toFixed(1);
+      var bmPct = item.bm ? ((Number(item.bm)||0)/maxB*100).toFixed(1) : 0;
+      var brandDisplay = item.brand < 1 ? (item.brand*100).toFixed(1)+'%' : item.brand.toFixed(1)+'%';
+      return '<div class="bar-row-aud">' +
+        '<span class="bar-label">'+item.label+'</span>' +
+        '<div class="bar-track"><div class="bar-fill-aud brand" style="width:'+Math.min(bPct,100)+'%"></div></div>' +
+        '<span class="bar-val">'+brandDisplay+'</span>' +
+        '</div>' +
+        (item.bm !== '' && item.bm !== null ? '<div class="bar-row-aud" style="margin-top:-6px;margin-bottom:10px">' +
+        '<span class="bar-label"></span>' +
+        '<div class="bar-track"><div class="bar-fill-aud benchmark" style="width:'+Math.min(bmPct,100)+'%"></div></div>' +
+        '<span class="bar-val" style="opacity:.6">'+(Number(item.bm)<1?(Number(item.bm)*100).toFixed(1):Number(item.bm).toFixed(1))+'%</span>' +
+        '</div>' : '');
+    }).join('');
+    return '<div class="audience-card"><div class="audience-card-title">'+c.title+'</div>' + rows + '</div>';
+  }).join('') || '<div style="color:var(--muted);font-size:12px;grid-column:1/-1">Belum ada data demografi.</div>';
 }
 
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const content = document.querySelector('.content-area');
-  const overlay = document.getElementById('sidebar-overlay');
-  const isCollapsed = sidebar.classList.contains('collapsed');
-  if (isCollapsed) {
-    sidebar.classList.remove('collapsed');
-    content.classList.remove('expanded');
-    overlay.classList.remove('show');
-    localStorage.setItem('sidebar', 'open');
+// ── RENDER ALL ──
+function renderAll(filtered) {
+  if (filtered.length) {
+    var dates = filtered.map(d => d['Tanggal']);
+    document.getElementById('date-range').textContent =
+      dates.length === 1 ? dates[0] + ' · 1 hari' :
+      dates[0] + ' — ' + dates[dates.length-1] + ' · ' + dates.length + ' hari';
   } else {
-    sidebar.classList.add('collapsed');
-    content.classList.add('expanded');
-    if (window.innerWidth < 900) overlay.classList.add('show');
-    localStorage.setItem('sidebar', 'closed');
+    document.getElementById('date-range').textContent = 'Tidak ada data untuk periode ini';
   }
+  renderFunnel(filtered);
+  renderImpChart(filtered);
+  renderVShare(filtered);
+  renderNSR(filtered);
+  renderPersonas(allAudienceData);
+  renderAudience(allAudienceData);
 }
-(function() {
-  const state = localStorage.getItem('sidebar');
-  if (state === 'closed') {
-    const s = document.getElementById('sidebar');
-    const c = document.querySelector('.content-area');
-    if (s) s.classList.add('collapsed');
-    if (c) c.classList.add('expanded');
+
+// ── SIDEBAR ──
+function toggleSidebar() {
+  var s = document.getElementById('sidebar');
+  var c = document.querySelector('.content-area');
+  var o = document.getElementById('sidebar-overlay');
+  var collapsed = s.classList.contains('collapsed');
+  if (collapsed) { s.classList.remove('collapsed'); c.classList.remove('expanded'); o.classList.remove('show'); localStorage.setItem('sidebar','open'); }
+  else { s.classList.add('collapsed'); c.classList.add('expanded'); if (window.innerWidth<900) o.classList.add('show'); localStorage.setItem('sidebar','closed'); }
+}
+(function(){
+  if (localStorage.getItem('sidebar')==='closed') {
+    var s=document.getElementById('sidebar'); var c=document.querySelector('.content-area');
+    if(s)s.classList.add('collapsed'); if(c)c.classList.add('expanded');
   }
 })();
 
+// ── INIT ──
 async function init() {
   try {
-    const [trendData, audienceData] = await Promise.all([
-      fetchSheet(URL_TREND),
-      fetchSheet(URL_AUDIENCE),
+    var [trendData, audienceData] = await Promise.all([
+      fetchSheet('Market Scope Harian'),
+      fetchSheet('Market Scope Audience'),
     ]);
-
-    const validTrend = trendData.filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
+    var validTrend = trendData.filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
     validTrend.sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
 
     if (!validTrend.length) {
-      document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Belum ada data Market Scope.</div>';
-      document.getElementById('funnel-grid').innerHTML = '';
+      document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Belum ada data Market Scope di sheet. Pastikan sheet "Market Scope Harian" sudah terisi.</div>';
+      document.getElementById('funnel-row').innerHTML = '';
+      renderAudience(audienceData);
       return;
     }
 
-    const dates = validTrend.map(d => d['Tanggal']);
-    document.getElementById('date-range').textContent =
-      dates.length === 1 ? `${dates[0]} · 1 hari` : `${dates[0]} — ${dates[dates.length-1]} · ${dates.length} hari`;
+    allData = validTrend;
+    allAudienceData = audienceData;
+    var filtered = filterByPeriod(allData);
+    renderAll(filtered);
 
-    renderFunnel(validTrend);
-    renderDiagKPI(validTrend);
-    renderTrendChart(validTrend);
-    renderAudience(audienceData);
-
-  } catch (err) {
-    document.getElementById('error-container').innerHTML = `<div class="error">❌ Gagal memuat data: ${err.message}</div>`;
+  } catch(err) {
+    document.getElementById('error-container').innerHTML = '<div class="error-box">❌ Gagal memuat data: ' + err.message + '</div>';
     console.error(err);
   }
 }
