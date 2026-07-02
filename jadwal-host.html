@@ -698,16 +698,25 @@ async function saveJadwal() {
   }
 
   try {
-    const payload = encodeURIComponent(JSON.stringify({ rows, leader: currentLeader }));
-    const url     = `${APPS_SCRIPT_URL}?action=save&data=${payload}`;
-    const res     = await fetch(url);
-    const json    = await res.json();
-    if (json.status === 'ok') {
-      showToast(`✅ ${json.count} jadwal berhasil disimpan`, 'success');
-      setTimeout(loadRiwayat, 2000);
-    } else {
-      showToast(`❌ Error: ${json.message}`, 'error');
+    // Kirim dalam batch kecil (max 20 baris per request) untuk hindari URL limit
+    const BATCH_SIZE = 20;
+    let totalSaved = 0;
+
+    for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+      const batch   = rows.slice(i, i + BATCH_SIZE);
+      const payload = encodeURIComponent(JSON.stringify({ rows: batch, leader: currentLeader }));
+      const url     = `${APPS_SCRIPT_URL}?action=save&data=${payload}`;
+      const res     = await fetch(url);
+      const json    = await res.json();
+      if (json.status === 'ok') {
+        totalSaved += json.count;
+      } else {
+        throw new Error(json.message || 'Unknown error');
+      }
     }
+
+    showToast(`✅ ${totalSaved} jadwal berhasil disimpan`, 'success');
+    setTimeout(loadRiwayat, 2000);
   } catch(e) {
     showToast('❌ Gagal menyimpan, coba lagi', 'error');
     console.error(e);
