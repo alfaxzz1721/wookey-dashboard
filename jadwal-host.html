@@ -751,7 +751,14 @@ async function loadRiwayat() {
     // Tampilkan 20 terakhir (reverse)
     const recent = rows.slice(-20).reverse();
     body.innerHTML = recent.map(r => {
-      const tgl      = r.c?.[0]?.v || '–';
+      // Format tanggal dari Date(2026,5,29) atau string biasa
+      const rawTgl = r.c?.[0]?.v || '–';
+      let tgl = rawTgl;
+      if (typeof rawTgl === 'string' && rawTgl.startsWith('Date(')) {
+        const parts = rawTgl.replace('Date(','').replace(')','').split(',');
+        const y = parts[0], m = String(parseInt(parts[1])+1).padStart(2,'0'), d = String(parts[2]).padStart(2,'0');
+        tgl = `${y}-${m}-${d}`;
+      }
       const platform = r.c?.[1]?.v || '–';
       const akun     = r.c?.[2]?.v || '–';
       const shift    = r.c?.[3]?.v || '–';
