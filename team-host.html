@@ -525,7 +525,7 @@ function renderWeekView(container, jadwal) {
         el.style.cssText = `background:${sc.bg};border-left:3px solid ${sc.text};`;
         el.innerHTML = `
           <div class="shift-item-name" style="color:${sc.text}">${shift}</div>
-          <div class="shift-item-host">Host</div>
+          <div class="shift-item-host">${item.host}</div>
           <div class="shift-item-akun">${item.platform} · ${item.akun}</div>
           ${item.bersama ? `<div class="shift-item-akun">Bersama: ${item.bersama}</div>` : ''}
         `;
