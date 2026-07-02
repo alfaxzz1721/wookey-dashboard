@@ -517,20 +517,19 @@ function changeWeek(dir) {
 // ── HOSTS ─────────────────────────────────────────────────────
 async function loadHosts() {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${GMV_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Master%20Host&headers=1&_cb=${Date.now()}`;
-    const res  = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
-    const rows = json.table?.rows || [];
+    // Ambil dari Apps Script (lebih reliable, tidak butuh sheet public)
+    const res  = await fetch(APPS_SCRIPT_URL);
+    const json = await res.json();
     const hosts = ['–'];
-    rows.forEach(r => {
-      const nama   = r.c?.[0]?.v;
-      const status = r.c?.[2]?.v;
-      if (nama && status !== 'Resign') hosts.push(nama);
+    (json.hosts || []).forEach(h => {
+      if (h.nama && h.status !== 'Resign') hosts.push(h.nama);
     });
-    hostList = hosts;
+    if (hosts.length > 1) {
+      hostList = hosts;
+      console.log(`[hosts] ${hosts.length - 1} host dimuat dari Apps Script`);
+    }
   } catch(e) {
-    console.warn('Gagal load Master Host, pakai default:', e);
+    console.warn('Gagal load Master Host:', e);
   }
 }
 
