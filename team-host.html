@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wookey Weight — Jadwal Tim Host Live</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #13151f;
+    --surface2:  #1a1d2a;
+    --border:    #252836;
+    --text:      #e8eaf2;
+    --muted:     #5a6070;
+    --shopee:    #EE4D2D;
+    --tiktok:    #ff0050;
+    --green:     #10b981;
+    --accent:    #6366f1;
+
+    --shift-dalu:  #7c3aed;
+    --shift-pagi:  #059669;
+    --shift-siang: #d97706;
+    --shift-malam: #2563eb;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px; min-width: 220px; background: var(--surface);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; height: 100vh; z-index: 200; overflow-y: auto;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed { transform: translateX(-220px); }
+  .sidebar-close {
+    position: absolute; top: 14px; right: 10px; width: 28px; height: 28px;
+    background: transparent; border: none; border-radius: 6px; cursor: pointer;
+    color: var(--muted); font-size: 16px; display: flex; align-items: center; justify-content: center;
+  }
+  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 199; }
+  .sidebar-overlay.show { display: block; }
+  .content-area {
+    margin-left: 220px; width: calc(100% - 220px); flex: 1;
+    display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
+  }
+  .content-area.expanded { margin-left: 0; width: 100%; }
+  .sidebar-brand {
+    padding: 20px 16px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo { background: var(--shopee); color: #fff; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; }
+  .sidebar-nav { padding: 12px 8px; flex: 1; }
+  .sidebar-section { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .8px; text-transform: uppercase; padding: 8px 8px 4px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px;
+    font-size: 13px; color: var(--muted); text-decoration: none; transition: all .15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+  .sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
+  .sidebar-subitem {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px;
+    font-size: 12px; color: var(--muted); text-decoration: none; transition: all .15s; margin-bottom: 1px;
+  }
+  .sidebar-subitem:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-subitem.active { color: var(--text); }
+  .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); flex-shrink: 0; margin-left: 4px; }
+  .sidebar-subitem.active .dot { background: var(--shopee); }
+  .sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+
+  /* ── Topbar ── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .menu-btn {
+    width: 32px; height: 32px; background: transparent; border: none;
+    border-radius: 6px; cursor: pointer; color: var(--muted); font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .menu-btn:hover { background: var(--surface2); color: var(--text); }
+  .topbar-title { font-size: 14px; font-weight: 600; }
+
+  /* ── Main ── */
+  .main { padding: 24px; flex: 1; }
+  .page-header { margin-bottom: 24px; }
+  .page-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--muted); }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 20px; margin-bottom: 20px;
+  }
+  .control-group { display: flex; align-items: center; gap: 8px; }
+  .control-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .ctrl-select {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 7px; color: var(--text); font-size: 13px;
+    padding: 7px 12px; font-family: 'Inter', sans-serif; cursor: pointer; outline: none;
+    transition: border .15s; min-width: 160px;
+  }
+  .ctrl-select:focus { border-color: var(--accent); }
+  .divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+  .view-toggle { display: flex; gap: 4px; }
+  .view-btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    cursor: pointer; border: 1px solid var(--border); color: var(--muted);
+    background: transparent; transition: all .15s;
+  }
+  .view-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .week-nav { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .week-btn {
+    width: 28px; height: 28px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
+  }
+  .week-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .week-label { font-size: 13px; font-weight: 500; min-width: 180px; text-align: center; }
+
+  /* ── Host Cards ── */
+  .host-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .host-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; cursor: pointer; transition: all .2s;
+  }
+  .host-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .host-card.selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+  .host-avatar {
+    width: 40px; height: 40px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 16px; font-weight: 700;
+    color: #fff; margin-bottom: 10px;
+  }
+  .host-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .host-leader { font-size: 11px; color: var(--muted); }
+  .host-shift-count { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  .shift-pip {
+    font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 3px;
+  }
+
+  /* ── Jadwal View (Mingguan) ── */
+  .jadwal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .selected-host-name { font-size: 16px; font-weight: 700; }
+  .selected-host-sub { font-size: 12px; color: var(--muted); }
+
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .day-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; min-height: 180px;
+  }
+  .day-card.today { border-color: var(--accent); }
+  .day-head {
+    padding: 10px 12px; background: var(--surface2);
+    border-bottom: 1px solid var(--border); text-align: center;
+  }
+  .day-name { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+  .day-num { font-size: 18px; font-weight: 700; }
+  .day-card.today .day-num { color: var(--accent); }
+  .day-shifts { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .shift-item {
+    border-radius: 6px; padding: 6px 8px; font-size: 11px;
+  }
+  .shift-item-name { font-weight: 600; margin-bottom: 2px; font-size: 10px; opacity: .8; }
+  .shift-item-host { font-weight: 600; }
+  .shift-item-akun { font-size: 9px; opacity: .7; margin-top: 1px; }
+  .shift-empty { color: var(--muted); font-size: 11px; text-align: center; padding: 8px; }
+
+  /* ── Bulanan View ── */
+  .month-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .month-head {
+    padding: 8px; text-align: center; background: var(--surface2);
+    border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--muted);
+  }
+  .month-cell {
+    min-height: 100px; padding: 6px; border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border); background: var(--surface); vertical-align: top;
+  }
+  .month-cell:nth-child(7n) { border-right: none; }
+  .month-cell.other-month { background: var(--bg); opacity: .4; }
+  .month-cell.today-cell { background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+  .month-date { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .month-cell.today-cell .month-date { color: var(--accent); }
+  .month-shift-tag {
+    font-size: 9px; font-weight: 600; padding: 2px 5px; border-radius: 3px;
+    margin-bottom: 2px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--muted);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; }
+
+  /* ── Loading ── */
+  .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  <div class="sidebar-brand">
+    <span class="logo">WW</span>
+    <div>
+      <div class="sidebar-brand-name">Wookey Weight</div>
+      <div style="font-size:10px;color:var(--muted);">Dashboard</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Menu</div>
+    <a class="sidebar-item" href="marketscope.html"><span class="sidebar-icon">🧭</span>Market Scope</a>
+    <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
+    <a class="sidebar-item" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
+    <a class="sidebar-item active" href="#"><span class="sidebar-icon">🔴</span>Live Streaming</a>
+    <div class="sidebar-submenu">
+      <a class="sidebar-subitem" href="live.html"><span class="dot"></span>Overview Live</a>
+      <a class="sidebar-subitem" href="rankby.html"><span class="dot"></span>Rank By</a>
+      <a class="sidebar-subitem active" href="team-host.html"><span class="dot"></span>Tim Host Live</a>
+      <a class="sidebar-subitem" href="jadwal-host.html"><span class="dot"></span>Input Jadwal</a>
+    </div>
+    <a class="sidebar-item" href="sumber.html"><span class="sidebar-icon">🎯</span>Sumber Penjualan</a>
+    <div class="sidebar-section" style="margin-top:12px">Data</div>
+    <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1AuIXCWDzaTdSclKA64qJHgllySc-uuW2ewTrfdnDgF8" target="_blank">
+      <span class="sidebar-icon">📋</span>GMV Live Sheet
+    </a>
+  </nav>
+  <div class="sidebar-footer">Wookey Weight v2.0</div>
+</div>
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Content -->
+<div class="content-area" id="contentArea">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title">Tim Host Live</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <a href="jadwal-host.html" style="font-size:12px;color:var(--accent);text-decoration:none;padding:6px 12px;border:1px solid var(--accent);border-radius:6px;">+ Input Jadwal</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-header">
+      <div class="page-title">Tim Host Live</div>
+      <div class="page-sub">Jadwal mingguan & bulanan per host</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="control-group">
+        <span class="control-label">Host</span>
+        <select class="ctrl-select" id="hostSelect" onchange="selectHost(this.value)">
+          <option value="">— Pilih Host —</option>
+        </select>
+      </div>
+      <div class="divider"></div>
+      <div class="control-group">
+        <span class="control-label">Platform</span>
+        <select class="ctrl-select" id="platformFilter" onchange="applyFilters()" style="min-width:120px;">
+          <option value="">Semua</option>
+          <option value="Shopee">Shopee</option>
+          <option value="TikTok">TikTok</option>
+        </select>
+      </div>
+      <div class="divider"></div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnWeek" onclick="setView('week')">Mingguan</button>
+        <button class="view-btn" id="btnMonth" onclick="setView('month')">Bulanan</button>
+      </div>
+      <div class="week-nav">
+        <button class="week-btn" onclick="changeOffset(-1)">‹</button>
+        <div class="week-label" id="periodLabel">–</div>
+        <button class="week-btn" onclick="changeOffset(1)">›</button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div id="contentView">
+      <div class="loading">⏳ Memuat data jadwal...</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfqb75rY1XyfrUdYRr6Ne-ScyO1dQ6fMR3dGhARbL2i27UKKofGl02OqiDHGzrV1SQ/exec';
+const GMV_SHEET_ID    = '1AuIXCWDzaTdSclKA64qJHgllySc-uuW2ewTrfdnDgF8';
+
+const HARI    = ['MIN','SEN','SEL','RAB','KAM','JUM','SAB'];
+const HARI_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN   = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const SHIFTS  = ['Dalu','Pagi','Siang','Malam'];
+const SHIFT_COLORS = {
+  Dalu:  { bg:'color-mix(in srgb,#7c3aed 20%,transparent)', text:'#a78bfa' },
+  Pagi:  { bg:'color-mix(in srgb,#059669 20%,transparent)', text:'#34d399' },
+  Siang: { bg:'color-mix(in srgb,#d97706 20%,transparent)', text:'#fbbf24' },
+  Malam: { bg:'color-mix(in srgb,#2563eb 20%,transparent)', text:'#60a5fa' },
+};
+const AVATAR_COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#f97316'];
+
+let allJadwal  = [];
+let hostList   = [];
+let selectedHost = '';
+let currentView  = 'week';
+let offset       = 0;
+
+// ── SIDEBAR ───────────────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('contentArea').classList.toggle('expanded');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────
+async function loadData() {
+  try {
+    // Load hosts dari Apps Script
+    const resH = await fetch(APPS_SCRIPT_URL);
+    const jsonH = await resH.json();
+    hostList = (jsonH.hosts || []).filter(h => h.status !== 'Resign');
+
+    // Populate select
+    const sel = document.getElementById('hostSelect');
+    hostList.forEach(h => {
+      const o = document.createElement('option');
+      o.value = h.nama; o.textContent = h.nama;
+      sel.appendChild(o);
+    });
+
+    // Load jadwal dari sheet
+    const url  = `https://docs.google.com/spreadsheets/d/${GMV_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Formasi%20Jadwal%20Hostlive&headers=1&_cb=${Date.now()}`;
+    const res  = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+    const rows = json.table?.rows || [];
+
+    allJadwal = rows.map(r => {
+      const rawTgl = r.c?.[0]?.v || '';
+      let tgl = rawTgl;
+      if (typeof rawTgl === 'string' && rawTgl.startsWith('Date(')) {
+        const p = rawTgl.replace('Date(','').replace(')','').split(',');
+        tgl = `${p[0]}-${String(parseInt(p[1])+1).padStart(2,'0')}-${String(p[2]).padStart(2,'0')}`;
+      } else if (typeof rawTgl === 'number') {
+        const d = new Date(Date.UTC(1899,11,30) + rawTgl * 86400000);
+        tgl = d.toISOString().split('T')[0];
+      }
+      return {
+        tanggal:  tgl,
+        platform: r.c?.[1]?.v || '',
+        akun:     r.c?.[2]?.v || '',
+        shift:    r.c?.[3]?.v || '',
+        host:     r.c?.[4]?.v || '',
+        bersama:  r.c?.[5]?.v || '',
+      };
+    }).filter(r => r.tanggal && r.host);
+
+    // Show overview semua host
+    renderOverview();
+  } catch(e) {
+    document.getElementById('contentView').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Gagal memuat data</div><div class="empty-sub">${e.message}</div></div>`;
+    console.error(e);
+  }
+}
+
+// ── OVERVIEW SEMUA HOST ───────────────────────────────────────
+function renderOverview() {
+  if (selectedHost) { renderSelected(); return; }
+
+  updatePeriodLabel();
+  const dates = currentView === 'week' ? getWeekDates() : getMonthDates();
+  const dateSet = new Set(dates.map(d => fmtISO(d)));
+
+  const container = document.getElementById('contentView');
+
+  // Group jadwal per host dalam periode ini
+  const hostStats = {};
+  allJadwal.forEach(j => {
+    if (!dateSet.has(j.tanggal)) return;
+    const plat = document.getElementById('platformFilter').value;
+    if (plat && j.platform !== plat) return;
+    if (!hostStats[j.host]) hostStats[j.host] = { shifts: {}, count: 0, leader: '' };
+    if (!hostStats[j.host].shifts[j.shift]) hostStats[j.host].shifts[j.shift] = 0;
+    hostStats[j.host].shifts[j.shift]++;
+    hostStats[j.host].count++;
+    const h = hostList.find(h => h.nama === j.host);
+    if (h) hostStats[j.host].leader = h.leader;
+  });
+
+  if (Object.keys(hostStats).length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <div class="empty-title">Belum ada jadwal</div>
+      <div class="empty-sub">Belum ada jadwal host yang diinput untuk periode ini</div>
+    </div>`;
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'host-grid';
+
+  Object.entries(hostStats).sort((a,b) => b[1].count - a[1].count).forEach(([nama, stat], idx) => {
+    const card = document.createElement('div');
+    card.className = 'host-card';
+    card.onclick = () => { selectedHost = nama; document.getElementById('hostSelect').value = nama; renderSelected(); };
+
+    const color = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+    const initials = nama.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const shiftTags = Object.entries(stat.shifts).map(([s,c]) =>
+      `<span class="shift-pip" style="background:${SHIFT_COLORS[s]?.bg};color:${SHIFT_COLORS[s]?.text}">${s} ×${c}</span>`
+    ).join('');
+
+    card.innerHTML = `
+      <div class="host-avatar" style="background:${color}">${initials}</div>
+      <div class="host-name">${nama}</div>
+      <div class="host-leader">${stat.leader ? 'Leader: '+stat.leader : ''}</div>
+      <div class="host-shift-count">${shiftTags}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(grid);
+}
+
+// ── VIEW PER HOST ─────────────────────────────────────────────
+function renderSelected() {
+  updatePeriodLabel();
+  const plat = document.getElementById('platformFilter').value;
+  const jadwal = allJadwal.filter(j =>
+    j.host === selectedHost &&
+    (!plat || j.platform === plat)
+  );
+
+  const hostInfo = hostList.find(h => h.nama === selectedHost);
+  const idx = hostList.findIndex(h => h.nama === selectedHost);
+  const color = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+  const initials = selectedHost.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+
+  const container = document.getElementById('contentView');
+  container.innerHTML = '';
+
+  // Host header
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:center;gap:14px;margin-bottom:20px;';
+  hdr.innerHTML = `
+    <div class="host-avatar" style="background:${color};width:48px;height:48px;font-size:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;">${initials}</div>
+    <div>
+      <div style="font-size:18px;font-weight:700;">${selectedHost}</div>
+      <div style="font-size:12px;color:var(--muted);">${hostInfo?.leader ? 'Leader: '+hostInfo.leader : ''} ${hostInfo?.status ? '· '+hostInfo.status : ''}</div>
+    </div>
+    <button onclick="selectedHost='';document.getElementById('hostSelect').value='';renderOverview();"
+      style="margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;">
+      ← Semua Host
+    </button>
+  `;
+  container.appendChild(hdr);
+
+  if (currentView === 'week') renderWeekView(container, jadwal);
+  else renderMonthView(container, jadwal);
+}
+
+// ── WEEK VIEW ─────────────────────────────────────────────────
+function renderWeekView(container, jadwal) {
+  const dates  = getWeekDates();
+  const todayISO = fmtISO(new Date());
+
+  const jadwalMap = {};
+  jadwal.forEach(j => {
+    const k = `${j.tanggal}|${j.shift}`;
+    if (!jadwalMap[k]) jadwalMap[k] = [];
+    jadwalMap[k].push(j);
+  });
+
+  const grid = document.createElement('div');
+  grid.className = 'week-grid';
+
+  dates.forEach(d => {
+    const iso  = fmtISO(d);
+    const card = document.createElement('div');
+    card.className = `day-card${iso === todayISO ? ' today' : ''}`;
+
+    const head = document.createElement('div');
+    head.className = 'day-head';
+    head.innerHTML = `<div class="day-name">${HARI[d.getDay()]}</div><div class="day-num">${d.getDate()}</div><div style="font-size:9px;color:var(--muted);">${BULAN[d.getMonth()].substring(0,3)}</div>`;
+    card.appendChild(head);
+
+    const shifts = document.createElement('div');
+    shifts.className = 'day-shifts';
+    let hasShift = false;
+
+    SHIFTS.forEach(shift => {
+      const key   = `${iso}|${shift}`;
+      const items = jadwalMap[key] || [];
+      if (items.length === 0) return;
+      hasShift = true;
+      const sc = SHIFT_COLORS[shift];
+      items.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'shift-item';
+        el.style.cssText = `background:${sc.bg};border-left:3px solid ${sc.text};`;
+        el.innerHTML = `
+          <div class="shift-item-name" style="color:${sc.text}">${shift}</div>
+          <div class="shift-item-host">Host</div>
+          <div class="shift-item-akun">${item.platform} · ${item.akun}</div>
+          ${item.bersama ? `<div class="shift-item-akun">Bersama: ${item.bersama}</div>` : ''}
+        `;
+        shifts.appendChild(el);
+      });
+    });
+
+    if (!hasShift) {
+      shifts.innerHTML = '<div class="shift-empty">–</div>';
+    }
+
+    card.appendChild(shifts);
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+}
+
+// ── MONTH VIEW ────────────────────────────────────────────────
+function renderMonthView(container, jadwal) {
+  const now    = new Date();
+  const year   = now.getFullYear() + Math.floor((now.getMonth() + offset) / 12);
+  const month  = ((now.getMonth() + offset) % 12 + 12) % 12;
+  const todayISO = fmtISO(now);
+
+  const jadwalMap = {};
+  jadwal.forEach(j => {
+    if (!jadwalMap[j.tanggal]) jadwalMap[j.tanggal] = [];
+    jadwalMap[j.tanggal].push(j);
+  });
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay  = new Date(year, month + 1, 0);
+  const startDay = firstDay.getDay();
+
+  const grid = document.createElement('div');
+  grid.className = 'month-grid';
+
+  // Headers
+  HARI.forEach(h => {
+    const th = document.createElement('div');
+    th.className = 'month-head';
+    th.textContent = h;
+    grid.appendChild(th);
+  });
+
+  // Empty cells before
+  for (let i = 0; i < startDay; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'month-cell other-month';
+    grid.appendChild(cell);
+  }
+
+  // Days
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const date  = new Date(year, month, d);
+    const iso   = fmtISO(date);
+    const items = jadwalMap[iso] || [];
+    const cell  = document.createElement('div');
+    cell.className = `month-cell${iso === todayISO ? ' today-cell' : ''}`;
+    cell.innerHTML = `<div class="month-date">${d}</div>`;
+
+    items.slice(0, 4).forEach(item => {
+      const sc  = SHIFT_COLORS[item.shift] || { bg:'var(--surface2)', text:'var(--muted)' };
+      const tag = document.createElement('span');
+      tag.className = 'month-shift-tag';
+      tag.style.cssText = `background:${sc.bg};color:${sc.text};`;
+      tag.textContent = `${item.shift} · ${item.akun.replace('wookey','').replace('.official','')}`;
+      cell.appendChild(tag);
+    });
+    if (items.length > 4) {
+      const more = document.createElement('span');
+      more.style.cssText = 'font-size:9px;color:var(--muted);';
+      more.textContent = `+${items.length - 4} lagi`;
+      cell.appendChild(more);
+    }
+
+    grid.appendChild(cell);
+  }
+
+  container.appendChild(grid);
+}
+
+// ── DATE UTILS ────────────────────────────────────────────────
+function fmtISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getWeekDates() {
+  const today = new Date();
+  const day   = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  return Array.from({length:7}, (_, i) => { const d = new Date(monday); d.setDate(monday.getDate()+i); return d; });
+}
+
+function getMonthDates() {
+  const now   = new Date();
+  const year  = now.getFullYear() + Math.floor((now.getMonth() + offset) / 12);
+  const month = ((now.getMonth() + offset) % 12 + 12) % 12;
+  const last  = new Date(year, month+1, 0).getDate();
+  return Array.from({length:last}, (_, i) => new Date(year, month, i+1));
+}
+
+function updatePeriodLabel() {
+  const label = document.getElementById('periodLabel');
+  if (currentView === 'week') {
+    const dates = getWeekDates();
+    label.textContent = `${dates[0].getDate()} ${BULAN[dates[0].getMonth()].substring(0,3)} – ${dates[6].getDate()} ${BULAN[dates[6].getMonth()].substring(0,3)} ${dates[6].getFullYear()}`;
+  } else {
+    const now   = new Date();
+    const month = ((now.getMonth() + offset) % 12 + 12) % 12;
+    const year  = now.getFullYear() + Math.floor((now.getMonth() + offset) / 12);
+    label.textContent = `${BULAN[month]} ${year}`;
+  }
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────
+function selectHost(val) {
+  selectedHost = val;
+  if (val) renderSelected();
+  else renderOverview();
+}
+
+function applyFilters() {
+  if (selectedHost) renderSelected();
+  else renderOverview();
+}
+
+function setView(v) {
+  currentView = v;
+  offset = 0;
+  document.getElementById('btnWeek').classList.toggle('active', v === 'week');
+  document.getElementById('btnMonth').classList.toggle('active', v === 'month');
+  if (selectedHost) renderSelected();
+  else renderOverview();
+}
+
+function changeOffset(d) {
+  offset += d;
+  if (selectedHost) renderSelected();
+  else renderOverview();
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
