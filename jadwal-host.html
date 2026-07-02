@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wookey Weight — Jadwal Host Live</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #13151f;
+    --surface2:  #1a1d2a;
+    --border:    #252836;
+    --text:      #e8eaf2;
+    --muted:     #5a6070;
+    --shopee:    #EE4D2D;
+    --tiktok:    #ff0050;
+    --green:     #10b981;
+    --red:       #ef4444;
+    --accent:    #6366f1;
+
+    --shift-dalu:   #7c3aed;
+    --shift-pagi:   #059669;
+    --shift-siang:  #d97706;
+    --shift-malam:  #2563eb;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px; min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 200; overflow-y: auto;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed { transform: translateX(-220px); }
+  .sidebar-close {
+    position: absolute; top: 14px; right: 10px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    border-radius: 6px; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .sidebar-close:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 199;
+  }
+  .sidebar-overlay.show { display: block; }
+  .content-area {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
+  }
+  .content-area.expanded { margin-left: 0; width: 100%; }
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo {
+    background: var(--shopee); color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 4px 8px; border-radius: 4px; letter-spacing: .5px;
+  }
+  .sidebar-brand-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .sidebar-nav { padding: 12px 8px; flex: 1; }
+  .sidebar-section { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .8px; text-transform: uppercase; padding: 8px 8px 4px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 8px; border-radius: 6px; font-size: 13px;
+    color: var(--muted); text-decoration: none; cursor: pointer;
+    transition: all .15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--text); }
+  .sidebar-item.active .sidebar-icon { color: var(--shopee); }
+  .sidebar-icon { font-size: 15px; width: 18px; text-align: center; }
+  .sidebar-submenu { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 4px; }
+  .sidebar-subitem {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; font-size: 12px;
+    color: var(--muted); text-decoration: none;
+    transition: all .15s; margin-bottom: 1px;
+  }
+  .sidebar-subitem:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-subitem.active { color: var(--text); }
+  .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); flex-shrink: 0; margin-left: 4px; }
+  .sidebar-subitem.active .dot { background: var(--shopee); }
+  .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
+
+  /* ── Topbar ── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; background: var(--surface);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .menu-btn {
+    width: 32px; height: 32px; background: transparent; border: none;
+    border-radius: 6px; cursor: pointer; color: var(--muted); font-size: 18px;
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
+  }
+  .menu-btn:hover { background: var(--surface2); color: var(--text); }
+  .topbar-title { font-size: 14px; font-weight: 600; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .leader-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px 4px 4px; font-size: 12px;
+  }
+  .leader-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); display: flex; align-items: center;
+    justify-content: center; font-size: 10px; font-weight: 700; color: #fff;
+  }
+
+  /* ── Login Screen ── */
+  .login-screen {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 999;
+  }
+  .login-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px; width: 360px; text-align: center;
+  }
+  .login-logo { font-size: 28px; margin-bottom: 8px; }
+  .login-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+  .login-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px;
+    font-family: 'Inter', sans-serif; margin-bottom: 12px; outline: none; transition: border .15s;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity .15s; margin-top: 4px;
+  }
+  .login-btn:hover { opacity: .88; }
+  .login-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+  /* ── Main Content ── */
+  .main { padding: 24px; flex: 1; }
+  .page-header { margin-bottom: 24px; }
+  .page-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--muted); }
+
+  /* ── Week Selector ── */
+  .week-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 20px; margin-bottom: 20px;
+  }
+  .week-nav { display: flex; align-items: center; gap: 12px; }
+  .week-btn {
+    width: 32px; height: 32px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 16px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; transition: all .15s;
+  }
+  .week-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .week-label { font-size: 14px; font-weight: 600; }
+  .week-sub { font-size: 12px; color: var(--muted); }
+  .week-actions { display: flex; gap: 8px; }
+  .btn-reset {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 7px; padding: 7px 14px;
+    font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .btn-reset:hover { border-color: var(--text); color: var(--text); }
+  .btn-save {
+    background: var(--green); border: none; color: #fff;
+    border-radius: 7px; padding: 7px 18px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: opacity .15s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-save:hover { opacity: .88; }
+  .btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ── Akun Tabs ── */
+  .akun-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .akun-tab {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    cursor: pointer; border: 1px solid var(--border); color: var(--muted);
+    background: transparent; transition: all .15s;
+  }
+  .akun-tab:hover { border-color: var(--text); color: var(--text); }
+  .akun-tab.active { color: #fff; border-color: transparent; }
+  .akun-tab[data-platform="Shopee"].active { background: var(--shopee); }
+  .akun-tab[data-platform="TikTok"].active { background: var(--tiktok); }
+
+  /* ── Grid Jadwal ── */
+  .jadwal-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+  }
+  .jadwal-card-header {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .akun-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+  }
+  .akun-badge.shopee { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--shopee); }
+  .akun-badge.tiktok { background: color-mix(in srgb, var(--tiktok) 15%, transparent); color: var(--tiktok); }
+  .akun-name { font-size: 13px; font-weight: 600; }
+
+  .grid-wrap { overflow-x: auto; }
+  .jadwal-grid {
+    display: grid;
+    grid-template-columns: 90px repeat(7, 1fr);
+    min-width: 700px;
+  }
+  .grid-head {
+    padding: 8px 10px; font-size: 11px; font-weight: 600;
+    color: var(--muted); background: var(--surface2);
+    border-bottom: 1px solid var(--border); text-align: center;
+  }
+  .grid-head:first-child { text-align: left; }
+  .grid-day-head {
+    padding: 8px 6px; text-align: center;
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+  .grid-day-name { font-size: 10px; font-weight: 600; color: var(--muted); }
+  .grid-day-num { font-size: 14px; font-weight: 700; color: var(--text); }
+  .grid-day-head.today .grid-day-num { color: var(--accent); }
+  .shift-label {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .shift-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .shift-name { font-size: 11px; font-weight: 600; }
+  .grid-cell {
+    padding: 6px; border-bottom: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 4px; min-height: 72px;
+  }
+  .cell-select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text); font-size: 11px;
+    padding: 4px 6px; font-family: 'Inter', sans-serif; cursor: pointer;
+    outline: none; transition: border .15s;
+  }
+  .cell-select:focus { border-color: var(--accent); }
+  .cell-select.has-value { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+  .cell-label { font-size: 9px; color: var(--muted); font-weight: 500; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 18px; font-size: 13px;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(80px); opacity: 0;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+
+  /* ── Riwayat ── */
+  .riwayat-section { margin-top: 32px; }
+  .section-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .riwayat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .riwayat-table th {
+    padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600;
+    color: var(--muted); background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .riwayat-table td {
+    padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text);
+  }
+  .riwayat-table tr:hover td { background: var(--surface2); }
+  .platform-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px;
+  }
+  .platform-tag.shopee { background: color-mix(in srgb, var(--shopee) 15%, transparent); color: var(--shopee); }
+  .platform-tag.tiktok { background: color-mix(in srgb, var(--tiktok) 15%, transparent); color: var(--tiktok); }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">📋</div>
+    <div class="login-title">Jadwal Host Live</div>
+    <div class="login-sub">Masuk untuk mengisi jadwal mingguan</div>
+    <input class="login-input" type="text" id="loginName" placeholder="Nama Leader" autocomplete="off">
+    <input class="login-input" type="password" id="loginPass" placeholder="Password" autocomplete="off">
+    <button class="login-btn" onclick="doLogin()">Masuk</button>
+    <div class="login-error" id="loginError">Nama atau password salah</div>
+  </div>
+</div>
+
+<div class="app-layout" id="appLayout" style="display:none">
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  <div class="sidebar-brand">
+    <span class="logo">WW</span>
+    <div>
+      <div class="sidebar-brand-name">Wookey Weight</div>
+      <div style="font-size:10px;color:var(--muted);">Dashboard</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Menu</div>
+    <a class="sidebar-item" href="marketscope.html"><span class="sidebar-icon">🧭</span>Market Scope</a>
+    <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
+    <a class="sidebar-item" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
+    <a class="sidebar-item active" href="#"><span class="sidebar-icon">🔴</span>Live Streaming</a>
+    <div class="sidebar-submenu">
+      <a class="sidebar-subitem" href="live.html"><span class="dot"></span>Overview Live</a>
+      <a class="sidebar-subitem" href="rankby.html"><span class="dot"></span>Rank By</a>
+      <a class="sidebar-subitem active" href="jadwal-host.html"><span class="dot"></span>Jadwal Host Live</a>
+    </div>
+    <a class="sidebar-item" href="sumber.html"><span class="sidebar-icon">🎯</span>Sumber Penjualan</a>
+    <div class="sidebar-section" style="margin-top:12px">Data</div>
+    <a class="sidebar-item" href="https://docs.google.com/spreadsheets/d/1AuIXCWDzaTdSclKA64qJHgllySc-uuW2ewTrfdnDgF8" target="_blank">
+      <span class="sidebar-icon">📋</span>GMV Live Sheet
+    </a>
+  </nav>
+  <div class="sidebar-footer" style="font-size:11px;color:var(--muted);padding:12px 16px;">
+    Wookey Weight v2.0
+  </div>
+</div>
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Content -->
+<div class="content-area" id="contentArea">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title">Jadwal Host Live</div>
+    </div>
+    <div class="topbar-right">
+      <div class="leader-badge">
+        <div class="leader-avatar" id="leaderAvatar">L</div>
+        <span id="leaderName" style="font-size:12px;font-weight:500;">Leader</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="page-header">
+      <div class="page-title">Jadwal Host Live Mingguan</div>
+      <div class="page-sub">Isi jadwal semua akun untuk satu minggu sekaligus</div>
+    </div>
+
+    <!-- Week Bar -->
+    <div class="week-bar">
+      <div class="week-nav">
+        <button class="week-btn" onclick="changeWeek(-1)">‹</button>
+        <div>
+          <div class="week-label" id="weekLabel">–</div>
+          <div class="week-sub" id="weekSub">–</div>
+        </div>
+        <button class="week-btn" onclick="changeWeek(1)">›</button>
+      </div>
+      <div class="week-actions">
+        <button class="btn-reset" onclick="resetForm()">Reset</button>
+        <button class="btn-save" id="btnSave" onclick="saveJadwal()">
+          <span>💾</span> Simpan Jadwal
+        </button>
+      </div>
+    </div>
+
+    <!-- Akun Tabs -->
+    <div class="akun-tabs" id="akunTabs"></div>
+
+    <!-- Grid Container -->
+    <div id="gridContainer"></div>
+
+    <!-- Riwayat -->
+    <div class="riwayat-section">
+      <div class="section-title">📋 Riwayat Input Terakhir</div>
+      <div class="jadwal-card">
+        <table class="riwayat-table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Platform</th>
+              <th>Akun</th>
+              <th>Shift</th>
+              <th>Host Live</th>
+              <th>Bersama</th>
+              <th>Diinput</th>
+            </tr>
+          </thead>
+          <tbody id="riwayatBody">
+            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfqb75rY1XyfrUdYRr6Ne-ScyO1dQ6fMR3dGhARbL2i27UKKofGl02OqiDHGzrV1SQ/exec';
+const GMV_SHEET_ID    = '1AuIXCWDzaTdSclKA64qJHgllySc-uuW2ewTrfdnDgF8';
+
+const AKUN_LIST = [
+  { nama: 'Shopee Wookey',        platform: 'Shopee' },
+  { nama: 'wookey.official',      platform: 'TikTok' },
+  { nama: 'wookeyofficial',       platform: 'TikTok' },
+  { nama: 'wookeyweight',         platform: 'TikTok' },
+  { nama: 'wookeywight.official', platform: 'TikTok' },
+];
+const SHIFTS = [
+  { nama: 'Dalu',  warna: '#7c3aed', jam: '00:00–05:59' },
+  { nama: 'Pagi',  warna: '#059669', jam: '06:00–11:59' },
+  { nama: 'Siang', warna: '#d97706', jam: '12:00–17:59' },
+  { nama: 'Malam', warna: '#2563eb', jam: '18:00–23:59' },
+];
+const HARI  = ['SEN','SEL','RAB','KAM','JUM','SAB','MIN'];
+const CREDENTIALS = { 'Admin': 'wookey2026', 'Leader': 'hostlive123' };
+
+// ── STATE ─────────────────────────────────────────────────────
+let currentLeader = '';
+let weekOffset    = 0;
+let hostList      = ['–'];
+let jadwalState   = {};
+let activeAkun    = 'Shopee Wookey';
+
+// ── LOGIN ─────────────────────────────────────────────────────
+function doLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (CREDENTIALS[name] && CREDENTIALS[name] === pass) {
+    currentLeader = name;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appLayout').style.display = 'flex';
+    document.getElementById('leaderName').textContent = name;
+    document.getElementById('leaderAvatar').textContent = name[0].toUpperCase();
+    init();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ── SIDEBAR ───────────────────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ca = document.getElementById('contentArea');
+  const ov = document.getElementById('overlay');
+  sb.classList.toggle('collapsed');
+  ca.classList.toggle('expanded');
+  ov.classList.toggle('show');
+}
+
+// ── WEEK ──────────────────────────────────────────────────────
+function getWeekDates(offset) {
+  const today = new Date();
+  const day   = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function formatDate(d) {
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+function formatDateISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function updateWeekLabel() {
+  const dates = getWeekDates(weekOffset);
+  const f     = dates[0], l = dates[6];
+  const label = weekOffset === 0 ? 'Minggu ini' : weekOffset === 1 ? 'Minggu depan' : weekOffset === -1 ? 'Minggu lalu' : `Minggu ${weekOffset > 0 ? '+' : ''}${weekOffset}`;
+  document.getElementById('weekLabel').textContent = `${formatDate(f)} – ${formatDate(l)}`;
+  document.getElementById('weekSub').textContent   = label;
+}
+
+function changeWeek(dir) {
+  weekOffset += dir;
+  updateWeekLabel();
+  renderGrid();
+}
+
+// ── HOSTS ─────────────────────────────────────────────────────
+async function loadHosts() {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${GMV_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Master%20Host&headers=1&_cb=${Date.now()}`;
+    const res  = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+    const rows = json.table?.rows || [];
+    const hosts = ['–'];
+    rows.forEach(r => {
+      const nama   = r.c?.[0]?.v;
+      const status = r.c?.[2]?.v;
+      if (nama && status !== 'Resign') hosts.push(nama);
+    });
+    hostList = hosts;
+  } catch(e) {
+    console.warn('Gagal load Master Host, pakai default:', e);
+  }
+}
+
+// ── AKUN TABS ─────────────────────────────────────────────────
+function renderAkunTabs() {
+  const container = document.getElementById('akunTabs');
+  container.innerHTML = '';
+  AKUN_LIST.forEach(akun => {
+    const tab = document.createElement('button');
+    tab.className  = `akun-tab ${activeAkun === akun.nama ? 'active' : ''}`;
+    tab.dataset.platform = akun.platform;
+    tab.textContent = akun.nama;
+    tab.onclick = () => {
+      activeAkun = akun.nama;
+      renderAkunTabs();
+      renderGrid();
+    };
+    container.appendChild(tab);
+  });
+}
+
+// ── GRID ──────────────────────────────────────────────────────
+function stateKey(akun, shift, dateISO) {
+  return `${akun}||${shift}||${dateISO}`;
+}
+
+function makeSelect(akun, shift, dateISO, type) {
+  const key = stateKey(akun, shift, dateISO) + '||' + type;
+  const sel = document.createElement('select');
+  sel.className = 'cell-select';
+  hostList.forEach(h => {
+    const o = document.createElement('option');
+    o.value = h; o.textContent = h;
+    sel.appendChild(o);
+  });
+  const saved = jadwalState[key] || '–';
+  sel.value = saved;
+  if (saved !== '–') sel.classList.add('has-value');
+  sel.onchange = () => {
+    jadwalState[key] = sel.value;
+    sel.classList.toggle('has-value', sel.value !== '–');
+  };
+  return sel;
+}
+
+function renderGrid() {
+  const dates     = getWeekDates(weekOffset);
+  const today     = new Date();
+  const todayISO  = formatDateISO(today);
+  const container = document.getElementById('gridContainer');
+  container.innerHTML = '';
+
+  const akun = AKUN_LIST.find(a => a.nama === activeAkun);
+  if (!akun) return;
+
+  const card = document.createElement('div');
+  card.className = 'jadwal-card';
+
+  // Card header
+  const header = document.createElement('div');
+  header.className = 'jadwal-card-header';
+  const badge = document.createElement('span');
+  badge.className = `akun-badge ${akun.platform.toLowerCase()}`;
+  badge.textContent = akun.platform;
+  const nameEl = document.createElement('span');
+  nameEl.className = 'akun-name';
+  nameEl.textContent = akun.nama;
+  header.appendChild(badge);
+  header.appendChild(nameEl);
+  card.appendChild(header);
+
+  // Grid
+  const wrap = document.createElement('div');
+  wrap.className = 'grid-wrap';
+  const grid = document.createElement('div');
+  grid.className = 'jadwal-grid';
+
+  // Header row
+  const headShift = document.createElement('div');
+  headShift.className = 'grid-head';
+  headShift.textContent = 'Shift';
+  grid.appendChild(headShift);
+
+  dates.forEach((d, i) => {
+    const cell = document.createElement('div');
+    cell.className = `grid-day-head${formatDateISO(d) === todayISO ? ' today' : ''}`;
+    cell.innerHTML = `<div class="grid-day-name">${HARI[i]}</div><div class="grid-day-num">${d.getDate()}</div>`;
+    grid.appendChild(cell);
+  });
+
+  // Shift rows
+  SHIFTS.forEach(shift => {
+    const label = document.createElement('div');
+    label.className = 'shift-label';
+    label.innerHTML = `<span class="shift-dot" style="background:${shift.warna}"></span><span class="shift-name" style="color:${shift.warna}">${shift.nama}</span>`;
+    grid.appendChild(label);
+
+    dates.forEach(d => {
+      const iso  = formatDateISO(d);
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+
+      const hostLabel = document.createElement('div');
+      hostLabel.className = 'cell-label';
+      hostLabel.textContent = 'Host Live';
+      const hostSel = makeSelect(akun.nama, shift.nama, iso, 'host');
+
+      const bersamaLabel = document.createElement('div');
+      bersamaLabel.className = 'cell-label';
+      bersamaLabel.style.marginTop = '2px';
+      bersamaLabel.textContent = 'Bersama';
+      const bersamaSel = makeSelect(akun.nama, shift.nama, iso, 'bersama');
+
+      cell.appendChild(hostLabel);
+      cell.appendChild(hostSel);
+      cell.appendChild(bersamaLabel);
+      cell.appendChild(bersamaSel);
+      grid.appendChild(cell);
+    });
+  });
+
+  wrap.appendChild(grid);
+  card.appendChild(wrap);
+  container.appendChild(card);
+}
+
+// ── SAVE ──────────────────────────────────────────────────────
+async function saveJadwal() {
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Menyimpan...';
+
+  const dates  = getWeekDates(weekOffset);
+  const minggu = `${formatDate(dates[0])} – ${formatDate(dates[6])}`;
+  const rows   = [];
+
+  AKUN_LIST.forEach(akun => {
+    const platform = akun.platform;
+    dates.forEach(d => {
+      const iso = formatDateISO(d);
+      SHIFTS.forEach(shift => {
+        const hostKey    = stateKey(akun.nama, shift.nama, iso) + '||host';
+        const bersamaKey = stateKey(akun.nama, shift.nama, iso) + '||bersama';
+        const host       = jadwalState[hostKey]    || '–';
+        const bersama    = jadwalState[bersamaKey] || '';
+        if (host !== '–') {
+          rows.push({
+            tanggal:   iso,
+            platform,
+            akun:      akun.nama,
+            shift:     shift.nama,
+            host_live: host,
+            bersama:   bersama !== '–' ? bersama : '',
+            minggu
+          });
+        }
+      });
+    });
+  });
+
+  if (rows.length === 0) {
+    showToast('⚠️ Tidak ada jadwal yang diisi', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span>💾</span> Simpan Jadwal';
+    return;
+  }
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows, leader: currentLeader })
+    });
+    showToast(`✅ ${rows.length} jadwal berhasil disimpan`, 'success');
+    setTimeout(loadRiwayat, 2000);
+  } catch(e) {
+    showToast('❌ Gagal menyimpan, coba lagi', 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>💾</span> Simpan Jadwal';
+}
+
+// ── RESET ─────────────────────────────────────────────────────
+function resetForm() {
+  if (!confirm('Reset semua isian minggu ini?')) return;
+  const dates = getWeekDates(weekOffset);
+  AKUN_LIST.forEach(akun => {
+    dates.forEach(d => {
+      const iso = formatDateISO(d);
+      SHIFTS.forEach(shift => {
+        delete jadwalState[stateKey(akun.nama, shift.nama, iso) + '||host'];
+        delete jadwalState[stateKey(akun.nama, shift.nama, iso) + '||bersama'];
+      });
+    });
+  });
+  renderGrid();
+}
+
+// ── RIWAYAT ───────────────────────────────────────────────────
+async function loadRiwayat() {
+  const body = document.getElementById('riwayatBody');
+  try {
+    const url  = `https://docs.google.com/spreadsheets/d/${GMV_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Formasi%20Jadwal%20Hostlive&headers=1&_cb=${Date.now()}`;
+    const res  = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+    const rows = json.table?.rows || [];
+
+    if (rows.length === 0) {
+      body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">Belum ada data</td></tr>';
+      return;
+    }
+
+    // Tampilkan 20 terakhir (reverse)
+    const recent = rows.slice(-20).reverse();
+    body.innerHTML = recent.map(r => {
+      const tgl      = r.c?.[0]?.v || '–';
+      const platform = r.c?.[1]?.v || '–';
+      const akun     = r.c?.[2]?.v || '–';
+      const shift    = r.c?.[3]?.v || '–';
+      const host     = r.c?.[4]?.v || '–';
+      const bersama  = r.c?.[5]?.v || '–';
+      const diinput  = r.c?.[7]?.v || '–';
+      const platClass = platform.toLowerCase();
+      return `<tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${tgl}</td>
+        <td><span class="platform-tag ${platClass}">${platform}</span></td>
+        <td style="font-size:11px;">${akun}</td>
+        <td><span style="font-size:10px;padding:2px 6px;border-radius:3px;background:var(--surface2);">${shift}</span></td>
+        <td style="font-weight:500;">${host}</td>
+        <td style="color:var(--muted);">${bersama}</td>
+        <td style="color:var(--muted);font-size:11px;">${diinput}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">Tab belum ada — simpan jadwal pertama untuk membuat tab ini</td></tr>';
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+  updateWeekLabel();
+  await loadHosts();
+  renderAkunTabs();
+  renderGrid();
+  loadRiwayat();
+}
+</script>
+</body>
+</html>
