@@ -522,6 +522,30 @@ const LIVE_SOURCES = {
 const dataCache = { shopee: null, tiktok: null };
 let currentPlatform = 'all';
 
+
+// Parse format gviz Date(YYYY,M,D) — bulan 0-indexed
+function parseGvizDate(val) {
+  if (!val) return null;
+  // Format: Date(2026,2,29) → bulan 0-indexed
+  const m = String(val).match(/Date\((\d+),(\d+),(\d+)\)/);
+  if (m) return new Date(+m[1], +m[2], +m[3]);
+  // Format formatted string: "Minggu, 29 Maret 2026"
+  const months = {Januari:0,Februari:1,Maret:2,April:3,Mei:4,Juni:5,
+                  Juli:6,Agustus:7,September:8,Oktober:9,November:10,Desember:11};
+  const mf = String(val).match(/(\d+)\s+(\w+)\s+(\d+)/);
+  if (mf && months[mf[2]] !== undefined)
+    return new Date(+mf[3], months[mf[2]], +mf[1]);
+  // Fallback ISO
+  const d = new Date(val);
+  return isNaN(d) ? null : d;
+}
+
+// Ambil nilai tanggal dari row gviz (cek v dan f)
+function getRowDate(cell) {
+  if (!cell) return null;
+  return parseGvizDate(cell.v) || parseGvizDate(cell.f);
+}
+
 async function fetchSheetData(sheetName) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&headers=1&_cb=${Date.now()}`;
   const res  = await fetch(url);
@@ -533,7 +557,20 @@ async function fetchSheetData(sheetName) {
     cols.forEach((col, i) => {
       const cell = row.c[i];
       if (!cell || cell.v === null || cell.v === undefined) { obj[col] = 0; return; }
-      obj[col] = cell.v;
+      // Kolom Tanggal: konversi Date(YYYY,M,D) ke ISO string YYYY-MM-DD
+      if (col === 'Tanggal') {
+        const d = parseGvizDate(cell.v) || parseGvizDate(cell.f);
+        if (d && !isNaN(d)) {
+          const yyyy = d.getFullYear();
+          const mm   = String(d.getMonth()+1).padStart(2,'0');
+          const dd   = String(d.getDate()).padStart(2,'0');
+          obj[col] = `${yyyy}-${mm}-${dd}`;
+        } else {
+          obj[col] = null;
+        }
+      } else {
+        obj[col] = cell.v;
+      }
     });
     return obj;
   }).filter(r => r['Tanggal'] && r['Tanggal'] !== '0');
@@ -716,7 +753,7 @@ function groupData(data, group) {
 
   const grouped = {};
   data.forEach(d => {
-    const date = new Date(d['Tanggal']);
+    const date = new Date(d['Tanggal'] + 'T00:00:00');
     let key;
     if (group === 'week') {
       const day  = date.getDay();
@@ -865,7 +902,7 @@ function buildWeekOptions() {
   select.innerHTML = '';
   const weeks = {};
   globalData.forEach(d => {
-    const date = new Date(d['Tanggal']);
+    const date = new Date(d['Tanggal'] + 'T00:00:00');
     const day  = date.getDay();
     const diff = (day === 0 ? -6 : 1 - day);
     const mon  = new Date(date); mon.setDate(date.getDate() + diff);
@@ -897,7 +934,7 @@ function buildMonthOptions() {
   const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const months = {};
   globalData.forEach(d => {
-    const date = new Date(d['Tanggal']);
+    const date = new Date(d['Tanggal'] + 'T00:00:00');
     const key  = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
     if (!months[key]) months[key] = `${BULAN[date.getMonth()]} ${date.getFullYear()}`;
   });
