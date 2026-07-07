@@ -202,6 +202,15 @@
 
   <div class="ctrl-divider"></div>
 
+    <!-- Theme Toggle -->
+  <div class="ctrl-divider"></div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle tema"
+    style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;
+           border:1px solid var(--border,#333);background:transparent;color:var(--muted,#aaa);
+           font-size:12px;cursor:pointer;white-space:nowrap;">
+    <span id="theme-icon">🌙</span>
+    <span id="theme-label">Cerah</span>
+  </button>
   <!-- View Toggle -->
   <div class="view-toggle">
     <button class="view-btn active" id="btnWeek"  onclick="setView('week')">Mingguan</button>
