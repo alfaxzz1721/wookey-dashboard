@@ -421,11 +421,11 @@
       <!-- Toolbar Metrik -->
       <div class="toolbar">
         <span class="toolbar-label">Tampilkan:</span>
-        <button class="toggle active" data-metric="GMV"           style="--accent:var(--c-gmv)">  <span class="dot"></span>GMV</button>
-        <button class="toggle active" data-metric="Order Number"  style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
-        <button class="toggle active" data-metric="Click Product" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
-        <button class="toggle active" data-metric="Live Watch PV" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
-        <button class="toggle"        data-metric="Live Show PV"  style="--accent:var(--c-show)"> <span class="dot"></span>Live Show PV</button>
+        <button class="toggle active" data-metric="Live GMV"           style="--accent:var(--c-gmv)">  <span class="dot"></span>GMV</button>
+        <button class="toggle active" data-metric="Jumlah Pesanan (SKU Product)"  style="--accent:var(--c-order)"><span class="dot"></span>Order Number</button>
+        <button class="toggle active" data-metric="Klik Produk" style="--accent:var(--c-click)"><span class="dot"></span>Click Product</button>
+        <button class="toggle active" data-metric="Tayangan" style="--accent:var(--c-watch)"><span class="dot"></span>Live Watch PV</button>
+        <button class="toggle"        data-metric="Impresi"  style="--accent:var(--c-show)"> <span class="dot"></span>Live Show PV</button>
         <button class="toggle"        data-metric="ERR"           style="--accent:var(--c-err)">  <span class="dot"></span>ERR</button>
         <button class="toggle"        data-metric="CTR"           style="--accent:var(--c-ctr)">  <span class="dot"></span>CTR</button>
         <button class="toggle"        data-metric="CTOR"          style="--accent:var(--c-ctor)"> <span class="dot"></span>CTOR</button>
@@ -584,7 +584,7 @@ async function loadPlatformData(platform) {
     ]);
     // Gabungkan per tanggal
     const merged = {};
-    const numCols = ['GMV','Order Number','Click Product','Live Watch PV','Live Show PV'];
+    const numCols = ['Live GMV','Jumlah Pesanan (SKU Product)','Klik Produk','Tayangan','Impresi'];
     [...shopee, ...tiktok].forEach(row => {
       const tgl = row['Tanggal'];
       if (!tgl) return;
@@ -595,11 +595,11 @@ async function loadPlatformData(platform) {
     });
     // Hitung ulang rasio
     return Object.values(merged).map(d => {
-      const gmv   = d['GMV']           || 0;
-      const order = d['Order Number']  || 0;
-      const klik  = d['Click Product'] || 0;
-      const watch = d['Live Watch PV'] || 0;
-      const show  = d['Live Show PV']  || 0;
+      const gmv   = d['Live GMV']           || 0;
+      const order = d['Jumlah Pesanan (SKU Product)']  || 0;
+      const klik  = d['Klik Produk'] || 0;
+      const watch = d['Tayangan'] || 0;
+      const show  = d['Impresi']  || 0;
       d['CTR']  = watch > 0 ? round4(klik  / watch) * 100 : 0;
       d['CTOR'] = klik  > 0 ? round4(order / klik)  * 100 : 0;
       d['AOV']  = order > 0 ? Math.round(gmv / order) : 0;
@@ -650,11 +650,11 @@ function setPlatform(platform) {
 }
 
 const METRICS = {
-  'GMV':           { color: '#f59e0b', format: 'rp',     axis: 'y1' },
-  'Order Number':  { color: '#10b981', format: 'number', axis: 'y2' },
-  'Click Product': { color: '#3b82f6', format: 'number', axis: 'y2' },
-  'Live Watch PV': { color: '#8b5cf6', format: 'number', axis: 'y2' },
-  'Live Show PV':  { color: '#64748b', format: 'number', axis: 'y2' },
+  'Live GMV':           { color: '#f59e0b', format: 'rp',     axis: 'y1' },
+  'Jumlah Pesanan (SKU Product)':  { color: '#10b981', format: 'number', axis: 'y2' },
+  'Klik Produk': { color: '#3b82f6', format: 'number', axis: 'y2' },
+  'Tayangan': { color: '#8b5cf6', format: 'number', axis: 'y2' },
+  'Impresi':  { color: '#64748b', format: 'number', axis: 'y2' },
   'ERR':           { color: '#e879f9', format: 'pct',    axis: 'y3' },
   'CTR':           { color: '#ec4899', format: 'pct',    axis: 'y3' },
   'CTOR':          { color: '#06b6d4', format: 'pct',    axis: 'y3' },
@@ -662,11 +662,11 @@ const METRICS = {
 };
 
 const KPI_LIST = [
-  { key: 'GMV',           label: 'GMV',           accent: '#f59e0b' },
-  { key: 'Order Number',  label: 'Order Number',  accent: '#10b981' },
-  { key: 'Click Product', label: 'Click Product', accent: '#3b82f6' },
-  { key: 'Live Watch PV', label: 'Live Watch PV', accent: '#8b5cf6' },
-  { key: 'Live Show PV',  label: 'Live Show PV',  accent: '#64748b' },
+  { key: 'Live GMV',           label: 'Live GMV',           accent: '#f59e0b' },
+  { key: 'Jumlah Pesanan (SKU Product)',  label: 'Jumlah Pesanan (SKU Product)',  accent: '#10b981' },
+  { key: 'Klik Produk', label: 'Klik Produk', accent: '#3b82f6' },
+  { key: 'Tayangan', label: 'Tayangan', accent: '#8b5cf6' },
+  { key: 'Impresi',  label: 'Impresi',  accent: '#64748b' },
   { key: 'ERR',           label: 'ERR',           accent: '#e879f9' },
   { key: 'CTR',           label: 'CTR',           accent: '#ec4899' },
   { key: 'CTOR',          label: 'CTOR',          accent: '#06b6d4' },
@@ -696,11 +696,11 @@ function fmt(v, type) {
 // fetchData digantikan oleh loadPlatformData
 
 function calcKPI(data) {
-  const totalGMV     = data.reduce((s, d) => s + (d['GMV']           || 0), 0);
-  const totalOrder   = data.reduce((s, d) => s + (d['Order Number']  || 0), 0);
-  const totalClick   = data.reduce((s, d) => s + (d['Click Product'] || 0), 0);
-  const totalWatch   = data.reduce((s, d) => s + (d['Live Watch PV'] || 0), 0);
-  const totalShow    = data.reduce((s, d) => s + (d['Live Show PV']  || 0), 0);
+  const totalGMV     = data.reduce((s, d) => s + (d['Live GMV']           || 0), 0);
+  const totalOrder   = data.reduce((s, d) => s + (d['Jumlah Pesanan (SKU Product)']  || 0), 0);
+  const totalClick   = data.reduce((s, d) => s + (d['Klik Produk'] || 0), 0);
+  const totalWatch   = data.reduce((s, d) => s + (d['Tayangan'] || 0), 0);
+  const totalShow    = data.reduce((s, d) => s + (d['Impresi']  || 0), 0);
 
   // ERR, CTR, CTOR, AOV dari total (bukan rata-rata)
   const err  = totalShow  > 0 ? (totalWatch / totalShow)  * 100 : 0;
@@ -708,8 +708,8 @@ function calcKPI(data) {
   const ctor = totalClick > 0 ? (totalOrder / totalClick) * 100 : 0;
   const aov  = totalOrder > 0 ? totalGMV / totalOrder : 0;
 
-  return { 'GMV': totalGMV, 'Order Number': totalOrder, 'Click Product': totalClick,
-           'Live Watch PV': totalWatch, 'Live Show PV': totalShow,
+  return { 'Live GMV': totalGMV, 'Jumlah Pesanan (SKU Product)': totalOrder, 'Klik Produk': totalClick,
+           'Tayangan': totalWatch, 'Impresi': totalShow,
            'ERR': err, 'CTR': ctr, 'CTOR': ctor, 'AOV': aov };
 }
 
@@ -720,8 +720,8 @@ function renderKPI(data) {
     const val  = kpi[k.key] || 0;
     const type = METRICS[k.key]?.format || 'number';
     const isPct    = type === 'pct';
-    const isMoney  = ['GMV'].includes(k.key);
-    const isVolume = ['Order Number','Click Product','Live Watch PV','Live Show PV'].includes(k.key);
+    const isMoney  = ['Live GMV'].includes(k.key);
+    const isVolume = ['Jumlah Pesanan (SKU Product)','Klik Produk','Tayangan','Impresi'].includes(k.key);
 
     const displayVal = isVolume
       ? Math.round(val).toLocaleString('id-ID')
@@ -766,19 +766,19 @@ function groupData(data, group) {
     }
 
     if (!grouped[key]) {
-      grouped[key] = { 'Tanggal': key, 'GMV': 0, 'Order Number': 0,
-        'Click Product': 0, 'Live Watch PV': 0, 'Live Show PV': 0 };
+      grouped[key] = { 'Tanggal': key, 'Live GMV': 0, 'Jumlah Pesanan (SKU Product)': 0,
+        'Klik Produk': 0, 'Tayangan': 0, 'Impresi': 0 };
     }
-    ['GMV','Order Number','Click Product','Live Watch PV','Live Show PV'].forEach(k => {
+    ['Live GMV','Jumlah Pesanan (SKU Product)','Klik Produk','Tayangan','Impresi'].forEach(k => {
       grouped[key][k] += (Number(d[k]) || 0);
     });
   });
 
   return Object.values(grouped).map(g => {
-    g['ERR']  = g['Live Show PV']  > 0 ? (g['Live Watch PV'] / g['Live Show PV'])  * 100 : 0;
-    g['CTR']  = g['Live Watch PV'] > 0 ? (g['Click Product'] / g['Live Watch PV']) * 100 : 0;
-    g['CTOR'] = g['Click Product'] > 0 ? (g['Order Number']  / g['Click Product']) * 100 : 0;
-    g['AOV']  = g['Order Number']  > 0 ? g['GMV'] / g['Order Number'] : 0;
+    g['ERR']  = g['Impresi']  > 0 ? (g['Tayangan'] / g['Impresi'])  * 100 : 0;
+    g['CTR']  = g['Tayangan'] > 0 ? (g['Klik Produk'] / g['Tayangan']) * 100 : 0;
+    g['CTOR'] = g['Klik Produk'] > 0 ? (g['Jumlah Pesanan (SKU Product)']  / g['Klik Produk']) * 100 : 0;
+    g['AOV']  = g['Jumlah Pesanan (SKU Product)']  > 0 ? g['Live GMV'] / g['Jumlah Pesanan (SKU Product)'] : 0;
     return g;
   }).sort((a, b) => a['Tanggal'].localeCompare(b['Tanggal']));
 }
