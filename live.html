@@ -221,6 +221,105 @@
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     .header { padding: 12px 16px; }
   }
+
+  /* ── Light Mode ──────────────────────────────────────────── */
+  [data-theme="light"] {
+    --bg:        #f0f2f8;
+    --surface:   #ffffff;
+    --surface2:  #f5f7fc;
+    --border:    #e2e6f0;
+    --text:      #1a1d2e;
+    --muted:     #7b849a;
+    --shopee:    #EE4D2D;
+    --tiktok:    #ff0050;
+    --green:     #059669;
+    --red:       #dc2626;
+
+    --c-gmv:      #d97706;
+    --c-order:    #059669;
+    --c-click:    #2563eb;
+    --c-watch:    #7c3aed;
+    --c-show:     #475569;
+    --c-ctr:      #db2777;
+    --c-ctor:     #0891b2;
+    --c-aov:      #ea580c;
+    --c-err:      #c026d3;
+  }
+
+  [data-theme="light"] body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  [data-theme="light"] .chart-compare-summary .chart-summary-pill {
+    background: #eef0f8;
+  }
+
+  [data-theme="light"] .compare-diff-tooltip {
+    background: #ffffff;
+    border-color: var(--border);
+    color: var(--text);
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  }
+  [data-theme="light"] .compare-diff-tooltip::after {
+    border-top-color: #ffffff;
+  }
+
+  [data-theme="light"] .compare-info-popup {
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  }
+
+  /* Theme toggle button */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: left;
+  }
+  .theme-toggle:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .theme-toggle-track {
+    width: 32px;
+    height: 18px;
+    border-radius: 9px;
+    background: var(--border);
+    position: relative;
+    flex-shrink: 0;
+    transition: background .2s;
+    margin-left: auto;
+  }
+  .theme-toggle-track.on {
+    background: #f59e0b;
+  }
+  .theme-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .theme-toggle-track.on .theme-toggle-thumb {
+    transform: translateX(14px);
+  }
+
 </style>
 </head>
 <body>
@@ -839,6 +938,35 @@ function updateDateRange(data) {
 
 // Init
 setPlatform('all');
+
+// ── Theme Toggle (Light / Dark) ──────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('wookey-theme') || 'dark';
+  applyTheme(saved);
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('wookey-theme', theme);
+  const track = document.getElementById('theme-track');
+  const icon  = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
+  if (!track) return;
+  if (theme === 'light') {
+    track.classList.add('on');
+    if (icon)  icon.textContent  = '☀️';
+    if (label) label.textContent = 'Mode Cerah';
+  } else {
+    track.classList.remove('on');
+    if (icon)  icon.textContent  = '🌙';
+    if (label) label.textContent = 'Mode Gelap';
+  }
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+initTheme();
+
 </script>
 </body>
 </html>

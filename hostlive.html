@@ -547,6 +547,35 @@ async function loadData() {
 }
 
 loadData();
+
+// ── Theme Toggle (Light / Dark) ──────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('wookey-theme') || 'dark';
+  applyTheme(saved);
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('wookey-theme', theme);
+  const track = document.getElementById('theme-track');
+  const icon  = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
+  if (!track) return;
+  if (theme === 'light') {
+    track.classList.add('on');
+    if (icon)  icon.textContent  = '☀️';
+    if (label) label.textContent = 'Mode Cerah';
+  } else {
+    track.classList.remove('on');
+    if (icon)  icon.textContent  = '🌙';
+    if (label) label.textContent = 'Mode Gelap';
+  }
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+initTheme();
+
 </script>
 </body>
 </html>
