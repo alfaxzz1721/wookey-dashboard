@@ -28,7 +28,7 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
-  .app-layout { display: flex; min-height: 100vh; }
+  .app-layout { display: block; min-height: 100vh; }
 
   /* ── Sidebar ── */
   .sidebar { display: none !important; }
@@ -60,7 +60,7 @@
   .content-area {
     margin-left: 0 !important;
     width: 100%;
-    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    min-height: 100vh;
     transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
   }
   .content-area.expanded { margin-left: 0; width: 100%; }
@@ -624,7 +624,7 @@ function doLogin() {
   if (CREDENTIALS[name] && CREDENTIALS[name] === pass) {
     currentLeader = name;
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appLayout').style.display = 'flex';
+    document.getElementById('appLayout').style.display = 'block';
     document.getElementById('leaderName').textContent = name;
     document.getElementById('leaderAvatar').textContent = name[0].toUpperCase();
     init();
