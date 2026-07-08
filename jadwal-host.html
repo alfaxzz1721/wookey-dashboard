@@ -391,6 +391,88 @@
     transform: translateX(14px);
   }
 
+
+  /* ── Bersama popup ──────────────────────────────────────── */
+  .bersama-btn {
+    margin-top: 4px;
+    width: 100%;
+    padding: 3px 7px;
+    border-radius: 5px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 10px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    text-align: left;
+    transition: all .15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bersama-btn:hover { border-color: var(--accent); color: var(--text); }
+  .bersama-btn.has-value {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-color: var(--accent);
+    color: var(--accent);
+    border-style: solid;
+  }
+  .bersama-popup {
+    position: fixed;
+    z-index: 9999;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    min-width: 200px;
+    display: none;
+  }
+  .bersama-popup.show { display: block; }
+  .bersama-popup-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 8px;
+  }
+  .bersama-popup select {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 8px;
+  }
+  .bersama-popup-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .bersama-popup-actions button {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .bersama-popup-actions .btn-ok {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .bersama-popup-actions .btn-clear {
+    color: var(--red, #dc2626);
+    border-color: var(--red, #dc2626);
+  }
+
 </style>
 </head>
 <body>
@@ -745,16 +827,23 @@ function renderGrid() {
       hostLabel.textContent = 'Host Live';
       const hostSel = makeSelect(akun.nama, shift.nama, iso, 'host');
 
-      const bersamaLabel = document.createElement('div');
-      bersamaLabel.className = 'cell-label';
-      bersamaLabel.style.marginTop = '2px';
-      bersamaLabel.textContent = 'Bersama';
-      const bersamaSel = makeSelect(akun.nama, shift.nama, iso, 'bersama');
+      // Tombol Bersama — opsional, popup saat diklik
+      const bersamaBtn = document.createElement('button');
+      bersamaBtn.className = 'bersama-btn';
+      const bersamaKey = stateKey(akun.nama, shift.nama, iso) + '||bersama';
+      const bersamaVal = jadwalState[bersamaKey] || '';
+      bersamaBtn.innerHTML = bersamaVal
+        ? `<span class="bersama-icon">👥</span> ${bersamaVal}`
+        : `<span class="bersama-icon">➕</span> Bersama`;
+      bersamaBtn.dataset.akun  = akun.nama;
+      bersamaBtn.dataset.shift = shift.nama;
+      bersamaBtn.dataset.iso   = iso;
+      if (bersamaVal) bersamaBtn.classList.add('has-value');
+      bersamaBtn.onclick = (e) => { e.stopPropagation(); openBersamaPopup(bersamaBtn); };
 
       cell.appendChild(hostLabel);
       cell.appendChild(hostSel);
-      cell.appendChild(bersamaLabel);
-      cell.appendChild(bersamaSel);
+      cell.appendChild(bersamaBtn);
       grid.appendChild(cell);
     });
   });
@@ -944,5 +1033,88 @@ function toggleTheme() {
 initTheme();
 
 </script>
+
+<!-- Bersama Popup -->
+<div class="bersama-popup" id="bersamaPopup">
+  <div class="bersama-popup-title">👥 Host Bersama (Opsional)</div>
+  <select id="bersamaPopupSel"></select>
+  <div class="bersama-popup-actions">
+    <button class="btn-clear" onclick="clearBersama()">Hapus</button>
+    <button onclick="closeBersamaPopup()">Batal</button>
+    <button class="btn-ok" onclick="saveBersama()">OK</button>
+  </div>
+</div>
+
+<script>
+let _bersamaBtn = null;
+
+function openBersamaPopup(btn) {
+  _bersamaBtn = btn;
+  const popup  = document.getElementById('bersamaPopup');
+  const sel    = document.getElementById('bersamaPopupSel');
+  const akun   = btn.dataset.akun;
+  const shift  = btn.dataset.shift;
+  const iso    = btn.dataset.iso;
+  const key    = stateKey(akun, shift, iso) + '||bersama';
+  const curVal = jadwalState[key] || '';
+
+  // Isi opsi dari HOST_LIST
+  sel.innerHTML = '<option value="">– Tidak ada –</option>';
+  hostList.forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h;
+    opt.textContent = h;
+    if (h === curVal) opt.selected = true;
+    sel.appendChild(opt);
+  });
+
+  // Posisi popup di dekat tombol
+  const rect = btn.getBoundingClientRect();
+  popup.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+  popup.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 220) + 'px';
+  popup.classList.add('show');
+
+  // Tutup saat klik di luar
+  setTimeout(() => {
+    document.addEventListener('click', closeBersamaOutside, {once: true});
+  }, 10);
+}
+
+function closeBersamaOutside(e) {
+  const popup = document.getElementById('bersamaPopup');
+  if (!popup.contains(e.target)) closeBersamaPopup();
+}
+
+function closeBersamaPopup() {
+  document.getElementById('bersamaPopup').classList.remove('show');
+  document.removeEventListener('click', closeBersamaOutside);
+}
+
+function saveBersama() {
+  if (!_bersamaBtn) return;
+  const sel   = document.getElementById('bersamaPopupSel');
+  const val   = sel.value;
+  const akun  = _bersamaBtn.dataset.akun;
+  const shift = _bersamaBtn.dataset.shift;
+  const iso   = _bersamaBtn.dataset.iso;
+  const key   = stateKey(akun, shift, iso) + '||bersama';
+  jadwalState[key] = val;
+  // Update tampilan tombol
+  if (val) {
+    _bersamaBtn.innerHTML = `<span class="bersama-icon">👥</span> ${val}`;
+    _bersamaBtn.classList.add('has-value');
+  } else {
+    _bersamaBtn.innerHTML = `<span class="bersama-icon">➕</span> Bersama`;
+    _bersamaBtn.classList.remove('has-value');
+  }
+  closeBersamaPopup();
+}
+
+function clearBersama() {
+  document.getElementById('bersamaPopupSel').value = '';
+  saveBersama();
+}
+</script>
+
 </body>
 </html>
