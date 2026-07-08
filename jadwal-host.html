@@ -31,7 +31,8 @@
   .app-layout { display: flex; min-height: 100vh; }
 
   /* ── Sidebar ── */
-  .sidebar {
+  .sidebar { display: none !important; }
+  .sidebar_DISABLED {
     width: 220px; min-width: 220px;
     background: var(--surface);
     border-right: 1px solid var(--border);
@@ -58,8 +59,7 @@
   .sidebar-overlay.show { display: block; }
   .content-area {
     margin-left: 0 !important;
-    margin-left: 220px;
-    width: calc(100% - 220px);
+    width: 100%;
     flex: 1; display: flex; flex-direction: column; min-height: 100vh;
     transition: margin-left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
   }
@@ -524,7 +524,7 @@
 </div>
 
 <!-- Content -->
-<div class="content-area" id="contentArea">
+<div class="content-area expanded" id="contentArea">
 
   <!-- Topbar -->
   
