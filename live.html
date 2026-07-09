@@ -898,7 +898,13 @@ function groupData(data, group) {
 
 function renderChart(data) {
   const grouped = groupData(data, currentGroup);
-  const labels  = grouped.map(d => d['Tanggal']);
+  // Format label tanggal lebih readable: "08 Jul"
+  const labels = grouped.map(d => {
+    if (!d['Tanggal']) return '';
+    const dt = new Date(d['Tanggal'] + 'T00:00:00');
+    if (isNaN(dt)) return d['Tanggal'];
+    return dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+  });
   const active  = getActive();
 
   const datasets = active.map(key => {
@@ -1220,13 +1226,14 @@ function renderScorecard(data) {
   // Sort
   const sorted = Object.values(hosts).sort((a, b) => b[scorecardSortMetric] - a[scorecardSortMetric]);
 
-  // Nilai max untuk bar
+  // Total GMV semua akun untuk share %
+  const totalGMV = sorted.reduce((s, h) => s + h.gmv, 0);
   const maxGMV = Math.max(...sorted.map(h => h.gmv));
 
   grid.innerHTML = sorted.map((h, i) => {
     const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
     const rankEmoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
-    const barPct = maxGMV > 0 ? (h.gmv / maxGMV * 100) : 0;
+    const barPct = totalGMV > 0 ? (h.gmv / totalGMV * 100) : 0;
     const shifts = [...h.shifts].map(s =>
       `<span class="scorecard-shift-badge aktif">${s}</span>`
     ).join('');
@@ -1257,11 +1264,11 @@ function renderScorecard(data) {
       </div>
       <div>${shifts}</div>
       <div class="scorecard-score-bar" style="margin-top:8px;">
-        <div class="scorecard-score-fill" style="width:${barPct}%"></div>
+        <div class="scorecard-score-fill" style="width:${maxGMV > 0 ? (h.gmv/maxGMV*100) : 0}%"></div>
       </div>
       <div class="scorecard-score-label">
         <span>GMV Share</span>
-        <span>${barPct.toFixed(0)}%</span>
+        <span>${barPct.toFixed(1)}%</span>
       </div>
     </div>`;
   }).join('');
