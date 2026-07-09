@@ -320,6 +320,102 @@
     transform: translateX(14px);
   }
 
+
+  /* ── Scorecard Host ─────────────────────────────────────── */
+  .scorecard-section {
+    margin-top: 28px;
+    padding: 0 4px;
+  }
+  .scorecard-section-title {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .8px;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .scorecard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .scorecard-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    position: relative;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .scorecard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+  }
+  .scorecard-rank {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 18px; font-weight: 800; color: var(--muted);
+    opacity: .25;
+  }
+  .scorecard-rank.top1 { color: #f59e0b; opacity: .8; }
+  .scorecard-rank.top2 { color: #94a3b8; opacity: .8; }
+  .scorecard-rank.top3 { color: #cd7c2f; opacity: .8; }
+  .scorecard-host {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 2px; padding-right: 28px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .scorecard-akun {
+    font-size: 10px; color: var(--muted); margin-bottom: 10px;
+  }
+  .scorecard-gmv {
+    font-size: 18px; font-weight: 800;
+    color: #f59e0b; margin-bottom: 8px;
+  }
+  .scorecard-metrics {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; margin-bottom: 10px;
+  }
+  .scorecard-metric {
+    background: var(--surface2);
+    border-radius: 6px; padding: 5px 7px;
+  }
+  .scorecard-metric-label {
+    font-size: 9px; color: var(--muted);
+    font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+  }
+  .scorecard-metric-val {
+    font-size: 13px; font-weight: 700; color: var(--text);
+  }
+  .scorecard-score-bar {
+    height: 4px; background: var(--border);
+    border-radius: 2px; overflow: hidden;
+  }
+  .scorecard-score-fill {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, #10b981, #f59e0b);
+    transition: width .6s ease;
+  }
+  .scorecard-score-label {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--muted); margin-top: 4px;
+  }
+  .scorecard-shift-badge {
+    display: inline-block; font-size: 9px; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px; margin-right: 3px; margin-bottom: 4px;
+    background: var(--surface2); color: var(--muted);
+  }
+  .scorecard-shift-badge.aktif { background: color-mix(in srgb, #10b981 15%, transparent); color: #10b981; }
+  .scorecard-sort-bar {
+    display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .scorecard-sort-btn {
+    font-size: 11px; padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: all .15s;
+  }
+  .scorecard-sort-btn.active {
+    background: var(--surface2); color: var(--text);
+    border-color: var(--text);
+  }
+
 </style>
 </head>
 <body>
@@ -475,6 +571,23 @@
       <div class="chart-card">
         <div class="chart-title" id="chart-title">Tren Harian — Live Streaming Shopee</div>
         <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+
+      <!-- Scorecard Host -->
+      <div class="scorecard-section" id="scorecard-section" style="margin-top:28px;">
+        <div class="scorecard-section-title">
+          🏆 Peringkat Host Live
+          <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="scorecard-sort-btn active" onclick="setSortMetric('Live GMV')" id="sort-gmv">GMV</button>
+            <button class="scorecard-sort-btn" onclick="setSortMetric('gmv_per_jam')" id="sort-gpj">GMV/Jam</button>
+            <button class="scorecard-sort-btn" onclick="setSortMetric('CTR')" id="sort-ctr">CTR</button>
+            <button class="scorecard-sort-btn" onclick="setSortMetric('CTOR')" id="sort-ctor">CTOR</button>
+            <button class="scorecard-sort-btn" onclick="setSortMetric('ERR')" id="sort-err">ERR</button>
+          </div>
+        </div>
+        <div class="scorecard-grid" id="scorecard-grid">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0;">Memuat data...</div>
+        </div>
       </div>
     </div>
   </div>
@@ -855,7 +968,7 @@ function setGroup(group) {
   const titles = { day: 'Tren Harian', week: 'Tren Mingguan', month: 'Tren Bulanan', custom: 'Tren Custom' };
   document.getElementById('chart-title').textContent = titles[group] + ' — Live Streaming Shopee';
   filteredData = [...globalData];
-  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); renderScorecard(filteredData); updateDateRange(filteredData);
 }
 
 function quickSelect(val) {
@@ -881,7 +994,7 @@ function quickSelect(val) {
 
   if (!filteredData.length) return;
   currentGroup = 'day';
-  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); renderScorecard(filteredData); updateDateRange(filteredData);
 }
 
 function applyFilterDay() {
@@ -893,7 +1006,7 @@ function applyFilterDay() {
     return;
   }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData); renderChart(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); renderScorecard(filteredData);
   document.getElementById('date-range').textContent = date + ' · 1 hari';
 }
 
@@ -927,7 +1040,7 @@ function applyFilterWeek() {
   filteredData = globalData.filter(d => d['Tanggal'] >= monday && d['Tanggal'] <= sundayStr);
   if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk minggu ini.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); renderScorecard(filteredData); updateDateRange(filteredData);
 }
 
 function buildMonthOptions() {
@@ -957,7 +1070,7 @@ function applyFilterMonth() {
   filteredData = globalData.filter(d => d['Tanggal'] >= fromDate && d['Tanggal'] <= toDate);
   if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); renderScorecard(filteredData); updateDateRange(filteredData);
 }
 
 function applyFilterCustom() {
@@ -967,12 +1080,12 @@ function applyFilterCustom() {
   filteredData = globalData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= to);
   if (!filteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error">⚠️ Tidak ada data untuk periode ini.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
-  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); renderScorecard(filteredData); updateDateRange(filteredData);
 }
 
 function resetFilter() {
   filteredData = [...globalData];
-  renderKPI(filteredData); renderChart(filteredData); updateDateRange(filteredData);
+  renderKPI(filteredData); renderChart(filteredData); renderScorecard(filteredData); updateDateRange(filteredData);
 }
 
 function updateDateRange(data) {
@@ -1013,6 +1126,130 @@ function toggleTheme() {
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 initTheme();
+
+
+// ── SCORECARD HOST ────────────────────────────────────────────
+let scorecardSortMetric = 'Live GMV';
+
+function setSortMetric(metric) {
+  scorecardSortMetric = metric;
+  // Update active button
+  ['gmv','gpj','ctr','ctor','err'].forEach(k => {
+    const btn = document.getElementById('sort-' + k);
+    if (btn) btn.classList.remove('active');
+  });
+  const map = {'Live GMV':'gmv','gmv_per_jam':'gpj','CTR':'ctr','CTOR':'ctor','ERR':'err'};
+  const btn = document.getElementById('sort-' + map[metric]);
+  if (btn) btn.classList.add('active');
+  renderScorecard(filteredData);
+}
+
+function fmtGMV(v) {
+  if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(1) + 'M';
+  if (v >= 1e6) return 'Rp ' + (v/1e6).toFixed(1) + 'jt';
+  if (v >= 1e3) return 'Rp ' + (v/1e3).toFixed(0) + 'rb';
+  return 'Rp ' + v.toFixed(0);
+}
+
+function calcScore(host) {
+  // Skor 0-100 berdasarkan GMV/jam, CTR, CTOR, ERR
+  const gmvScore  = Math.min(host.gmv_per_jam / 5000000 * 40, 40);  // max 40 poin
+  const ctrScore  = Math.min(host.CTR / 30 * 20, 20);                 // max 20 poin
+  const ctorScore = Math.min(host.CTOR / 15 * 20, 20);                // max 20 poin
+  const errScore  = Math.min(host.ERR / 5 * 20, 20);                  // max 20 poin
+  return Math.round(gmvScore + ctrScore + ctorScore + errScore);
+}
+
+function renderScorecard(data) {
+  const grid = document.getElementById('scorecard-grid');
+  if (!grid) return;
+
+  // Kelompokkan per Host Live
+  const hosts = {};
+  data.forEach(d => {
+    const host = d['Host Live'];
+    if (!host || host === '–' || host === '' || host === 0) return;
+    if (!hosts[host]) {
+      hosts[host] = {
+        host, akun: d['Akun'] || '',
+        gmv: 0, order: 0, klik: 0, tayangan: 0, impresi: 0,
+        durasi: 0, sesi: 0, shifts: new Set()
+      };
+    }
+    const h = hosts[host];
+    h.gmv      += Number(d['Live GMV'] || 0);
+    h.order    += Number(d['Jumlah Pesanan (SKU Product)'] || 0);
+    h.klik     += Number(d['Klik Produk'] || 0);
+    h.tayangan += Number(d['Tayangan'] || 0);
+    h.impresi  += Number(d['Impresi'] || 0);
+    h.durasi   += Number(d['Durasi Live (Menit)'] || 0);
+    h.sesi++;
+    if (d['Jadwal Shift']) h.shifts.add(d['Jadwal Shift']);
+  });
+
+  if (Object.keys(hosts).length === 0) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;">Tidak ada data host untuk periode ini</div>';
+    return;
+  }
+
+  // Hitung metrik turunan
+  Object.values(hosts).forEach(h => {
+    h.gmv_per_jam = h.durasi > 0 ? h.gmv / (h.durasi / 60) : 0;
+    h.CTR  = h.tayangan > 0 ? (h.klik / h.tayangan) * 100 : 0;
+    h.CTOR = h.klik > 0 ? (h.order / h.klik) * 100 : 0;
+    h.ERR  = h.impresi > 0 ? (h.tayangan / h.impresi) * 100 : 0;
+    h.score = calcScore(h);
+  });
+
+  // Sort
+  const sorted = Object.values(hosts).sort((a, b) => b[scorecardSortMetric] - a[scorecardSortMetric]);
+
+  // Nilai max untuk bar
+  const maxGMV = Math.max(...sorted.map(h => h.gmv));
+
+  grid.innerHTML = sorted.map((h, i) => {
+    const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+    const rankEmoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+    const barPct = maxGMV > 0 ? (h.gmv / maxGMV * 100) : 0;
+    const shifts = [...h.shifts].map(s =>
+      `<span class="scorecard-shift-badge aktif">${s}</span>`
+    ).join('');
+
+    return `
+    <div class="scorecard-card">
+      <div class="scorecard-rank ${rankClass}">${rankEmoji}</div>
+      <div class="scorecard-host">${h.host}</div>
+      <div class="scorecard-akun">${h.akun} · ${h.sesi} sesi</div>
+      <div class="scorecard-gmv">${fmtGMV(h.gmv)}</div>
+      <div class="scorecard-metrics">
+        <div class="scorecard-metric">
+          <div class="scorecard-metric-label">GMV/Jam</div>
+          <div class="scorecard-metric-val">${fmtGMV(h.gmv_per_jam)}</div>
+        </div>
+        <div class="scorecard-metric">
+          <div class="scorecard-metric-label">CTR</div>
+          <div class="scorecard-metric-val">${h.CTR.toFixed(1)}%</div>
+        </div>
+        <div class="scorecard-metric">
+          <div class="scorecard-metric-label">CTOR</div>
+          <div class="scorecard-metric-val">${h.CTOR.toFixed(1)}%</div>
+        </div>
+        <div class="scorecard-metric">
+          <div class="scorecard-metric-label">ERR</div>
+          <div class="scorecard-metric-val">${h.ERR.toFixed(1)}%</div>
+        </div>
+      </div>
+      <div>${shifts}</div>
+      <div class="scorecard-score-bar" style="margin-top:8px;">
+        <div class="scorecard-score-fill" style="width:${barPct}%"></div>
+      </div>
+      <div class="scorecard-score-label">
+        <span>GMV Share</span>
+        <span>${barPct.toFixed(0)}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 </script>
 </body>
