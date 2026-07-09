@@ -1164,32 +1164,49 @@ function renderScorecard(data) {
   const grid = document.getElementById('scorecard-grid');
   if (!grid) return;
 
-  // Kelompokkan per Host Live
+  // Kelompokkan per Host Live — fallback ke Akun jika Host Live kosong
   const hosts = {};
+  let useAkun = false;
+
+  // Cek apakah ada data Host Live
+  const hasHostData = data.some(d => {
+    const h = d['Host Live'];
+    return h && h !== '\u2013' && h !== '' && h !== 0 && h !== null;
+  });
+  if (!hasHostData) useAkun = true;
+
   data.forEach(d => {
-    const host = d['Host Live'];
-    if (!host || host === '–' || host === '' || host === 0) return;
-    if (!hosts[host]) {
-      hosts[host] = {
-        host, akun: d['Akun'] || '',
+    const rawHost = d['Host Live'];
+    const validHost = rawHost && rawHost !== '\u2013' && rawHost !== '' && rawHost !== 0 && rawHost !== null;
+    const key = validHost ? rawHost : (d['Akun'] || '');
+    if (!key) return;
+    if (!hosts[key]) {
+      hosts[key] = {
+        host: key, akun: validHost ? (d['Akun'] || '') : key,
         gmv: 0, order: 0, klik: 0, tayangan: 0, impresi: 0,
         durasi: 0, sesi: 0, shifts: new Set()
       };
     }
-    const h = hosts[host];
+    const h = hosts[key];
     h.gmv      += Number(d['Live GMV'] || 0);
     h.order    += Number(d['Jumlah Pesanan (SKU Product)'] || 0);
     h.klik     += Number(d['Klik Produk'] || 0);
     h.tayangan += Number(d['Tayangan'] || 0);
     h.impresi  += Number(d['Impresi'] || 0);
-    h.durasi   += Number(d['Durasi Live (Menit)'] || 0);
+    h.durasi   += Number(d['Durasi Live (Menit)'] || d['Live Durasi Live (Menit)'] || 0);
     h.sesi++;
     if (d['Jadwal Shift']) h.shifts.add(d['Jadwal Shift']);
   });
 
+  // Update judul section
+  const secTitle = document.querySelector('.scorecard-section-title');
+  if (secTitle && secTitle.childNodes[0])
+    secTitle.childNodes[0].textContent = useAkun ? '\ud83c\udfc6 Peringkat By Akun' : '\ud83c\udfc6 Peringkat Host Live';
+
   if (Object.keys(hosts).length === 0) {
-    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;">Tidak ada data host untuk periode ini</div>';
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;">Tidak ada data untuk periode ini</div>';
     return;
+  }
   }
 
   // Hitung metrik turunan
