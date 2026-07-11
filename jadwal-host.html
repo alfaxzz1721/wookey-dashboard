@@ -1090,6 +1090,7 @@ async function loadJadwalExisting() {
     const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
     const rows = json.table?.rows || [];
 
+    console.log('[jadwal] Total rows dari sheet:', rows.length);
     rows.forEach(r => {
       const rawTgl = r.c?.[0]?.v || '';
       let tgl = rawTgl;
