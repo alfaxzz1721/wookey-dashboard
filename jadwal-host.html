@@ -610,7 +610,15 @@ const SHIFTS = [
   { nama: 'Malam', warna: '#2563eb', jam: '18:00–23:59' },
 ];
 const HARI  = ['SEN','SEL','RAB','KAM','JUM','SAB','MIN'];
-const CREDENTIALS = { 'Admin': 'wookey2026', 'Leader': 'hostlive123' };
+const CREDENTIALS = {
+  'Admin':  'wookey2026',
+  'Leader': 'hostlive123',
+  'Surya':  'surya2026',
+  'Irfan':  'irfan2026',
+  'Ibra':   'ibra2026',
+};
+// Akun yang bisa lihat semua host (tidak difilter by leader)
+const ADMIN_ACCOUNTS = ['Admin', 'Leader'];
 
 // ── STATE ─────────────────────────────────────────────────────
 let currentLeader = '';
@@ -719,11 +727,18 @@ async function loadHosts() {
     const json = await res.json();
     const hosts = ['–'];
     (json.hosts || []).forEach(h => {
-      if (h.nama && h.status !== 'Resign') hosts.push(h.nama);
+      if (h.nama && h.status !== 'Resign') {
+        // Filter by leader jika bukan akun admin
+        if (ADMIN_ACCOUNTS.includes(currentLeader)) {
+          hosts.push(h.nama);
+        } else if (h.leader === currentLeader) {
+          hosts.push(h.nama);
+        }
+      }
     });
     if (hosts.length > 1) {
       hostList = hosts;
-      console.log(`[hosts] ${hosts.length - 1} host dimuat dari Apps Script`);
+      console.log(`[hosts] ${hosts.length - 1} host dimuat (leader: ${currentLeader})`);
     }
   } catch(e) {
     console.warn('Gagal load Master Host:', e);
