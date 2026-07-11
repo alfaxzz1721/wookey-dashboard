@@ -803,12 +803,32 @@ function makeSelect(akun, shift, dateISO, type) {
   }
 
   sel.onchange = () => {
-    jadwalState[key] = sel.value;
-    sel.classList.toggle('has-value', sel.value !== '–');
-    if (sel.value !== '–') {
+    const newVal = sel.value;
+    if (newVal !== '–') {
+      // Cek apakah host sudah dijadwal di tanggal ini (akun/platform manapun)
+      const conflict = Object.entries(jadwalState).find(([k, v]) => {
+        if (k === key) return false; // Skip key yang sedang diubah
+        if (!k.endsWith('||host')) return false;
+        const parts = k.split('||');
+        const kTgl  = parts[2]; // dateISO ada di index 2
+        return kTgl === dateISO && v === newVal;
+      });
+      if (conflict) {
+        const conflictKey   = conflict[0];
+        const conflictParts = conflictKey.split('||');
+        const conflictAkun  = conflictParts[0];
+        const conflictShift = conflictParts[1];
+        alert(`⚠️ ${newVal} sudah dijadwal di tanggal ini!\nAkun: ${conflictAkun} · Shift: ${conflictShift}\n\nSatu host hanya boleh 1 jadwal per hari.`);
+        sel.value = jadwalState[key] || '–';
+        return;
+      }
+    }
+    jadwalState[key] = newVal;
+    sel.classList.toggle('has-value', newVal !== '–');
+    if (newVal !== '–') {
       sel.style.borderColor = '#f59e0b';
       sel.style.background = 'rgba(245,158,11,0.08)';
-      draftKeys.add(key); // Tandai sebagai draft
+      draftKeys.add(key);
     } else {
       sel.style.borderColor = '';
       sel.style.background = '';
@@ -866,6 +886,21 @@ function showKonfirmasiUbah(key, sel, editBtn) {
   document.getElementById('modalYa').onclick = async () => {
     const newVal = document.getElementById('modalHostSel').value;
     if (newVal === oldVal) { document.body.removeChild(overlay); return; }
+
+    // Cek konflik tanggal
+    const parts  = key.split('||');
+    const isoChk = parts[2];
+    const conflict = Object.entries(jadwalState).find(([k, v]) => {
+      if (k === key) return false;
+      if (!k.endsWith('||host')) return false;
+      const kParts = k.split('||');
+      return kParts[2] === isoChk && v === newVal;
+    });
+    if (conflict) {
+      const cp = conflict[0].split('||');
+      alert(`⚠️ ${newVal} sudah dijadwal di tanggal ini!\nAkun: ${cp[0]} · Shift: ${cp[1]}\n\nSatu host hanya boleh 1 jadwal per hari.`);
+      return;
+    }
 
     const btnYa = document.getElementById('modalYa');
     btnYa.textContent = 'Menyimpan...';
