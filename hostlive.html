@@ -302,27 +302,13 @@ function updatePeriodLabel() {
 
 // ── BRAND & AKUN FILTER ───────────────────────────────────────
 function onBrandChange(brand) {
-  document.getElementById('brandSub').textContent = brand + ' Official';
-  const akunSel = document.getElementById('akunFilter');
-  akunSel.innerHTML = '<option value="">Semua Akun</option>';
-  const akuns = BRAND_AKUN[brand] || [];
-  akuns.forEach(a => {
-    const o = document.createElement('option');
-    o.value = a; o.textContent = a;
-    akunSel.appendChild(o);
-  });
   selHost = '';
   document.getElementById('hostSelect').value = '';
   applyFilters();
 }
 
 function getFilteredJadwal() {
-  const brand = document.getElementById('brandFilter').value;
-  const akun  = document.getElementById('akunFilter').value;
-  const akuns = BRAND_AKUN[brand] || [];
   return jadwal.filter(j =>
-    (akuns.length === 0 || akuns.includes(j.akun)) &&
-    (!akun  || j.akun === akun) &&
     (!selHost || j.host === selHost)
   );
 }
@@ -535,7 +521,7 @@ async function loadData() {
     })).filter(r=>r.tanggal&&r.host);
 
     // Init akun dropdown untuk brand default
-    onBrandChange('Wookey Weight');
+    applyFilters();
   } catch(e) {
     document.getElementById('mainContent').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Gagal memuat data</div></div>`;
     console.error(e);
