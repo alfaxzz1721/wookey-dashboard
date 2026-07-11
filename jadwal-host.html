@@ -781,8 +781,17 @@ function makeSelect(akun, shift, dateISO, type) {
   sel.value = saved;
   if (saved !== '–') sel.classList.add('has-value');
   sel.onchange = () => {
-    jadwalState[key] = sel.value;
-    sel.classList.toggle('has-value', sel.value !== '–');
+    const oldVal = jadwalState[key] || '–';
+    const newVal = sel.value;
+    if (oldVal !== '–' && oldVal !== newVal && newVal !== '–') {
+      const ok = confirm(`Yakin ingin mengubah host dari "${oldVal}" menjadi "${newVal}"?`);
+      if (!ok) {
+        sel.value = oldVal;
+        return;
+      }
+    }
+    jadwalState[key] = newVal;
+    sel.classList.toggle('has-value', newVal !== '–');
   };
   return sel;
 }
@@ -1009,6 +1018,50 @@ async function loadRiwayat() {
   }
 }
 
+
+// ── LOAD JADWAL EXISTING ──────────────────────────────────────
+async function loadJadwalExisting() {
+  try {
+    const url  = `https://docs.google.com/spreadsheets/d/${GMV_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Formasi%20Jadwal%20Hostlive&headers=1&_cb=${Date.now()}`;
+    const res  = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+    const rows = json.table?.rows || [];
+
+    rows.forEach(r => {
+      const rawTgl = r.c?.[0]?.v || '';
+      let tgl = rawTgl;
+      if (typeof rawTgl === 'string' && rawTgl.startsWith('Date(')) {
+        const parts = rawTgl.replace('Date(','').replace(')','').split(',');
+        const y = parts[0], m = String(parseInt(parts[1])+1).padStart(2,'0'), d = String(parts[2]).padStart(2,'0');
+        tgl = `${y}-${m}-${d}`;
+      } else if (rawTgl instanceof Date || (typeof rawTgl === 'number')) {
+        const d = new Date(rawTgl);
+        tgl = d.toISOString().substring(0,10);
+      }
+      if (!tgl || tgl.length < 8) return;
+
+      const akun    = r.c?.[2]?.v || '';
+      const shift   = r.c?.[3]?.v || '';
+      const host    = r.c?.[4]?.v || '';
+      const bersama = r.c?.[5]?.v || '';
+
+      if (!akun || !shift) return;
+
+      const hostKey    = stateKey(akun, shift, tgl) + '||host';
+      const bersamaKey = stateKey(akun, shift, tgl) + '||bersama';
+
+      if (host && host !== '–') jadwalState[hostKey]    = host;
+      if (bersama && bersama !== '–') jadwalState[bersamaKey] = bersama;
+    });
+
+    // Re-render grid dengan data yang sudah diload
+    renderGrid();
+  } catch(e) {
+    console.warn('Gagal load jadwal existing:', e);
+  }
+}
+
 // ── TOAST ─────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
@@ -1022,7 +1075,7 @@ async function init() {
   updateWeekLabel();
   await loadHosts();
   renderAkunTabs();
-  renderGrid();
+  await loadJadwalExisting();
   loadRiwayat();
 }
 
