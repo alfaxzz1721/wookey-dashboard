@@ -624,6 +624,7 @@ let currentLeader = '';
 let weekOffset    = 0;
 let hostList      = ['–'];
 let jadwalState   = {};
+let draftKeys     = new Set(); // Keys yang baru diinput, belum tersimpan ke sheet
 let activeAkun    = 'Shopee Wookey';
 
 // ── LOGIN ─────────────────────────────────────────────────────
@@ -807,9 +808,11 @@ function makeSelect(akun, shift, dateISO, type) {
     if (sel.value !== '–') {
       sel.style.borderColor = '#f59e0b';
       sel.style.background = 'rgba(245,158,11,0.08)';
+      draftKeys.add(key); // Tandai sebagai draft
     } else {
       sel.style.borderColor = '';
       sel.style.background = '';
+      draftKeys.delete(key);
     }
     editBtn.style.display = 'none';
   };
@@ -1016,7 +1019,7 @@ async function saveJadwal() {
         const bersamaKey = stateKey(akun.nama, shift.nama, iso) + '||bersama';
         const host       = jadwalState[hostKey]    || '–';
         const bersama    = jadwalState[bersamaKey] || '';
-        if (host !== '–') {
+        if (host !== '–' && draftKeys.has(hostKey)) {
           rows.push({
             tanggal:   iso,
             platform,
@@ -1056,7 +1059,10 @@ async function saveJadwal() {
       }
     }
 
+    draftKeys.clear(); // Reset draft setelah tersimpan
+    renderGrid();      // Re-render grid untuk hilangkan styling kuning
     showToast(`✅ ${totalSaved} jadwal berhasil disimpan`, 'success');
+    setTimeout(loadRiwayat, 1500); // Refresh riwayat
     setTimeout(loadRiwayat, 2000);
   } catch(e) {
     showToast('❌ Gagal menyimpan, coba lagi', 'error');
