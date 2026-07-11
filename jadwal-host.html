@@ -768,7 +768,13 @@ function stateKey(akun, shift, dateISO) {
 }
 
 function makeSelect(akun, shift, dateISO, type) {
-  const key = stateKey(akun, shift, dateISO) + '||' + type;
+  const key   = stateKey(akun, shift, dateISO) + '||' + type;
+  const saved = jadwalState[key] || '–';
+
+  // Wrapper
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;align-items:center;gap:4px;';
+
   const sel = document.createElement('select');
   sel.className = 'cell-select';
   hostList.forEach(h => {
@@ -776,23 +782,80 @@ function makeSelect(akun, shift, dateISO, type) {
     o.value = h; o.textContent = h;
     sel.appendChild(o);
   });
-  const saved = jadwalState[key] || '–';
   sel.value = saved;
-  if (saved !== '–') sel.classList.add('has-value');
+  if (saved !== '–') {
+    sel.classList.add('has-value');
+    sel.disabled = true;
+  }
+
   sel.onchange = () => {
-    const oldVal = jadwalState[key] || '–';
-    const newVal = sel.value;
-    if (oldVal !== '–' && oldVal !== newVal && newVal !== '–') {
-      const ok = confirm(`Yakin ingin mengubah host dari "${oldVal}" menjadi "${newVal}"?`);
-      if (!ok) {
-        sel.value = oldVal;
-        return;
-      }
+    jadwalState[key] = sel.value;
+    sel.classList.toggle('has-value', sel.value !== '–');
+    if (sel.value !== '–') {
+      sel.disabled = true;
+      editBtn.style.display = 'inline-flex';
     }
-    jadwalState[key] = newVal;
-    sel.classList.toggle('has-value', newVal !== '–');
   };
-  return sel;
+
+  // Tombol edit (muncul kalau sudah ada nilai)
+  const editBtn = document.createElement('button');
+  editBtn.innerHTML = '✏️';
+  editBtn.title = 'Ubah host';
+  editBtn.style.cssText = 'display:' + (saved !== '–' ? 'inline-flex' : 'none') + ';background:none;border:none;cursor:pointer;font-size:13px;padding:2px;opacity:0.6;';
+  editBtn.onclick = () => {
+    showKonfirmasiUbah(key, sel, editBtn);
+  };
+
+  wrap.appendChild(sel);
+  wrap.appendChild(editBtn);
+  return wrap;
+}
+
+function showKonfirmasiUbah(key, sel, editBtn) {
+  const oldVal = jadwalState[key] || '–';
+
+  // Buat modal
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--surface);border-radius:12px;padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.3);';
+
+  modal.innerHTML = `
+    <div style="font-weight:600;font-size:15px;margin-bottom:8px;">Konfirmasi Ubah Host Live</div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:20px;">
+      Host saat ini: <strong>${oldVal}</strong><br>
+      Pilih nama baru untuk mengganti.
+    </div>
+    <select id="modalHostSel" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;margin-bottom:16px;">
+      ${hostList.map(h => `<option value="${h}" ${h === oldVal ? 'selected' : ''}>${h}</option>`).join('')}
+    </select>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button id="modalBatal" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--text);">Tidak</button>
+      <button id="modalYa" style="padding:8px 16px;border-radius:8px;border:none;background:#10b981;color:white;cursor:pointer;font-weight:600;">Ya, Ubah</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  document.getElementById('modalBatal').onclick = () => {
+    document.body.removeChild(overlay);
+  };
+
+  document.getElementById('modalYa').onclick = () => {
+    const newVal = document.getElementById('modalHostSel').value;
+    jadwalState[key] = newVal;
+    sel.value = newVal;
+    sel.classList.toggle('has-value', newVal !== '–');
+    sel.disabled = (newVal !== '–');
+    editBtn.style.display = newVal !== '–' ? 'inline-flex' : 'none';
+    document.body.removeChild(overlay);
+  };
+
+  overlay.onclick = (e) => {
+    if (e.target === overlay) document.body.removeChild(overlay);
+  };
 }
 
 function renderGrid() {
