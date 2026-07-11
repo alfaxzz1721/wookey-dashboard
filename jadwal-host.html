@@ -775,6 +775,19 @@ function makeSelect(akun, shift, dateISO, type) {
   const wrap = document.createElement('div');
   wrap.style.cssText = 'display:flex;align-items:center;gap:4px;';
 
+  // Cek apakah nilai yang tersimpan ada di hostList leader ini
+  const isMyHost = saved === '–' || hostList.includes(saved);
+
+  if (!isMyHost && saved !== '–') {
+    // Nama host dari leader lain — tampilkan read-only
+    const readOnly = document.createElement('div');
+    readOnly.style.cssText = 'font-size:12px;font-weight:500;color:var(--text);padding:6px 8px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);opacity:0.8;width:100%;';
+    readOnly.textContent = saved;
+    readOnly.title = 'Diisi oleh leader lain';
+    wrap.appendChild(readOnly);
+    return wrap;
+  }
+
   const sel = document.createElement('select');
   sel.className = 'cell-select';
   hostList.forEach(h => {
