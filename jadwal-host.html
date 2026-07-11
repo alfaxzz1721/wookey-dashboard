@@ -805,9 +805,13 @@ function makeSelect(akun, shift, dateISO, type) {
     jadwalState[key] = sel.value;
     sel.classList.toggle('has-value', sel.value !== '–');
     if (sel.value !== '–') {
-      sel.disabled = true;
-      editBtn.style.display = 'inline-flex';
+      sel.style.borderColor = '#f59e0b';
+      sel.style.background = 'rgba(245,158,11,0.08)';
+    } else {
+      sel.style.borderColor = '';
+      sel.style.background = '';
     }
+    editBtn.style.display = 'none';
   };
 
   // Tombol edit (muncul kalau sudah ada nilai)
@@ -856,13 +860,47 @@ function showKonfirmasiUbah(key, sel, editBtn) {
     document.body.removeChild(overlay);
   };
 
-  document.getElementById('modalYa').onclick = () => {
+  document.getElementById('modalYa').onclick = async () => {
     const newVal = document.getElementById('modalHostSel').value;
-    jadwalState[key] = newVal;
-    sel.value = newVal;
-    sel.classList.toggle('has-value', newVal !== '–');
-    sel.disabled = (newVal !== '–');
-    editBtn.style.display = newVal !== '–' ? 'inline-flex' : 'none';
+    if (newVal === oldVal) { document.body.removeChild(overlay); return; }
+
+    const btnYa = document.getElementById('modalYa');
+    btnYa.textContent = 'Menyimpan...';
+    btnYa.disabled = true;
+
+    try {
+      const parts  = key.split('||');
+      const akunNm = parts[0];
+      const shift  = parts[1];
+      const iso    = parts[2];
+      const dates  = getWeekDates(weekOffset);
+      const minggu = `${formatDate(dates[0])} - ${formatDate(dates[6])}`;
+      const bersamaKey = stateKey(akunNm, shift, iso) + '||bersama';
+      const platform = AKUN_LIST.find(a => a.nama === akunNm)?.platform || '';
+
+      const payload = encodeURIComponent(JSON.stringify({
+        rows: [{ tanggal: iso, platform, akun: akunNm, shift, host_live: newVal, bersama: jadwalState[bersamaKey]||'', minggu }],
+        leader: currentLeader
+      }));
+      const url = `${APPS_SCRIPT_URL}?action=save&data=${payload}`;
+      const res  = await fetch(url);
+      const json = await res.json();
+
+      if (json.status === 'ok') {
+        jadwalState[key] = newVal;
+        sel.value = newVal;
+        sel.classList.toggle('has-value', newVal !== '–');
+        sel.disabled = (newVal !== '–');
+        sel.style.borderColor = '';
+        sel.style.background = '';
+        editBtn.style.display = newVal !== '–' ? 'inline-flex' : 'none';
+        showToast('Host berhasil diubah', 'success');
+      } else {
+        showToast('Gagal menyimpan', 'error');
+      }
+    } catch(e) {
+      showToast('Error: ' + e.message, 'error');
+    }
     document.body.removeChild(overlay);
   };
 
