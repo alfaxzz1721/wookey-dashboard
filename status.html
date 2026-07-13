@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pipeline Status - Project Kaizen Automation</title>
+<title>Dashboard Project Kaizen Automation</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -20,97 +20,127 @@
     --blue:     #6366f1;
     --shopee:   #EE4D2D;
     --tiktok:   #ff0050;
+    --sidebar-w: 220px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 24px; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; }
 
-  /* Header */
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .header-left h1 { font-size: 20px; font-weight: 600; }
-  .header-left p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .refresh-info { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-  .refresh-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  /* ── Sidebar ── */
+  .sidebar {
+    width: var(--sidebar-w); min-width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 100; overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-brand-logo {
+    font-size: 10px; font-weight: 700; letter-spacing: .5px;
+    background: var(--shopee); color: #fff;
+    padding: 3px 7px; border-radius: 4px;
+    display: inline-block; margin-bottom: 8px;
+  }
+  .sidebar-brand-name {
+    font-size: 13px; font-weight: 600; line-height: 1.4;
+    color: var(--text);
+  }
+  .sidebar-brand-sub {
+    font-size: 11px; color: var(--muted); margin-top: 2px;
+  }
+  .sidebar-nav { padding: 12px 8px; flex: 1; }
+  .sidebar-section {
+    font-size: 10px; color: var(--muted); font-weight: 600;
+    letter-spacing: .8px; text-transform: uppercase;
+    padding: 8px 8px 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; border-radius: 6px; font-size: 13px;
+    color: var(--muted); cursor: pointer;
+    transition: all .15s; margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: rgba(238,77,45,.12); color: var(--text); }
+  .sidebar-item.active .si-icon { color: var(--shopee); }
+  .si-icon { font-size: 15px; width: 18px; text-align: center; }
 
-  /* KPI Cards */
+  /* ── Content ── */
+  .content {
+    margin-left: var(--sidebar-w);
+    flex: 1; padding: 24px; min-height: 100vh;
+  }
+
+  /* ── Page header ── */
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-size: 22px; font-weight: 600; }
+  .page-header p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── KPI ── */
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
   .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
   .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
   .kpi-val   { font-size: 28px; font-weight: 600; }
-  .kpi-val.ok   { color: var(--green); }
-  .kpi-val.warn { color: var(--yellow); }
-  .kpi-val.err  { color: var(--red); }
-  .kpi-val.total{ color: var(--text); }
+  .kpi-val.ok { color: var(--green); } .kpi-val.warn { color: var(--yellow); }
+  .kpi-val.err { color: var(--red); } .kpi-val.total { color: var(--text); }
 
-  /* Progress bar */
+  /* ── Progress ── */
   .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 24px; }
   .progress-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; }
   .progress-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
   .progress-fill  { height: 100%; border-radius: 99px; transition: width .5s ease; }
 
-  /* Section */
+  /* ── Section ── */
   .section { margin-bottom: 24px; }
   .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .section-title .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .dot-shopee { background: var(--shopee); }
-  .dot-tiktok { background: var(--tiktok); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  /* Pipeline Row */
+  /* ── Pipeline Row ── */
   .pipeline-row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    display: grid;
-    grid-template-columns: 32px 1fr auto auto 100px 200px;
-    align-items: center;
-    gap: 12px;
-    transition: border-color .15s;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 8px;
+    display: grid; grid-template-columns: 28px 1fr auto auto 100px 200px;
+    align-items: center; gap: 12px; transition: border-color .15s;
   }
   .pipeline-row:hover { border-color: #353848; }
-  .pipeline-row.ok   { border-left-color: var(--green); }
-  .pipeline-row.warn { border-left-color: var(--yellow); }
-  .pipeline-row.err  { border-left-color: var(--red); }
-  .pipeline-row.stale{ border-left-color: var(--muted); }
-  .pipeline-row.unknown { border-left-color: var(--muted); }
+  .pipeline-row.ok    { border-left-color: var(--green); }
+  .pipeline-row.warn  { border-left-color: var(--yellow); }
+  .pipeline-row.err   { border-left-color: var(--red); }
+  .pipeline-row.stale { border-left-color: var(--muted); }
   .pipeline-row.running { border-left-color: var(--blue); animation: borderPulse 1s infinite; }
   @keyframes borderPulse { 0%,100%{border-left-color:var(--blue)} 50%{border-left-color:#4346c8} }
 
-  .row-icon { font-size: 18px; text-align: center; }
-  .row-icon.ok    { color: var(--green); }
-  .row-icon.warn  { color: var(--yellow); }
-  .row-icon.err   { color: var(--red); }
-  .row-icon.stale { color: var(--muted); }
-  .row-icon.unknown { color: var(--muted); }
+  .row-icon { font-size: 16px; text-align: center; }
+  .row-icon.ok { color: var(--green); } .row-icon.warn { color: var(--yellow); }
+  .row-icon.err { color: var(--red); } .row-icon.stale { color: var(--muted); }
   .row-icon.running { color: var(--blue); }
-
-  .row-name   { font-size: 14px; font-weight: 500; }
-  .row-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
+  .row-name   { font-size: 13px; font-weight: 500; }
+  .row-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
   .badge.ok    { background: rgba(16,185,129,.15); color: var(--green); }
   .badge.warn  { background: rgba(245,158,11,.15); color: var(--yellow); }
   .badge.err   { background: rgba(239,68,68,.15);  color: var(--red); }
   .badge.stale { background: rgba(90,96,112,.15);  color: var(--muted); }
-  .badge.unknown{ background: rgba(90,96,112,.15); color: var(--muted); }
-  .badge.running{ background: rgba(99,102,241,.15);color: var(--blue); }
-
-  .row-extra { font-size: 12px; color: var(--muted); text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .badge.running { background: rgba(99,102,241,.15); color: var(--blue); }
+  .row-extra { font-size: 11px; color: var(--muted); text-align: right; font-family: 'JetBrains Mono', monospace; }
   .row-time  { font-size: 11px; color: var(--muted); text-align: right; }
 
-  /* Run button */
+  /* ── Buttons ── */
   .btn-run {
-    font-size: 11px; font-weight: 500;
-    padding: 5px 12px; border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    color: var(--text);
-    cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
+    font-size: 11px; font-weight: 500; padding: 5px 10px;
+    border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    cursor: pointer; transition: all .15s; white-space: nowrap;
   }
   .btn-run:hover { background: #252836; border-color: #353848; }
   .btn-run:active { transform: scale(.97); }
@@ -120,92 +150,269 @@
   .btn-run.btn-output { border-color: rgba(99,102,241,.4); color: #818cf8; }
   .btn-run.btn-output:hover { background: rgba(99,102,241,.1); }
 
-  /* Log modal */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.7); z-index: 1000;
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal {
+  /* ── Kredensial Page ── */
+  .cred-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .cred-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px; width: 90%; max-width: 700px;
-    max-height: 80vh; display: flex; flex-direction: column;
+    border-radius: 12px; padding: 20px; position: relative;
   }
+  .cred-card.shopee { border-top: 3px solid var(--shopee); }
+  .cred-card.tiktok { border-top: 3px solid var(--tiktok); }
+  .cred-card.market { border-top: 3px solid var(--blue); }
+  .cred-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .cred-title { font-size: 15px; font-weight: 600; }
+  .cred-platform { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+  .cred-platform.shopee { background: rgba(238,77,45,.15); color: var(--shopee); }
+  .cred-platform.tiktok { background: rgba(255,0,80,.15); color: var(--tiktok); }
+  .cred-platform.market { background: rgba(99,102,241,.15); color: #818cf8; }
+  .cred-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .cred-row:last-child { border-bottom: none; }
+  .cred-key   { color: var(--muted); font-size: 12px; }
+  .cred-val   { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+  .cred-file  { font-size: 11px; color: var(--muted); font-family: monospace; margin-top: 12px; padding: 8px 10px; background: var(--surface2); border-radius: 6px; }
+  .cred-file span { color: var(--blue); }
+  .btn-update {
+    margin-top: 14px; width: 100%; padding: 9px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 13px;
+    font-weight: 500; cursor: pointer; transition: all .15s;
+  }
+  .btn-update:hover { background: #252836; border-color: #353848; }
+  .btn-update.running { opacity: .6; cursor: not-allowed; }
+  .cred-status { font-size: 11px; margin-top: 8px; text-align: center; min-height: 16px; }
+
+  /* ── Modal ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; width: 90%; max-width: 700px; max-height: 80vh; display: flex; flex-direction: column; }
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .modal-title  { font-size: 15px; font-weight: 600; }
-  .modal-close  { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px; }
+  .modal-close  { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
   .modal-close:hover { color: var(--text); }
-  .modal-log {
-    flex: 1; overflow-y: auto; background: var(--bg);
-    border-radius: 8px; padding: 12px;
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    color: #a8b0c0; line-height: 1.6; white-space: pre-wrap;
-  }
+  .modal-log { flex: 1; overflow-y: auto; background: var(--bg); border-radius: 8px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #a8b0c0; line-height: 1.6; white-space: pre-wrap; }
 
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px 16px; font-size: 13px;
-    opacity: 0; transform: translateY(8px);
-    transition: all .3s; z-index: 2000; max-width: 300px;
-  }
+  /* ── Toast ── */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 13px; opacity: 0; transform: translateY(8px); transition: all .3s; z-index: 2000; max-width: 300px; }
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast.ok   { border-left: 3px solid var(--green); }
   .toast.err  { border-left: 3px solid var(--red); }
   .toast.info { border-left: 3px solid var(--blue); }
 
-  /* Server offline */
-  .offline-banner {
-    background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
-    border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
-    font-size: 13px; color: var(--red); display: none;
-    align-items: center; gap: 8px;
-  }
+  /* ── Offline banner ── */
+  .offline-banner { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: var(--red); display: none; align-items: center; gap: 8px; }
   .offline-banner.show { display: flex; }
 
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
+  .refresh-info { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .refresh-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-left">
-    <h1>⚡ Pipeline Status - Project Kaizen Automation</h1>
-    <p id="lastUpdate">Memuat data...</p>
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-logo">BTC KAIZEN</div>
+    <div class="sidebar-brand-name">Project Kaizen Automation</div>
+    <div class="sidebar-brand-sub">Dashboard Monitoring</div>
   </div>
-  <div class="refresh-info">
-    <div class="refresh-dot" id="refreshDot"></div>
-    <span id="refreshText">Auto-refresh 60 detik</span>
-  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Monitoring</div>
+    <button class="sidebar-item active" onclick="showPage('pipeline')" id="nav-pipeline">
+      <span class="si-icon">⚡</span> Pipeline Status Daily
+    </button>
+    <div class="sidebar-section" style="margin-top:12px">Pengaturan</div>
+    <button class="sidebar-item" onclick="showPage('kredensial')" id="nav-kredensial">
+      <span class="si-icon">🔑</span> Kredensial Akun
+    </button>
+  </nav>
 </div>
 
-<div class="offline-banner" id="offlineBanner">
-  ⚠️ Server lokal tidak terjangkau. Pastikan pipeline_server.py berjalan di Mac.
-</div>
+<!-- Content -->
+<div class="content">
 
-<div class="kpi-grid">
-  <div class="kpi-card"><div class="kpi-label">✅ Berhasil</div><div class="kpi-val ok" id="kpiOk">–</div></div>
-  <div class="kpi-card"><div class="kpi-label">⚠️ Peringatan</div><div class="kpi-val warn" id="kpiWarn">–</div></div>
-  <div class="kpi-card"><div class="kpi-label">❌ Gagal</div><div class="kpi-val err" id="kpiErr">–</div></div>
-  <div class="kpi-card"><div class="kpi-label">📊 Total Script</div><div class="kpi-val total" id="kpiTotal">–</div></div>
-</div>
+  <!-- ── Page: Pipeline Status ── -->
+  <div class="page active" id="page-pipeline">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <h1>Pipeline Status Daily</h1>
+        <p id="lastUpdate">Memuat data...</p>
+      </div>
+      <div class="refresh-info">
+        <div class="refresh-dot"></div>
+        Auto-refresh 60 detik
+      </div>
+    </div>
 
-<div class="progress-wrap">
-  <div class="progress-header">
-    <span>Tingkat keberhasilan hari ini</span>
-    <span id="progressPct" style="font-weight:600">–%</span>
+    <div class="offline-banner" id="offlineBanner">
+      ⚠️ Server lokal tidak terjangkau. Pastikan pipeline_server.py berjalan di Mac.
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">✅ Berhasil</div><div class="kpi-val ok" id="kpiOk">–</div></div>
+      <div class="kpi-card"><div class="kpi-label">⚠️ Peringatan</div><div class="kpi-val warn" id="kpiWarn">–</div></div>
+      <div class="kpi-card"><div class="kpi-label">❌ Gagal</div><div class="kpi-val err" id="kpiErr">–</div></div>
+      <div class="kpi-card"><div class="kpi-label">📊 Total Script</div><div class="kpi-val total" id="kpiTotal">–</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span>Tingkat keberhasilan hari ini</span>
+        <span id="progressPct" style="font-weight:600">–%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="pipelineSections"></div>
   </div>
-  <div class="progress-track">
-    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+
+  <!-- ── Page: Kredensial Akun ── -->
+  <div class="page" id="page-kredensial">
+    <div class="page-header">
+      <h1>Kredensial Akun</h1>
+      <p>Update cookies untuk semua platform yang digunakan sistem</p>
+    </div>
+
+    <div class="cred-grid">
+
+      <!-- Shopee Wookey -->
+      <div class="cred-card shopee">
+        <div class="cred-header">
+          <div class="cred-title">Shopee Wookey</div>
+          <div class="cred-platform shopee">Shopee</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">seller.shopee.co.id</span></div>
+        <div class="cred-row"><span class="cred-key">Akun</span><span class="cred-val">wookeyweight.id</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">shopee_save_cookies_check.py</span></div>
+        <div class="cred-file">Output: <span>shopee_cookies.json</span></div>
+        <button class="btn-update" id="btn-cred-shopee-wookey" onclick="runCookies('shopee_wookey','Shopee Wookey','shopee-wookey')">
+          🔄 Update Cookies Shopee Wookey
+        </button>
+        <div class="cred-status" id="status-shopee-wookey"></div>
+      </div>
+
+      <!-- Shopee Sohoney -->
+      <div class="cred-card shopee">
+        <div class="cred-header">
+          <div class="cred-title">Shopee Sohoney Jr</div>
+          <div class="cred-platform shopee">Shopee</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">seller.shopee.co.id</span></div>
+        <div class="cred-row"><span class="cred-key">Akun</span><span class="cred-val">sohoney.jr</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">shopee_save_cookies_sohoney.py</span></div>
+        <div class="cred-file">Output: <span>shopee_sohoney_cookies.json</span></div>
+        <button class="btn-update" id="btn-cred-shopee-sohoney" onclick="runCookies('shopee_sohoney','Shopee Sohoney','shopee-sohoney')">
+          🔄 Update Cookies Shopee Sohoney
+        </button>
+        <div class="cred-status" id="status-shopee-sohoney"></div>
+      </div>
+
+      <!-- TikTok Wookey (Seller Center) -->
+      <div class="cred-card tiktok">
+        <div class="cred-header">
+          <div class="cred-title">TikTok Wookey — Seller</div>
+          <div class="cred-platform tiktok">TikTok</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">seller-id.tokopedia.com</span></div>
+        <div class="cred-row"><span class="cred-key">Email</span><span class="cred-val">alfaxzz17@gmail.com</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">tiktok_save_cookies_daily.py</span></div>
+        <div class="cred-file">Output: <span>tiktok_cookies.json</span></div>
+        <button class="btn-update" id="btn-cred-tiktok-wookey" onclick="runCookies('tiktok_cookies_wookey','TikTok Wookey Seller','tiktok-wookey')">
+          🔄 Update Cookies TikTok Wookey
+        </button>
+        <div class="cred-status" id="status-tiktok-wookey"></div>
+      </div>
+
+      <!-- TikTok Wookey Live -->
+      <div class="cred-card tiktok">
+        <div class="cred-header">
+          <div class="cred-title">TikTok Wookey — Live</div>
+          <div class="cred-platform tiktok">TikTok</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">seller-id.tokopedia.com</span></div>
+        <div class="cred-row"><span class="cred-key">Email</span><span class="cred-val">alfaxzz17@gmail.com</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">tiktok_save_cookies_live_wookey.py</span></div>
+        <div class="cred-file">Output: <span>tiktok_cookies_live_wookey.json</span></div>
+        <button class="btn-update" id="btn-cred-tiktok-live-wookey" onclick="runCookies('tiktok_live_cookies_wookey','TikTok Live Wookey','tiktok-live-wookey')">
+          🔄 Update Cookies TikTok Live Wookey
+        </button>
+        <div class="cred-status" id="status-tiktok-live-wookey"></div>
+      </div>
+
+      <!-- TikTok Sohoney -->
+      <div class="cred-card tiktok">
+        <div class="cred-header">
+          <div class="cred-title">TikTok Sohoney Jr</div>
+          <div class="cred-platform tiktok">TikTok</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">seller-id.tokopedia.com</span></div>
+        <div class="cred-row"><span class="cred-key">Email</span><span class="cred-val">arh.taufik17@gmail.com</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">tiktok_save_cookies_sohoney.py</span></div>
+        <div class="cred-file">Output: <span>tiktok_sohoney_cookies.json</span></div>
+        <button class="btn-update" id="btn-cred-tiktok-sohoney" onclick="runCookies('tiktok_cookies_sohoney','TikTok Sohoney','tiktok-sohoney')">
+          🔄 Update Cookies TikTok Sohoney
+        </button>
+        <div class="cred-status" id="status-tiktok-sohoney"></div>
+      </div>
+
+      <!-- TikTok Ads Shop -->
+      <div class="cred-card tiktok">
+        <div class="cred-header">
+          <div class="cred-title">TikTok Ads Shop</div>
+          <div class="cred-platform tiktok">TikTok</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">seller-id.tokopedia.com</span></div>
+        <div class="cred-row"><span class="cred-key">Email</span><span class="cred-val">alfaxzz17@gmail.com</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">tiktok_save_cookies_ads_shop.py</span></div>
+        <div class="cred-file">Output: <span>tiktok_cookies_ads_shop.json</span></div>
+        <button class="btn-update" id="btn-cred-tiktok-ads-shop" onclick="runCookies('tiktok_ads_shop_cookies','TikTok Ads Shop','tiktok-ads-shop')">
+          🔄 Update Cookies TikTok Ads Shop
+        </button>
+        <div class="cred-status" id="status-tiktok-ads-shop"></div>
+      </div>
+
+      <!-- TikTok Ads Manager -->
+      <div class="cred-card tiktok">
+        <div class="cred-header">
+          <div class="cred-title">TikTok Ads Manager</div>
+          <div class="cred-platform tiktok">TikTok</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">ads.tiktok.com</span></div>
+        <div class="cred-row"><span class="cred-key">Email</span><span class="cred-val">alfaxzz17@gmail.com</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">tiktok_save_cookies_ads.py</span></div>
+        <div class="cred-file">Output: <span>tiktok_ads_cookies.json</span></div>
+        <button class="btn-update" id="btn-cred-tiktok-ads" onclick="runCookies('tiktok_ads_cookies','TikTok Ads Manager','tiktok-ads')">
+          🔄 Update Cookies Ads Manager
+        </button>
+        <div class="cred-status" id="status-tiktok-ads"></div>
+      </div>
+
+      <!-- MarketScope -->
+      <div class="cred-card market">
+        <div class="cred-header">
+          <div class="cred-title">TikTok MarketScope</div>
+          <div class="cred-platform market">MarketScope</div>
+        </div>
+        <div class="cred-row"><span class="cred-key">Platform</span><span class="cred-val">marketscope.tiktok.com</span></div>
+        <div class="cred-row"><span class="cred-key">Akun</span><span class="cred-val">art.hidayat17@gmail.com</span></div>
+        <div class="cred-row"><span class="cred-key">Script</span><span class="cred-val">save_marketscope_cookies.py</span></div>
+        <div class="cred-file">Output: <span>marketscope_cookies.json</span></div>
+        <button class="btn-update" id="btn-cred-marketscope" onclick="runCookies('marketscope_cookies','MarketScope','marketscope')">
+          🔄 Update Cookies MarketScope
+        </button>
+        <div class="cred-status" id="status-marketscope"></div>
+      </div>
+
+    </div>
   </div>
+
 </div>
 
-<div id="pipelineSections"></div>
-
-<!-- Log Modal -->
+<!-- Modal Log -->
 <div class="modal-overlay" id="logModal">
   <div class="modal">
     <div class="modal-header">
@@ -224,16 +431,32 @@ const SERVER = 'http://localhost:8888';
 let allData = {};
 let runningSet = new Set();
 
-const ICONS = { ok:'✅', warn:'⚠️', err:'❌', stale:'🕐', unknown:'❓', running:'⏳' };
+const ICONS  = { ok:'✅', warn:'⚠️', err:'❌', stale:'🕐', unknown:'❓', running:'⏳' };
 const LABELS = { ok:'Berhasil', warn:'Tidak lengkap', err:'Gagal', stale:'Data lama', unknown:'–', running:'Berjalan...' };
+const GROUP_COLORS = {
+  'Stats Shop':'#6366f1','Biaya Iklan':'#f59e0b',
+  'Parse Stats':'#10b981','Live Sesi 1':'#EE4D2D',
+  'Parse Live Sesi 1':'#059669','Live H-7':'#ff0050',
+  'Parse Live H-7':'#0891b2',
+};
 
+// ── Navigasi ──────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+// ── Toast ─────────────────────────────────────────────────────
 function showToast(msg, type='info') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = `toast show ${type}`;
-  setTimeout(() => t.className = 'toast', 3000);
+  setTimeout(() => t.className = 'toast', 3500);
 }
 
+// ── Pipeline Status ───────────────────────────────────────────
 async function fetchStatus() {
   try {
     const res = await fetch(`${SERVER}/status`, { signal: AbortSignal.timeout(5000) });
@@ -250,13 +473,12 @@ async function fetchStatus() {
 async function fetchRunning() {
   try {
     const res = await fetch(`${SERVER}/running`, { signal: AbortSignal.timeout(3000) });
-    const data = await res.json();
-    runningSet = new Set(Object.keys(data));
+    runningSet = new Set(Object.keys(await res.json()));
   } catch(e) {}
 }
 
 function renderAll() {
-  const now = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false });
+  const now = new Date().toLocaleString('id-ID', { timeZone:'Asia/Jakarta', hour12:false });
   document.getElementById('lastUpdate').textContent = `Diperbarui: ${now} WIB`;
 
   let ok=0, warn=0, err=0, total=0;
@@ -265,9 +487,9 @@ function renderAll() {
   for (const [id, d] of Object.entries(allData)) {
     total++;
     const st = runningSet.has(id) ? 'running' : d.status;
-    if (st === 'ok') ok++;
-    else if (st === 'warn') warn++;
-    else if (st === 'err') err++;
+    if (st==='ok') ok++;
+    else if (st==='warn') warn++;
+    else if (st==='err') err++;
     const isRunning = st === 'running';
     const grp = d.group || 'Lainnya';
     if (!sections[grp]) sections[grp] = [];
@@ -275,38 +497,31 @@ function renderAll() {
     const row = document.createElement('div');
     row.className = `pipeline-row ${st}`;
     row.innerHTML = `
-      <div class="row-icon ${st}">${ICONS[st] || '❓'}</div>
+      <div class="row-icon ${st}">${ICONS[st]||'❓'}</div>
       <div>
         <div class="row-name">${d.label} <span style="font-size:10px;color:var(--muted);font-family:monospace">${d.cron||''}</span></div>
-        <div class="row-detail">${d.detail || '–'}</div>
+        <div class="row-detail">${d.detail||'–'}</div>
       </div>
-      <div class="badge ${st}">${isRunning ? '<span class="spinner"></span> Berjalan' : LABELS[st] || st}</div>
-      <div class="row-extra">${d.extra || ''}</div>
-      <div class="row-time">${d.timestamp || '–'}</div>
+      <div class="badge ${st}">${isRunning?'<span class="spinner"></span> Berjalan':LABELS[st]||st}</div>
+      <div class="row-extra">${d.extra||''}</div>
+      <div class="row-time">${d.timestamp||'–'}</div>
       <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap">
-        <button class="btn-run" onclick="showLog('${id}','${d.label}')" title="Lihat log">📋</button>
-        ${d.output_link ? `<button class="btn-run btn-output" onclick="window.open('${d.output_link}','_blank')" title="${d.output||'Output'}">🔗 ${d.output==='Google Sheets'?'Sheet':d.output==='Google Drive'?'Drive':'Output'}</button>` : ''}
+        <button class="btn-run" onclick="showLog('${id}','${d.label}')" title="Log">📋</button>
+        ${d.output_link?`<button class="btn-run btn-output" onclick="window.open('${d.output_link}','_blank')">🔗 ${d.output==='Google Sheets'?'Sheet':'Drive'}</button>`:''}
         <button class="btn-run ${isRunning?'running':st==='ok'?'':st}" id="btn-${id}" onclick="runScript('${id}','${d.label}')" ${isRunning?'disabled':''}>
           ${isRunning?'⏳':'▶'} Jalankan
         </button>
-      </div>
-    `;
+      </div>`;
     sections[grp].push(row);
   }
 
   const container = document.getElementById('pipelineSections');
   container.innerHTML = '';
-  const GROUP_COLORS = {
-    'Stats Shop': '#6366f1', 'Biaya Iklan': '#f59e0b',
-    'Parse Stats': '#10b981', 'Live Sesi 1': '#EE4D2D',
-    'Parse Live Sesi 1': '#059669', 'Live H-7': '#ff0050',
-    'Parse Live H-7': '#0891b2',
-  };
   for (const [grp, rows] of Object.entries(sections)) {
     const sec = document.createElement('div');
     sec.className = 'section';
     const color = GROUP_COLORS[grp] || '#6366f1';
-    sec.innerHTML = `<div class="section-title"><div class="dot" style="background:${color}"></div> ${grp}</div>`;
+    sec.innerHTML = `<div class="section-title"><div class="dot" style="background:${color}"></div>${grp}</div>`;
     rows.forEach(r => sec.appendChild(r));
     container.appendChild(sec);
   }
@@ -315,32 +530,30 @@ function renderAll() {
   document.getElementById('kpiWarn').textContent = warn;
   document.getElementById('kpiErr').textContent = err;
   document.getElementById('kpiTotal').textContent = total;
-
-  const pct = total ? Math.round(ok / total * 100) : 0;
+  const pct = total ? Math.round(ok/total*100) : 0;
   document.getElementById('progressPct').textContent = `${pct}%`;
   const fill = document.getElementById('progressFill');
   fill.style.width = `${pct}%`;
-  fill.style.background = pct >= 85 ? 'var(--green)' : pct >= 60 ? 'var(--yellow)' : 'var(--red)';
+  fill.style.background = pct>=85?'var(--green)':pct>=60?'var(--yellow)':'var(--red)';
 }
 
 async function runScript(id, label) {
   const btn = document.getElementById(`btn-${id}`);
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Memulai...'; }
+  if (btn) { btn.disabled=true; btn.textContent='⏳ Memulai...'; }
   try {
-    const res = await fetch(`${SERVER}/run/${id}`, { method: 'POST' });
+    const res = await fetch(`${SERVER}/run/${id}`, { method:'POST' });
     const data = await res.json();
     if (data.ok) {
       showToast(`▶ ${label} dimulai`, 'ok');
-      runningSet.add(id);
-      renderAll();
+      runningSet.add(id); renderAll();
       setTimeout(() => { runningSet.delete(id); fetchStatus(); }, 30000);
     } else {
-      showToast(data.msg || 'Gagal memulai script', 'err');
-      if (btn) { btn.disabled = false; btn.textContent = '▶ Jalankan'; }
+      showToast(data.msg || 'Gagal memulai', 'err');
+      if (btn) { btn.disabled=false; btn.textContent='▶ Jalankan'; }
     }
   } catch(e) {
     showToast('Server tidak terjangkau', 'err');
-    if (btn) { btn.disabled = false; btn.textContent = '▶ Jalankan'; }
+    if (btn) { btn.disabled=false; btn.textContent='▶ Jalankan'; }
   }
 }
 
@@ -354,25 +567,57 @@ async function showLog(id, label) {
     document.getElementById('modalLog').textContent = data.lines.join('\n') || '(Log kosong)';
     document.getElementById('modalLog').scrollTop = 99999;
   } catch(e) {
-    document.getElementById('modalLog').textContent = 'Gagal memuat log — server tidak terjangkau';
+    document.getElementById('modalLog').textContent = 'Gagal memuat log';
   }
 }
 
-function closeModal() {
-  document.getElementById('logModal').classList.remove('show');
+function closeModal() { document.getElementById('logModal').classList.remove('show'); }
+document.getElementById('logModal').addEventListener('click', e => { if(e.target===document.getElementById('logModal')) closeModal(); });
+
+// ── Kredensial — Update Cookies ───────────────────────────────
+// Map credential id ke script id di pipeline_server
+const CRED_SCRIPT_MAP = {
+  'shopee_wookey':       'shopee_wookey_cookies',
+  'shopee_sohoney':      'shopee_sohoney_cookies',
+  'tiktok_cookies_wookey': 'tiktok_cookies_wookey',
+  'tiktok_live_cookies_wookey': 'tiktok_live_wookey_cookies',
+  'tiktok_cookies_sohoney': 'tiktok_cookies_sohoney',
+  'tiktok_ads_shop_cookies': 'tiktok_ads_shop_cookies',
+  'tiktok_ads_cookies':  'tiktok_ads_cookies',
+  'marketscope_cookies': 'marketscope_cookies',
+};
+
+async function runCookies(scriptId, label, statusId) {
+  const btn = document.getElementById(`btn-cred-${statusId}`);
+  const statusEl = document.getElementById(`status-${statusId}`);
+  if (btn) { btn.disabled=true; btn.classList.add('running'); btn.textContent='⏳ Membuka browser...'; }
+  if (statusEl) statusEl.innerHTML = '<span style="color:var(--yellow)">⏳ Menjalankan...</span>';
+  try {
+    const res = await fetch(`${SERVER}/run/${scriptId}`, { method:'POST' });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`🔄 ${label} — browser terbuka`, 'ok');
+      if (statusEl) statusEl.innerHTML = '<span style="color:var(--green)">✅ Browser terbuka — login manual lalu tekan Enter</span>';
+    } else {
+      showToast(data.msg || 'Gagal', 'err');
+      if (statusEl) statusEl.innerHTML = `<span style="color:var(--red)">❌ ${data.msg||'Gagal'}</span>`;
+    }
+  } catch(e) {
+    showToast('Server tidak terjangkau', 'err');
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--red)">❌ Server tidak terjangkau</span>';
+  } finally {
+    if (btn) {
+      setTimeout(() => {
+        btn.disabled=false; btn.classList.remove('running');
+        btn.textContent=`🔄 Update Cookies ${label}`;
+      }, 5000);
+    }
+  }
 }
 
-document.getElementById('logModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// Initial load
+// ── Init ──────────────────────────────────────────────────────
 fetchStatus();
-// Refresh setiap 60 detik
-setInterval(async () => {
-  await fetchRunning();
-  await fetchStatus();
-}, 60000);
+setInterval(async () => { await fetchRunning(); await fetchStatus(); }, 60000);
 </script>
 </body>
 </html>
