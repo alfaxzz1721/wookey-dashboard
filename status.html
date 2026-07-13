@@ -260,10 +260,7 @@ function renderAll() {
   document.getElementById('lastUpdate').textContent = `Diperbarui: ${now} WIB`;
 
   let ok=0, warn=0, err=0, total=0;
-  const shopeeRows = document.getElementById('shopeeRows');
-  const tiktokRows = document.getElementById('tiktokRows');
-  shopeeRows.innerHTML = '';
-  tiktokRows.innerHTML = '';
+  const sections = {};
 
   for (const [id, d] of Object.entries(allData)) {
     total++;
@@ -271,15 +268,16 @@ function renderAll() {
     if (st === 'ok') ok++;
     else if (st === 'warn') warn++;
     else if (st === 'err') err++;
-
     const isRunning = st === 'running';
+    const grp = d.group || 'Lainnya';
+    if (!sections[grp]) sections[grp] = [];
 
     const row = document.createElement('div');
     row.className = `pipeline-row ${st}`;
     row.innerHTML = `
       <div class="row-icon ${st}">${ICONS[st] || '❓'}</div>
       <div>
-        <div class="row-name">${d.label}</div>
+        <div class="row-name">${d.label} <span style="font-size:10px;color:var(--muted);font-family:monospace">${d.cron||''}</span></div>
         <div class="row-detail">${d.detail || '–'}</div>
       </div>
       <div class="badge ${st}">${isRunning ? '<span class="spinner"></span> Berjalan' : LABELS[st] || st}</div>
@@ -287,14 +285,30 @@ function renderAll() {
       <div class="row-time">${d.timestamp || '–'}</div>
       <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap">
         <button class="btn-run" onclick="showLog('${id}','${d.label}')" title="Lihat log">📋</button>
-        ${d.output_link ? `<button class="btn-run btn-output" onclick="window.open('${d.output_link}','_blank')" title="${d.output || 'Output'}">🔗 ${d.output === 'Google Sheets' ? 'Sheet' : d.output === 'Google Drive' ? 'Drive' : 'Output'}</button>` : ''}
-        <button class="btn-run ${isRunning ? 'running' : st === 'ok' ? '' : st}" id="btn-${id}" onclick="runScript('${id}','${d.label}')" ${isRunning?'disabled':''}>
-          ${isRunning ? '⏳' : '▶'} Jalankan
+        ${d.output_link ? `<button class="btn-run btn-output" onclick="window.open('${d.output_link}','_blank')" title="${d.output||'Output'}">🔗 ${d.output==='Google Sheets'?'Sheet':d.output==='Google Drive'?'Drive':'Output'}</button>` : ''}
+        <button class="btn-run ${isRunning?'running':st==='ok'?'':st}" id="btn-${id}" onclick="runScript('${id}','${d.label}')" ${isRunning?'disabled':''}>
+          ${isRunning?'⏳':'▶'} Jalankan
         </button>
       </div>
     `;
-    if (d.group === 'Shopee') shopeeRows.appendChild(row);
-    else tiktokRows.appendChild(row);
+    sections[grp].push(row);
+  }
+
+  const container = document.getElementById('pipelineSections');
+  container.innerHTML = '';
+  const GROUP_COLORS = {
+    'Stats Shop': '#6366f1', 'Biaya Iklan': '#f59e0b',
+    'Parse Stats': '#10b981', 'Live Sesi 1': '#EE4D2D',
+    'Parse Live Sesi 1': '#059669', 'Live H-7': '#ff0050',
+    'Parse Live H-7': '#0891b2',
+  };
+  for (const [grp, rows] of Object.entries(sections)) {
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    const color = GROUP_COLORS[grp] || '#6366f1';
+    sec.innerHTML = `<div class="section-title"><div class="dot" style="background:${color}"></div> ${grp}</div>`;
+    rows.forEach(r => sec.appendChild(r));
+    container.appendChild(sec);
   }
 
   document.getElementById('kpiOk').textContent = ok;
