@@ -224,6 +224,9 @@
       <span class="si-icon">⚡</span> Pipeline Status Daily
     </button>
     <div class="sidebar-section" style="margin-top:12px">Pengaturan</div>
+    <button class="sidebar-item" onclick="showPage('riwayat')" id="nav-riwayat">
+      <span class="si-icon">📅</span> Riwayat Pipeline
+    </button>
     <button class="sidebar-item" onclick="showPage('kredensial')" id="nav-kredensial">
       <span class="si-icon">🔑</span> Kredensial Akun
     </button>
@@ -268,6 +271,34 @@
     </div>
 
     <div id="pipelineSections"></div>
+  </div>
+
+  <!-- ── Page: Riwayat Pipeline ── -->
+  <div class="page" id="page-riwayat">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <h1>Riwayat Pipeline</h1>
+        <p>Status harian semua script — diperbarui otomatis jam 17:30 WIB</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="riwayatDays" onchange="loadRiwayat()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px">
+          <option value="7">7 hari terakhir</option>
+          <option value="14">14 hari terakhir</option>
+          <option value="30">30 hari terakhir</option>
+        </select>
+        <button onclick="loadRiwayat()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div id="riwayatLoading" style="text-align:center;padding:40px;color:var(--muted)">Memuat data...</div>
+    <div id="riwayatTable" style="display:none">
+      <div id="riwayatLegend" style="display:flex;gap:16px;margin-bottom:16px;font-size:12px;color:var(--muted)">
+        <span>✅ Berhasil</span><span>⚠️ Sebagian</span><span>❌ Gagal</span><span>🕐 Tidak jalan</span><span>❓ Tidak ada data</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="riwayatGrid" style="width:100%;border-collapse:collapse;font-size:12px"></table>
+      </div>
+    </div>
   </div>
 
   <!-- ── Page: Kredensial Akun ── -->
@@ -613,6 +644,110 @@ async function runCookies(scriptId, label, statusId) {
       }, 5000);
     }
   }
+}
+
+// ── Riwayat Pipeline ─────────────────────────────────────────
+const GVIZ_URL = "https://docs.google.com/spreadsheets/d/1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME/gviz/tq?sheet=Pipeline%20Log&tq=";
+
+const RIWAYAT_ICONS = {ok:"✅",warn:"⚠️",err:"❌",stale:"🕐",no_log:"➖",unknown:"❓"};
+
+async function loadRiwayat() {
+  const days = parseInt(document.getElementById('riwayatDays').value) || 7;
+  document.getElementById('riwayatLoading').style.display = 'block';
+  document.getElementById('riwayatTable').style.display = 'none';
+
+  try {
+    const query = encodeURIComponent("SELECT * ORDER BY A DESC LIMIT " + (days * 25));
+    const url = GVIZ_URL + query + "&tqx=out:json";
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    const rows = json.table.rows;
+    if (!rows || rows.length === 0) {
+      document.getElementById('riwayatLoading').textContent = 'Tidak ada data';
+      return;
+    }
+
+    // Proses data
+    const data = {};  // date -> scriptId -> {status, detail}
+    const scripts = {};  // scriptId -> {label, group, cron}
+    const dates = new Set();
+
+    rows.forEach(row => {
+      const c = row.c;
+      const date = c[0]?.v || '';
+      const sid  = c[1]?.v || '';
+      const label = c[2]?.v || sid;
+      const group = c[3]?.v || '';
+      const status = c[4]?.v || 'unknown';
+      const detail = c[5]?.v || '';
+      const extra  = c[6]?.v || '';
+      const ts     = c[7]?.v || '';
+      const cron   = c[8]?.v || '';
+
+      if (!date || !sid) return;
+      dates.add(date);
+      if (!scripts[sid]) scripts[sid] = {label, group, cron};
+      if (!data[date]) data[date] = {};
+      data[date][sid] = {status, detail, extra, ts};
+    });
+
+    const sortedDates = [...dates].sort().reverse().slice(0, days);
+    const scriptOrder = Object.keys(scripts);
+
+    // Group scripts
+    const groups = {};
+    scriptOrder.forEach(sid => {
+      const g = scripts[sid].group || 'Lainnya';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(sid);
+    });
+
+    // Build table
+    const table = document.getElementById('riwayatGrid');
+    let html = '<thead><tr><th style="text-align:left;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2;min-width:200px">Script</th>';
+    sortedDates.forEach(d => {
+      const dd = d.split('-');
+      html += `<th style="padding:6px 8px;background:var(--surface);border-bottom:1px solid var(--border);text-align:center;min-width:70px;font-weight:500">${dd[2]}/${dd[1]}<br><span style="font-size:10px;color:var(--muted);font-weight:400">${dd[0]}</span></th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    const GROUP_COLORS2 = {'Stats Shop':'#6366f1','Biaya Iklan':'#f59e0b','Parse Stats':'#10b981','Live Sesi 1':'#EE4D2D','Parse Live Sesi 1':'#059669','Live H-7':'#ff0050','Parse Live H-7':'#0891b2'};
+
+    for (const [grp, sids] of Object.entries(groups)) {
+      const color = GROUP_COLORS2[grp] || '#6366f1';
+      html += `<tr><td colspan="${sortedDates.length + 1}" style="padding:6px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:${color};background:var(--surface2);border-bottom:1px solid var(--border)">${grp}</td></tr>`;
+      sids.forEach(sid => {
+        const sc = scripts[sid];
+        html += `<tr><td style="padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:1">
+          <div style="font-size:12px;font-weight:500">${sc.label}</div>
+          <div style="font-size:10px;color:var(--muted);font-family:monospace">${sc.cron}</div>
+        </td>`;
+        sortedDates.forEach(d => {
+          const entry = data[d]?.[sid];
+          const st = entry?.status || 'no_log';
+          const icon = RIWAYAT_ICONS[st] || '❓';
+          const tip = entry ? `${st}: ${entry.detail} ${entry.extra} (${entry.ts})` : 'Tidak ada data';
+          const bg = st==='ok'?'rgba(16,185,129,.1)':st==='err'?'rgba(239,68,68,.1)':st==='warn'?'rgba(245,158,11,.1)':'transparent';
+          html += `<td title="${tip}" style="text-align:center;padding:8px;background:${bg};border-bottom:1px solid var(--border);border-left:1px solid var(--border);font-size:14px">${icon}</td>`;
+        });
+        html += '</tr>';
+      });
+    }
+    html += '</tbody>';
+    table.innerHTML = html;
+    document.getElementById('riwayatLoading').style.display = 'none';
+    document.getElementById('riwayatTable').style.display = 'block';
+  } catch(e) {
+    document.getElementById('riwayatLoading').textContent = `Error: ${e.message}`;
+  }
+}
+
+// Auto load riwayat saat halaman dibuka
+const origShowPage = showPage;
+function showPage(name) {
+  origShowPage(name);
+  if (name === 'riwayat') loadRiwayat();
 }
 
 // ── Init ──────────────────────────────────────────────────────
