@@ -669,15 +669,18 @@ async function loadRiwayat() {
       return;
     }
 
-    // Proses data
-    const data = {};  // date -> scriptId -> {status, detail}
-    const scripts = {};  // scriptId -> {label, group, cron}
+    // Proses data — skip baris header (row pertama berisi "Tanggal", "Script ID", dll)
+    const data = {};
+    const scripts = {};
     const dates = new Set();
 
     rows.forEach(row => {
       const c = row.c;
       const date = c[0]?.v || '';
       const sid  = c[1]?.v || '';
+      // Skip header row
+      if (date === 'Tanggal' || sid === 'Script ID') return;
+      if (!date || !sid) return;
       const label = c[2]?.v || sid;
       const group = c[3]?.v || '';
       const status = c[4]?.v || 'unknown';
