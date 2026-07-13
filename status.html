@@ -477,6 +477,7 @@ function showPage(name) {
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'riwayat') loadRiwayat();
 }
 
 // ── Toast ─────────────────────────────────────────────────────
@@ -743,12 +744,7 @@ async function loadRiwayat() {
   }
 }
 
-// Auto load riwayat saat halaman dibuka
-const origShowPage = showPage;
-function showPage(name) {
-  origShowPage(name);
-  if (name === 'riwayat') loadRiwayat();
-}
+
 
 // ── Init ──────────────────────────────────────────────────────
 fetchStatus();
