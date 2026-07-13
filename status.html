@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Kaizen — Pipeline Status</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:       #0c0e14;
+    --surface:  #13151f;
+    --surface2: #1a1d2a;
+    --border:   #252836;
+    --text:     #e8eaf2;
+    --muted:    #5a6070;
+    --green:    #10b981;
+    --red:      #ef4444;
+    --yellow:   #f59e0b;
+    --blue:     #6366f1;
+    --shopee:   #EE4D2D;
+    --tiktok:   #ff0050;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 24px; }
+
+  /* Header */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .header-left h1 { font-size: 20px; font-weight: 600; }
+  .header-left p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .refresh-info { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .refresh-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+  .kpi-val   { font-size: 28px; font-weight: 600; }
+  .kpi-val.ok   { color: var(--green); }
+  .kpi-val.warn { color: var(--yellow); }
+  .kpi-val.err  { color: var(--red); }
+  .kpi-val.total{ color: var(--text); }
+
+  /* Progress bar */
+  .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 24px; }
+  .progress-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; }
+  .progress-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .progress-fill  { height: 100%; border-radius: 99px; transition: width .5s ease; }
+
+  /* Section */
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-shopee { background: var(--shopee); }
+  .dot-tiktok { background: var(--tiktok); }
+
+  /* Pipeline Row */
+  .pipeline-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: 32px 1fr auto auto 110px 110px;
+    align-items: center;
+    gap: 12px;
+    transition: border-color .15s;
+  }
+  .pipeline-row:hover { border-color: #353848; }
+  .pipeline-row.ok   { border-left-color: var(--green); }
+  .pipeline-row.warn { border-left-color: var(--yellow); }
+  .pipeline-row.err  { border-left-color: var(--red); }
+  .pipeline-row.stale{ border-left-color: var(--muted); }
+  .pipeline-row.unknown { border-left-color: var(--muted); }
+  .pipeline-row.running { border-left-color: var(--blue); animation: borderPulse 1s infinite; }
+  @keyframes borderPulse { 0%,100%{border-left-color:var(--blue)} 50%{border-left-color:#4346c8} }
+
+  .row-icon { font-size: 18px; text-align: center; }
+  .row-icon.ok    { color: var(--green); }
+  .row-icon.warn  { color: var(--yellow); }
+  .row-icon.err   { color: var(--red); }
+  .row-icon.stale { color: var(--muted); }
+  .row-icon.unknown { color: var(--muted); }
+  .row-icon.running { color: var(--blue); }
+
+  .row-name   { font-size: 14px; font-weight: 500; }
+  .row-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .badge.ok    { background: rgba(16,185,129,.15); color: var(--green); }
+  .badge.warn  { background: rgba(245,158,11,.15); color: var(--yellow); }
+  .badge.err   { background: rgba(239,68,68,.15);  color: var(--red); }
+  .badge.stale { background: rgba(90,96,112,.15);  color: var(--muted); }
+  .badge.unknown{ background: rgba(90,96,112,.15); color: var(--muted); }
+  .badge.running{ background: rgba(99,102,241,.15);color: var(--blue); }
+
+  .row-extra { font-size: 12px; color: var(--muted); text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .row-time  { font-size: 11px; color: var(--muted); text-align: right; }
+
+  /* Run button */
+  .btn-run {
+    font-size: 11px; font-weight: 500;
+    padding: 5px 12px; border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn-run:hover { background: #252836; border-color: #353848; }
+  .btn-run:active { transform: scale(.97); }
+  .btn-run.running { opacity: .5; cursor: not-allowed; }
+  .btn-run.err  { border-color: rgba(239,68,68,.4); color: var(--red); }
+  .btn-run.warn { border-color: rgba(245,158,11,.4); color: var(--yellow); }
+
+  /* Log modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.7); z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; width: 90%; max-width: 700px;
+    max-height: 80vh; display: flex; flex-direction: column;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .modal-title  { font-size: 15px; font-weight: 600; }
+  .modal-close  { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+  .modal-log {
+    flex: 1; overflow-y: auto; background: var(--bg);
+    border-radius: 8px; padding: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: #a8b0c0; line-height: 1.6; white-space: pre-wrap;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; font-size: 13px;
+    opacity: 0; transform: translateY(8px);
+    transition: all .3s; z-index: 2000; max-width: 300px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.ok   { border-left: 3px solid var(--green); }
+  .toast.err  { border-left: 3px solid var(--red); }
+  .toast.info { border-left: 3px solid var(--blue); }
+
+  /* Server offline */
+  .offline-banner {
+    background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    font-size: 13px; color: var(--red); display: none;
+    align-items: center; gap: 8px;
+  }
+  .offline-banner.show { display: flex; }
+
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>⚡ Pipeline Status — BTC Kaizen</h1>
+    <p id="lastUpdate">Memuat data...</p>
+  </div>
+  <div class="refresh-info">
+    <div class="refresh-dot" id="refreshDot"></div>
+    <span id="refreshText">Auto-refresh 60 detik</span>
+  </div>
+</div>
+
+<div class="offline-banner" id="offlineBanner">
+  ⚠️ Server lokal tidak terjangkau. Pastikan pipeline_server.py berjalan di Mac.
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card"><div class="kpi-label">✅ Berhasil</div><div class="kpi-val ok" id="kpiOk">–</div></div>
+  <div class="kpi-card"><div class="kpi-label">⚠️ Peringatan</div><div class="kpi-val warn" id="kpiWarn">–</div></div>
+  <div class="kpi-card"><div class="kpi-label">❌ Gagal</div><div class="kpi-val err" id="kpiErr">–</div></div>
+  <div class="kpi-card"><div class="kpi-label">📊 Total Script</div><div class="kpi-val total" id="kpiTotal">–</div></div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-header">
+    <span>Tingkat keberhasilan hari ini</span>
+    <span id="progressPct" style="font-weight:600">–%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div id="shopeeSection" class="section">
+  <div class="section-title"><div class="dot dot-shopee"></div> Shopee Pipeline</div>
+  <div id="shopeeRows"></div>
+</div>
+
+<div id="tiktokSection" class="section">
+  <div class="section-title"><div class="dot dot-tiktok"></div> TikTok Pipeline</div>
+  <div id="tiktokRows"></div>
+</div>
+
+<!-- Log Modal -->
+<div class="modal-overlay" id="logModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Log</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-log" id="modalLog">Memuat...</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SERVER = 'http://localhost:8888';
+let allData = {};
+let runningSet = new Set();
+
+const ICONS = { ok:'✅', warn:'⚠️', err:'❌', stale:'🕐', unknown:'❓', running:'⏳' };
+const LABELS = { ok:'Berhasil', warn:'Tidak lengkap', err:'Gagal', stale:'Data lama', unknown:'–', running:'Berjalan...' };
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+async function fetchStatus() {
+  try {
+    const res = await fetch(`${SERVER}/status`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error();
+    allData = await res.json();
+    document.getElementById('offlineBanner').classList.remove('show');
+    renderAll();
+  } catch(e) {
+    document.getElementById('offlineBanner').classList.add('show');
+    document.getElementById('lastUpdate').textContent = 'Server tidak terjangkau';
+  }
+}
+
+async function fetchRunning() {
+  try {
+    const res = await fetch(`${SERVER}/running`, { signal: AbortSignal.timeout(3000) });
+    const data = await res.json();
+    runningSet = new Set(Object.keys(data));
+  } catch(e) {}
+}
+
+function renderAll() {
+  const now = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false });
+  document.getElementById('lastUpdate').textContent = `Diperbarui: ${now} WIB`;
+
+  let ok=0, warn=0, err=0, total=0;
+  const shopeeRows = document.getElementById('shopeeRows');
+  const tiktokRows = document.getElementById('tiktokRows');
+  shopeeRows.innerHTML = '';
+  tiktokRows.innerHTML = '';
+
+  for (const [id, d] of Object.entries(allData)) {
+    total++;
+    const st = runningSet.has(id) ? 'running' : d.status;
+    if (st === 'ok') ok++;
+    else if (st === 'warn') warn++;
+    else if (st === 'err') err++;
+
+    const showBtn = (st === 'err' || st === 'warn' || st === 'stale');
+    const isRunning = st === 'running';
+
+    const row = document.createElement('div');
+    row.className = `pipeline-row ${st}`;
+    row.innerHTML = `
+      <div class="row-icon ${st}">${ICONS[st] || '❓'}</div>
+      <div>
+        <div class="row-name">${d.label}</div>
+        <div class="row-detail">${d.detail || '–'}</div>
+      </div>
+      <div class="badge ${st}">${isRunning ? '<span class="spinner"></span> Berjalan' : LABELS[st] || st}</div>
+      <div class="row-extra">${d.extra || ''}</div>
+      <div class="row-time">${d.timestamp || '–'}</div>
+      <div style="display:flex;gap:6px;justify-content:flex-end">
+        <button class="btn-run" onclick="showLog('${id}','${d.label}')">📋 Log</button>
+        ${showBtn ? `<button class="btn-run ${st}" id="btn-${id}" onclick="runScript('${id}','${d.label}')" ${isRunning?'disabled':''}>▶ Jalankan</button>` : ''}
+      </div>
+    `;
+    if (d.group === 'Shopee') shopeeRows.appendChild(row);
+    else tiktokRows.appendChild(row);
+  }
+
+  document.getElementById('kpiOk').textContent = ok;
+  document.getElementById('kpiWarn').textContent = warn;
+  document.getElementById('kpiErr').textContent = err;
+  document.getElementById('kpiTotal').textContent = total;
+
+  const pct = total ? Math.round(ok / total * 100) : 0;
+  document.getElementById('progressPct').textContent = `${pct}%`;
+  const fill = document.getElementById('progressFill');
+  fill.style.width = `${pct}%`;
+  fill.style.background = pct >= 85 ? 'var(--green)' : pct >= 60 ? 'var(--yellow)' : 'var(--red)';
+}
+
+async function runScript(id, label) {
+  const btn = document.getElementById(`btn-${id}`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Memulai...'; }
+  try {
+    const res = await fetch(`${SERVER}/run/${id}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`▶ ${label} dimulai`, 'ok');
+      runningSet.add(id);
+      renderAll();
+      setTimeout(() => { runningSet.delete(id); fetchStatus(); }, 30000);
+    } else {
+      showToast(data.msg || 'Gagal memulai script', 'err');
+      if (btn) { btn.disabled = false; btn.textContent = '▶ Jalankan'; }
+    }
+  } catch(e) {
+    showToast('Server tidak terjangkau', 'err');
+    if (btn) { btn.disabled = false; btn.textContent = '▶ Jalankan'; }
+  }
+}
+
+async function showLog(id, label) {
+  document.getElementById('modalTitle').textContent = `📋 Log — ${label}`;
+  document.getElementById('modalLog').textContent = 'Memuat...';
+  document.getElementById('logModal').classList.add('show');
+  try {
+    const res = await fetch(`${SERVER}/logs/${id}`);
+    const data = await res.json();
+    document.getElementById('modalLog').textContent = data.lines.join('\n') || '(Log kosong)';
+    document.getElementById('modalLog').scrollTop = 99999;
+  } catch(e) {
+    document.getElementById('modalLog').textContent = 'Gagal memuat log — server tidak terjangkau';
+  }
+}
+
+function closeModal() {
+  document.getElementById('logModal').classList.remove('show');
+}
+
+document.getElementById('logModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Initial load
+fetchStatus();
+// Refresh setiap 60 detik
+setInterval(async () => {
+  await fetchRunning();
+  await fetchStatus();
+}, 60000);
+</script>
+</body>
+</html>
