@@ -65,7 +65,7 @@
     padding: 12px 16px;
     margin-bottom: 8px;
     display: grid;
-    grid-template-columns: 32px 1fr auto auto 110px 110px;
+    grid-template-columns: 32px 1fr auto auto 100px 200px;
     align-items: center;
     gap: 12px;
     transition: border-color .15s;
@@ -117,6 +117,8 @@
   .btn-run.running { opacity: .5; cursor: not-allowed; }
   .btn-run.err  { border-color: rgba(239,68,68,.4); color: var(--red); }
   .btn-run.warn { border-color: rgba(245,158,11,.4); color: var(--yellow); }
+  .btn-run.btn-output { border-color: rgba(99,102,241,.4); color: #818cf8; }
+  .btn-run.btn-output:hover { background: rgba(99,102,241,.1); }
 
   /* Log modal */
   .modal-overlay {
@@ -278,7 +280,6 @@ function renderAll() {
     else if (st === 'warn') warn++;
     else if (st === 'err') err++;
 
-    const showBtn = (st === 'err' || st === 'warn' || st === 'stale');
     const isRunning = st === 'running';
 
     const row = document.createElement('div');
@@ -292,9 +293,12 @@ function renderAll() {
       <div class="badge ${st}">${isRunning ? '<span class="spinner"></span> Berjalan' : LABELS[st] || st}</div>
       <div class="row-extra">${d.extra || ''}</div>
       <div class="row-time">${d.timestamp || '–'}</div>
-      <div style="display:flex;gap:6px;justify-content:flex-end">
-        <button class="btn-run" onclick="showLog('${id}','${d.label}')">📋 Log</button>
-        ${showBtn ? `<button class="btn-run ${st}" id="btn-${id}" onclick="runScript('${id}','${d.label}')" ${isRunning?'disabled':''}>▶ Jalankan</button>` : ''}
+      <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap">
+        <button class="btn-run" onclick="showLog('${id}','${d.label}')" title="Lihat log">📋</button>
+        ${d.output_link ? `<button class="btn-run btn-output" onclick="window.open('${d.output_link}','_blank')" title="${d.output || 'Output'}">🔗 ${d.output === 'Google Sheets' ? 'Sheet' : d.output === 'Google Drive' ? 'Drive' : 'Output'}</button>` : ''}
+        <button class="btn-run ${isRunning ? 'running' : st === 'ok' ? '' : st}" id="btn-${id}" onclick="runScript('${id}','${d.label}')" ${isRunning?'disabled':''}>
+          ${isRunning ? '⏳' : '▶'} Jalankan
+        </button>
       </div>
     `;
     if (d.group === 'Shopee') shopeeRows.appendChild(row);
