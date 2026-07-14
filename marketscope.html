@@ -1077,14 +1077,14 @@ function renderKPISnapshot(data) {
   var nsrVal = nsr < 2 ? nsr*100 : nsr;
   var nsrBVal = nsrB < 2 ? nsrB*100 : nsrB;
 
-  setText('kpi-impresi', fmtNum(imp));
-  setText('kpi-impresi-bench', 'Bench: '+fmtNum(impB));
+  setText('kpi-impresi', fmtFull(imp));
+  setText('kpi-impresi-bench', 'Bench: '+fmtFull(impB));
   setText('kpi-vshare', 'Vertical share: '+(vs<1?(vs*100).toFixed(2):vs.toFixed(2))+'%');
   setText('kpi-nsr', (nsrVal>0?'+':'')+nsrVal.toFixed(1)+'%');
   setText('kpi-nsr-bench', 'Bench: '+(nsrBVal>0?'+':'')+nsrBVal.toFixed(1)+'%');
   setText('kpi-nsr-label', nsrVal>=80?'Sangat positif':nsrVal>=50?'Positif':nsrVal>=0?'Netral':'Negatif');
-  setText('kpi-search', fmtNum(sv));
-  setText('kpi-search-bench', 'Bench: '+fmtNum(svB));
+  setText('kpi-search', fmtFull(sv));
+  setText('kpi-search-bench', 'Bench: '+fmtFull(svB));
   setText('kpi-ctr', 'CTR: '+(ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2))+'% (Bench: '+(Number(latest['search_ctr']||0)*1).toFixed(2)+'%)');
 }
 
@@ -1105,11 +1105,11 @@ function renderPyramid(data) {
   var consPct  = consBm>0  ? (cons/consBm*100)   : 0;
   var convPct  = convBm>0  ? (conv/convBm*100)   : 0;
 
-  setText('py-aware-num', fmtNum(aware));
+  setText('py-aware-num', fmtFull(aware));
   setText('py-aware-pct', awarePct.toFixed(0)+'% dari benchmark');
-  setText('py-cons-num',  fmtNum(cons));
+  setText('py-cons-num',  fmtFull(cons));
   setText('py-cons-pct',  consPct.toFixed(0)+'% dari benchmark');
-  setText('py-conv-num',  fmtNum(conv));
+  setText('py-conv-num',  fmtFull(conv));
   setText('py-conv-pct',  convPct.toFixed(0)+'% dari benchmark');
 
   var reach = Number(latest['diag_reach'])||0;
@@ -1119,20 +1119,20 @@ function renderPyramid(data) {
   var convCost = Number(latest['diag_conversion_cost'])||0;
   var eng  = Number(latest['diag_ad_engagements'])||0;
 
-  setText('pd-reach',       fmtNum(reach));
+  setText('pd-reach',       fmtFull(reach));
   setText('pd-penetration', penVal+'%');
   setText('pd-ac-rate',     acRate.toFixed(1)+'%');
   setText('pd-cc-rate',     ccRate.toFixed(1)+'%');
   setText('pd-cons-cost',   consCost>0?'$'+consCost.toFixed(0):'—');
   setText('pd-conv-cost',   convCost>0?'$'+convCost.toFixed(0):'—');
-  setText('pd-engagements', fmtNum(eng));
+  setText('pd-engagements', fmtFull(eng));
 
-  setBar('bb-aware-w', awarePct, 'bb-aware-wn', fmtNum(aware));
-  setText('bb-aware-bn', fmtNum(awareBm));
-  setBar('bb-cons-w', consPct, 'bb-cons-wn', fmtNum(cons));
-  setText('bb-cons-bn', fmtNum(consBm));
-  setBar('bb-conv-w', convPct, 'bb-conv-wn', fmtNum(conv));
-  setText('bb-conv-bn', fmtNum(convBm));
+  setBar('bb-aware-w', awarePct, 'bb-aware-wn', fmtFull(aware));
+  setText('bb-aware-bn', fmtFull(awareBm));
+  setBar('bb-cons-w', consPct, 'bb-cons-wn', fmtFull(cons));
+  setText('bb-cons-bn', fmtFull(consBm));
+  setBar('bb-conv-w', convPct, 'bb-conv-wn', fmtFull(conv));
+  setText('bb-conv-bn', fmtFull(convBm));
 }
 
 // ── RENDER SEARCH+NSR ROW ──
@@ -1148,8 +1148,8 @@ function renderSearchNSR(data) {
   var nsrVal = nsr<2?nsr*100:nsr;
   var nsrBVal= nsrB<2?nsrB*100:nsrB;
 
-  setText('snsr-svol', fmtNum(sv));
-  setText('snsr-svol-bench', 'Bench: '+fmtNum(svB));
+  setText('snsr-svol', fmtFull(sv));
+  setText('snsr-svol-bench', 'Bench: '+fmtFull(svB));
   setText('snsr-ctr', ctrV+'%');
   setText('snsr-ctr-bench', 'Bench: —');
   setText('snsr-nsr-val', (nsrVal>0?'+':'')+nsrVal.toFixed(1)+'%');
