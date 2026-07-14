@@ -620,12 +620,14 @@ const CRED_SCRIPT_MAP = {
 };
 
 async function runCookies(scriptId, label, statusId) {
+  // Lookup script ID yang sebenarnya di server
+  const realId = CRED_SCRIPT_MAP[scriptId] || scriptId;
   const btn = document.getElementById(`btn-cred-${statusId}`);
   const statusEl = document.getElementById(`status-${statusId}`);
   if (btn) { btn.disabled=true; btn.classList.add('running'); btn.textContent='⏳ Membuka browser...'; }
   if (statusEl) statusEl.innerHTML = '<span style="color:var(--yellow)">⏳ Menjalankan...</span>';
   try {
-    const res = await fetch(`${SERVER}/run/${scriptId}`, { method:'POST' });
+    const res = await fetch(`${SERVER}/run/${realId}`, { method:'POST' });
     const data = await res.json();
     if (data.ok) {
       showToast(`🔄 ${label} — browser terbuka`, 'ok');
