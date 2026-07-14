@@ -939,9 +939,9 @@ function renderVShare(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
   var vs = Number(latest['trend_vertical_share']) || 0;
-  var vsBm = Number(latest['trend_vertical_share_bm']) || 0;
-  var sv = data.reduce((s,d) => s+(Number(d['overview_search_volume'])||0), 0);
-  var svBm = Number(latest['overview_search_volume_bm']) || 0;
+  var vsBm = 0 || 0;
+  var sv = data.reduce((s,d) => s+(Number(d['search_volume'])||0), 0);
+  var svBm = Number(latest['search_volume_bm']) || 0;
 
   var vsDisplay = vs < 1 ? (vs*100).toFixed(2)+'%' : vs.toFixed(2)+'%';
   var vsBmDisplay = vsBm < 1 ? (vsBm*100).toFixed(2)+'%' : vsBm.toFixed(2)+'%';
@@ -960,11 +960,11 @@ function renderVShare(data) {
 function renderNSR(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
-  var nsr = Number(latest['diag_net_sentiment_rate']) || 0;
-  var nsrBm = Number(latest['diag_net_sentiment_rate_bm']) || 0;
-  var nsrPos = Number(latest['diag_nsr_positive']) || 0;
-  var nsrNeu = Number(latest['diag_nsr_neutral']) || 0;
-  var nsrNeg = Number(latest['diag_nsr_negative']) || 0;
+  var nsr = Number(latest['diag_nsr']) || 0;
+  var nsrBm = Number(latest['diag_nsr_bm']) || 0;
+  var nsrPos = 0 || 0;
+  var nsrNeu = 0 || 0;
+  var nsrNeg = 0 || 0;
 
   var nsrPct = nsr < 2 ? (nsr*100).toFixed(1)+'%' : nsr.toFixed(1)+'%';
   var nsrBmPct = nsrBm ? (nsrBm < 2 ? (nsrBm*100).toFixed(1)+'%' : nsrBm.toFixed(1)+'%') : '—';
