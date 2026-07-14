@@ -120,7 +120,59 @@
   .section-title:first-child { margin-top: 0; }
   .section-title .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
+  /* ── KPI ROW ── */
+  .kpi-snapshot { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+  .kpi-snap-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+  .kpi-snap-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+  .kpi-snap-val { font-size:22px; font-weight:700; }
+  .kpi-snap-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+  .kpi-snap-extra { font-size:11px; margin-top:2px; }
+
+  /* ── PYRAMID FUNNEL ── */
+  .pyramid-section { display:flex; gap:16px; margin-bottom:16px; }
+  .pyramid-wrap { flex:1.4; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .pyramid-layer { border-radius:8px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px; cursor:pointer; transition:opacity .15s; }
+  .pyramid-layer:hover { opacity:.82; }
+  .p-aware { width:100%; height:76px; background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3); }
+  .p-cons  { width:76%;  height:76px; background:rgba(245,158,11,.10); border:1px solid rgba(245,158,11,.3); }
+  .p-conv  { width:52%;  height:76px; background:rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.3); }
+  .p-tag { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
+  .p-num { font-size:20px; font-weight:700; }
+  .p-rate { font-size:10px; color:var(--muted); margin-top:1px; }
+  .p-arrow { width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-top:7px solid var(--border); }
+  .pyramid-detail { flex:1; display:flex; flex-direction:column; gap:8px; }
+  .pdetail-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .pdetail-head { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+  .pdetail-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid var(--border); }
+  .pdetail-row:last-child { border-bottom:none; }
+  .pdetail-key { font-size:11px; color:var(--muted); }
+  .pdetail-val { font-size:12px; font-weight:600; }
+  .chip-ok { background:rgba(16,185,129,.15); color:var(--green); border-radius:4px; padding:2px 7px; font-size:11px; font-weight:600; }
+  .chip-warn { background:rgba(245,158,11,.15); color:var(--amber,#f59e0b); border-radius:4px; padding:2px 7px; font-size:11px; font-weight:600; }
+
+  /* ── BENCHMARK BARS ── */
+  .bench-bars { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+  .bench-bar-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .bench-bar-title { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+  .bbar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .bbar-lbl { font-size:10px; color:var(--muted); width:44px; flex-shrink:0; }
+  .bbar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .bbar-fill { height:100%; border-radius:3px; }
+  .bbar-num { font-size:10px; color:var(--muted); width:40px; text-align:right; flex-shrink:0; }
+
+  /* ── SEARCH+NSR ROW ── */
+  .search-nsr-row { display:grid; grid-template-columns:1fr 1fr 2fr; gap:10px; margin-bottom:20px; }
+  .search-mini-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
+  .search-mini-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .search-mini-val { font-size:20px; font-weight:700; }
+  .search-mini-lbl { font-size:10px; color:var(--muted); }
+  .search-mini-bench { font-size:11px; color:var(--muted); margin-top:2px; }
+  .nsr-compact { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+  .nsr-compact-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .nsr-compact-val { font-size:22px; font-weight:700; }
+
   /* ── FUNNEL ── */
+
   .funnel-row {
     display: grid;
     grid-template-columns: 1fr 32px 1fr 32px 1fr 32px 1fr;
@@ -452,11 +504,137 @@
         <button onclick="msResetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
       </div>
 
-      <!-- FUNNEL -->
-      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
-      <div class="funnel-row" id="funnel-row">
-        <div class="loading" style="grid-column:1/-1;height:120px;"><div class="spinner"></div> Memuat data funnel...</div>
+      <!-- KPI SNAPSHOT -->
+      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Ringkasan periode</div>
+      <div class="kpi-snapshot" id="kpi-snapshot">
+        <div class="kpi-snap-card">
+          <div class="kpi-snap-label">Impresi</div>
+          <div class="kpi-snap-val" style="color:var(--c-aware)" id="kpi-impresi">—</div>
+          <div class="kpi-snap-sub" id="kpi-impresi-bench">Bench: —</div>
+          <div class="kpi-snap-extra" id="kpi-vshare" style="color:var(--muted)">Vertical share: —</div>
+        </div>
+        <div class="kpi-snap-card">
+          <div class="kpi-snap-label">Net Sentiment Rate</div>
+          <div class="kpi-snap-val" style="color:var(--green)" id="kpi-nsr">—</div>
+          <div class="kpi-snap-sub" id="kpi-nsr-bench">Bench: —</div>
+          <div class="kpi-snap-extra" id="kpi-nsr-label" style="color:var(--green)">—</div>
+        </div>
+        <div class="kpi-snap-card">
+          <div class="kpi-snap-label">Search volume</div>
+          <div class="kpi-snap-val" style="color:var(--c-rate,#8b5cf6)" id="kpi-search">—</div>
+          <div class="kpi-snap-sub" id="kpi-search-bench">Bench: —</div>
+          <div class="kpi-snap-extra" id="kpi-ctr" style="color:var(--green)">CTR: —</div>
+        </div>
       </div>
+
+      <!-- FUNNEL PYRAMID -->
+      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
+      <div class="pyramid-section">
+        <div class="pyramid-wrap">
+          <div class="pyramid-layer p-aware" id="py-aware">
+            <div class="p-tag" style="color:var(--c-aware)">Awareness</div>
+            <div class="p-num" style="color:var(--c-aware)" id="py-aware-num">—</div>
+            <div class="p-rate" id="py-aware-pct">— dari benchmark</div>
+          </div>
+          <div class="p-arrow"></div>
+          <div class="pyramid-layer p-cons" id="py-cons">
+            <div class="p-tag" style="color:var(--c-cons)">Consideration</div>
+            <div class="p-num" style="color:var(--c-cons)" id="py-cons-num">—</div>
+            <div class="p-rate" id="py-cons-pct">— dari benchmark</div>
+          </div>
+          <div class="p-arrow"></div>
+          <div class="pyramid-layer p-conv" id="py-conv">
+            <div class="p-tag" style="color:var(--c-conv)">Conversion</div>
+            <div class="p-num" style="color:var(--c-conv)" id="py-conv-num">—</div>
+            <div class="p-rate" id="py-conv-pct">— dari benchmark</div>
+          </div>
+        </div>
+        <div class="pyramid-detail">
+          <div class="pdetail-card">
+            <div class="pdetail-head">Awareness</div>
+            <div class="pdetail-row">
+              <span class="pdetail-key">Reach</span>
+              <span class="pdetail-val" style="color:var(--c-aware)" id="pd-reach">—</span>
+            </div>
+            <div class="pdetail-row">
+              <span class="pdetail-key">Penetrasi audiens</span>
+              <span class="pdetail-val" id="pd-penetration">—</span>
+            </div>
+          </div>
+          <div class="pdetail-card">
+            <div class="pdetail-head">Conversion rates</div>
+            <div class="pdetail-row">
+              <span class="pdetail-key">Aware → Consider</span>
+              <span class="chip-warn" id="pd-ac-rate">—</span>
+            </div>
+            <div class="pdetail-row">
+              <span class="pdetail-key">Consider → Convert</span>
+              <span class="chip-ok" id="pd-cc-rate">—</span>
+            </div>
+          </div>
+          <div class="pdetail-card">
+            <div class="pdetail-head">Biaya dan engagement</div>
+            <div class="pdetail-row">
+              <span class="pdetail-key">Per consideration</span>
+              <span class="pdetail-val" id="pd-cons-cost">—</span>
+            </div>
+            <div class="pdetail-row">
+              <span class="pdetail-key">Per conversion</span>
+              <span class="pdetail-val" id="pd-conv-cost">—</span>
+            </div>
+            <div class="pdetail-row">
+              <span class="pdetail-key">Ad engagements</span>
+              <span class="pdetail-val" id="pd-engagements">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BENCHMARK BARS -->
+      <div class="bench-bars">
+        <div class="bench-bar-card">
+          <div class="bench-bar-title">Awareness vs benchmark</div>
+          <div class="bbar-row">
+            <span class="bbar-lbl">Wookey</span>
+            <div class="bbar"><div class="bbar-fill" id="bb-aware-w" style="background:var(--c-aware)"></div></div>
+            <span class="bbar-num" id="bb-aware-wn">—</span>
+          </div>
+          <div class="bbar-row">
+            <span class="bbar-lbl">Bench</span>
+            <div class="bbar"><div class="bbar-fill" id="bb-aware-b" style="width:100%;background:var(--muted)"></div></div>
+            <span class="bbar-num" id="bb-aware-bn">—</span>
+          </div>
+        </div>
+        <div class="bench-bar-card">
+          <div class="bench-bar-title">Consideration vs benchmark</div>
+          <div class="bbar-row">
+            <span class="bbar-lbl">Wookey</span>
+            <div class="bbar"><div class="bbar-fill" id="bb-cons-w" style="background:var(--c-cons)"></div></div>
+            <span class="bbar-num" id="bb-cons-wn">—</span>
+          </div>
+          <div class="bbar-row">
+            <span class="bbar-lbl">Bench</span>
+            <div class="bbar"><div class="bbar-fill" id="bb-cons-b" style="width:100%;background:var(--muted)"></div></div>
+            <span class="bbar-num" id="bb-cons-bn">—</span>
+          </div>
+        </div>
+        <div class="bench-bar-card">
+          <div class="bench-bar-title">Conversion vs benchmark</div>
+          <div class="bbar-row">
+            <span class="bbar-lbl">Wookey</span>
+            <div class="bbar"><div class="bbar-fill" id="bb-conv-w" style="background:var(--c-conv)"></div></div>
+            <span class="bbar-num" id="bb-conv-wn">—</span>
+          </div>
+          <div class="bbar-row">
+            <span class="bbar-lbl">Bench</span>
+            <div class="bbar"><div class="bbar-fill" id="bb-conv-b" style="width:100%;background:var(--muted)"></div></div>
+            <span class="bbar-num" id="bb-conv-bn">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FUNNEL (hidden, legacy) -->
+      <div id="funnel-row" style="display:none"></div>
 
       <!-- MID: Chart + Vertical Share -->
       <div class="mid-grid">
@@ -508,6 +686,52 @@
             <div style="text-align:right">
               <div id="sv-val" style="font-size:17px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--c-aware)">—</div>
               <div id="sv-bench" style="font-size:9px;color:var(--muted)">Bench: —</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH + NSR ROW -->
+      <div class="section-title"><span class="dot" style="background:var(--c-rate,#8b5cf6)"></span>Search dan sentimen</div>
+      <div class="search-nsr-row">
+        <div class="search-mini-card">
+          <div class="search-mini-icon" style="background:rgba(139,92,246,.15)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-rate,#8b5cf6)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <div>
+            <div class="search-mini-val" style="color:var(--c-rate,#8b5cf6)" id="snsr-svol">—</div>
+            <div class="search-mini-lbl">Search volume</div>
+            <div class="search-mini-bench" id="snsr-svol-bench">Bench: —</div>
+          </div>
+        </div>
+        <div class="search-mini-card">
+          <div class="search-mini-icon" style="background:rgba(16,185,129,.15)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="search-mini-val" style="color:var(--green)" id="snsr-ctr">—</div>
+            <div class="search-mini-lbl">CTR search</div>
+            <div class="search-mini-bench" id="snsr-ctr-bench">Bench: —</div>
+          </div>
+        </div>
+        <div class="nsr-compact">
+          <div class="nsr-compact-head">
+            <div>
+              <div class="nsr-compact-val" style="color:var(--green)" id="snsr-nsr-val">—</div>
+              <div style="font-size:10px;color:var(--green)" id="snsr-nsr-label">—</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:10px;color:var(--muted)">Net Sentiment Rate</div>
+              <div style="font-size:11px;color:var(--muted)" id="snsr-nsr-bench">Bench: —</div>
+            </div>
+          </div>
+          <div>
+            <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:4px">
+              <div id="snsr-nsr-bar" style="height:100%;background:var(--green);border-radius:3px;width:0%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)">
+              <span id="snsr-nsr-bar-lbl">Wookey —</span>
+              <span id="snsr-nsr-bar-bench-lbl">Bench —</span>
             </div>
           </div>
         </div>
@@ -837,6 +1061,112 @@ function fmtPct(v) {
 function fmtPctRaw(v) { return (Number(v)*100).toFixed(2) + '%'; }
 function fmtFull(v) { return Math.round(Number(v)||0).toLocaleString('id-ID'); }
 
+// ── RENDER KPI SNAPSHOT ──
+function renderKPISnapshot(data) {
+  if (!data.length) return;
+  var latest = data[data.length-1];
+  var imp  = data.reduce((s,d)=>s+(Number(d['trend_impressions'])||0),0);
+  var impB = Number(latest['trend_impressions_bm'])||0;
+  var vs   = Number(latest['trend_vertical_share'])||0;
+  var nsr  = Number(latest['diag_nsr'])||0;
+  var nsrB = Number(latest['diag_nsr_bm'])||0;
+  var sv   = data.reduce((s,d)=>s+(Number(d['search_volume'])||0),0);
+  var svB  = Number(latest['search_volume_bm'])||0;
+  var ctr  = Number(latest['search_ctr'])||0;
+
+  var nsrVal = nsr < 2 ? nsr*100 : nsr;
+  var nsrBVal = nsrB < 2 ? nsrB*100 : nsrB;
+
+  setText('kpi-impresi', fmtNum(imp));
+  setText('kpi-impresi-bench', 'Bench: '+fmtNum(impB));
+  setText('kpi-vshare', 'Vertical share: '+(vs<1?(vs*100).toFixed(2):vs.toFixed(2))+'%');
+  setText('kpi-nsr', (nsrVal>0?'+':'')+nsrVal.toFixed(1)+'%');
+  setText('kpi-nsr-bench', 'Bench: '+(nsrBVal>0?'+':'')+nsrBVal.toFixed(1)+'%');
+  setText('kpi-nsr-label', nsrVal>=80?'Sangat positif':nsrVal>=50?'Positif':nsrVal>=0?'Netral':'Negatif');
+  setText('kpi-search', fmtNum(sv));
+  setText('kpi-search-bench', 'Bench: '+fmtNum(svB));
+  setText('kpi-ctr', 'CTR: '+(ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2))+'% (Bench: '+(Number(latest['search_ctr']||0)*1).toFixed(2)+'%)');
+}
+
+// ── RENDER PYRAMID ──
+function renderPyramid(data) {
+  if (!data.length) return;
+  var latest = data[data.length-1];
+  var aware  = Number(latest['funnel_awareness'])||0;
+  var awareBm= Number(latest['funnel_awareness_bm'])||0;
+  var cons   = Number(latest['funnel_consideration'])||0;
+  var consBm = Number(latest['funnel_consideration_bm'])||0;
+  var conv   = Number(latest['funnel_conversion'])||0;
+  var convBm = Number(latest['funnel_conversion_bm'])||0;
+
+  var acRate = aware>0 ? (cons/aware*100) : 0;
+  var ccRate = cons>0  ? (conv/cons*100)  : 0;
+  var awarePct = awareBm>0 ? (aware/awareBm*100) : 0;
+  var consPct  = consBm>0  ? (cons/consBm*100)   : 0;
+  var convPct  = convBm>0  ? (conv/convBm*100)   : 0;
+
+  setText('py-aware-num', fmtNum(aware));
+  setText('py-aware-pct', awarePct.toFixed(0)+'% dari benchmark');
+  setText('py-cons-num',  fmtNum(cons));
+  setText('py-cons-pct',  consPct.toFixed(0)+'% dari benchmark');
+  setText('py-conv-num',  fmtNum(conv));
+  setText('py-conv-pct',  convPct.toFixed(0)+'% dari benchmark');
+
+  var reach = Number(latest['diag_reach'])||0;
+  var pen   = Number(latest['diag_awareness_penetration'])||0;
+  var penVal= pen<1 ? (pen*100).toFixed(1) : pen.toFixed(1);
+  var consCost = Number(latest['diag_consideration_cost'])||0;
+  var convCost = Number(latest['diag_conversion_cost'])||0;
+  var eng  = Number(latest['diag_ad_engagements'])||0;
+
+  setText('pd-reach',       fmtNum(reach));
+  setText('pd-penetration', penVal+'%');
+  setText('pd-ac-rate',     acRate.toFixed(1)+'%');
+  setText('pd-cc-rate',     ccRate.toFixed(1)+'%');
+  setText('pd-cons-cost',   consCost>0?'$'+consCost.toFixed(0):'—');
+  setText('pd-conv-cost',   convCost>0?'$'+convCost.toFixed(0):'—');
+  setText('pd-engagements', fmtNum(eng));
+
+  setBar('bb-aware-w', awarePct, 'bb-aware-wn', fmtNum(aware));
+  setText('bb-aware-bn', fmtNum(awareBm));
+  setBar('bb-cons-w', consPct, 'bb-cons-wn', fmtNum(cons));
+  setText('bb-cons-bn', fmtNum(consBm));
+  setBar('bb-conv-w', convPct, 'bb-conv-wn', fmtNum(conv));
+  setText('bb-conv-bn', fmtNum(convBm));
+}
+
+// ── RENDER SEARCH+NSR ROW ──
+function renderSearchNSR(data) {
+  if (!data.length) return;
+  var latest = data[data.length-1];
+  var sv   = data.reduce((s,d)=>s+(Number(d['search_volume'])||0),0);
+  var svB  = Number(latest['search_volume_bm'])||0;
+  var ctr  = Number(latest['search_ctr'])||0;
+  var ctrV = ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2);
+  var nsr  = Number(latest['diag_nsr'])||0;
+  var nsrB = Number(latest['diag_nsr_bm'])||0;
+  var nsrVal = nsr<2?nsr*100:nsr;
+  var nsrBVal= nsrB<2?nsrB*100:nsrB;
+
+  setText('snsr-svol', fmtNum(sv));
+  setText('snsr-svol-bench', 'Bench: '+fmtNum(svB));
+  setText('snsr-ctr', ctrV+'%');
+  setText('snsr-ctr-bench', 'Bench: —');
+  setText('snsr-nsr-val', (nsrVal>0?'+':'')+nsrVal.toFixed(1)+'%');
+  setText('snsr-nsr-label', nsrVal>=80?'Sangat positif':nsrVal>=50?'Positif':nsrVal>=0?'Netral':'Negatif');
+  setText('snsr-nsr-bench', 'Bench: '+(nsrBVal>0?'+':'')+nsrBVal.toFixed(1)+'%');
+  var bar = document.getElementById('snsr-nsr-bar');
+  if (bar) bar.style.width = Math.min(nsrVal,100).toFixed(0)+'%';
+  setText('snsr-nsr-bar-lbl', 'Wookey '+nsrVal.toFixed(1)+'%');
+  setText('snsr-nsr-bar-bench-lbl', 'Bench '+nsrBVal.toFixed(1)+'%');
+}
+
+function setText(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+function setBar(barId, pct, numId, numVal) {
+  var el=document.getElementById(barId); if(el) el.style.width=Math.min(pct,100).toFixed(0)+'%';
+  var nel=document.getElementById(numId); if(nel) nel.textContent=numVal;
+}
+
 // ── RENDER FUNNEL ──
 function renderFunnel(data) {
   if (!data.length) {
@@ -1067,6 +1397,9 @@ function renderAll(filtered) {
   } else {
     document.getElementById('date-range').textContent = 'Tidak ada data untuk periode ini';
   }
+  renderKPISnapshot(filtered);
+  renderPyramid(filtered);
+  renderSearchNSR(filtered);
   renderFunnel(filtered);
   renderImpChart(filtered);
   renderVShare(filtered);
