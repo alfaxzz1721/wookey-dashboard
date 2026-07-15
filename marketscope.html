@@ -1713,7 +1713,18 @@ async function initMarketScope() {
 
     msBuildWeekOptions && msBuildWeekOptions();
     msBuildMonthOptions && msBuildMonthOptions();
-    msApplyDay && msApplyDay();
+
+    // Coba apply per hari, fallback ke semua data kalau kosong
+    if (lastDate) {
+      msFilteredData = allData.filter(d => d['Tanggal'] === lastDate);
+    }
+    if (!msFilteredData.length) {
+      msFilteredData = [...allData];
+    }
+    if (msFilteredData.length) {
+      document.getElementById('error-container').innerHTML = '';
+      renderAll(msFilteredData);
+    }
 
     // Render audience jika panel audience aktif
     var panelAud = document.getElementById('panel-audience');
