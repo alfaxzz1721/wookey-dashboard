@@ -1537,6 +1537,84 @@ function setBar(barId, pct, numId, numVal) {
 // ── RENDER FUNNEL (digantikan renderFunnelNew) ──
 function renderFunnel(data) { return; }
 
+// ── RENDER AUDIENCE ──
+function renderPersonas(audienceData) {
+  if (!audienceData.length) {
+    document.getElementById('persona-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Belum ada data personas.</div>';
+    return;
+  }
+  var snapDate = audienceData[0]['Tanggal Snapshot'] || audienceData[0]['Tanggal'] || '';
+  document.getElementById('persona-date').textContent = snapDate;
+
+  var personas = audienceData.filter(r => r['Category'] === 'personas' && r['Label'] && r['Label'] !== 'Label');
+  if (!personas.length) {
+    document.getElementById('persona-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Data personas belum tersedia.</div>';
+    return;
+  }
+  personas.sort((a,b) => (Number(b['Brand'])||0) - (Number(a['Brand'])||0));
+  var max = Math.max(...personas.map(p => Number(p['Brand'])||0)) || 1;
+
+  var isHighSpender = label => label.toLowerCase().includes('high');
+  document.getElementById('persona-list').innerHTML = personas.slice(0,7).map(p => {
+    var val = Number(p['Brand']) || 0;
+    var pct = val < 1 ? (val*100).toFixed(1) : val.toFixed(1);
+    var barW = (val/max*100).toFixed(1);
+    var color = isHighSpender(p['Label']) ? '#1D9E75' : '#7F77DD';
+    return '<div class="pr-row">' +
+      '<span class="pr-name">'+p['Label']+'</span>' +
+      '<div class="pr-bar-bg"><div class="pr-bar-fill" style="width:'+barW+'%;background:'+color+'"></div></div>' +
+      '<span class="pr-pct">'+pct+'%</span>' +
+      '</div>';
+  }).join('');
+}
+
+// ── RENDER AUDIENCE DEMOGRAPHICS ──
+function renderAudience(audienceData) {
+  if (!audienceData.length) {
+    document.getElementById('audience-grid').innerHTML = '<div class="loading" style="grid-column:1/-1">Belum ada data audiens.</div>';
+    return;
+  }
+  var snap = audienceData[0]['Tanggal Snapshot'] || audienceData[0]['Tanggal'] || '-';
+  document.getElementById('audience-date-note').textContent = '📅 Snapshot terbaru: ' + snap + ' (data demografi update sesuai ketersediaan dari TikTok)';
+
+  var dataRows = audienceData.filter(r => r['Category'] && r['Category'] !== 'Category' && r['Label'] && r['Label'] !== 'Label');
+  var byCat = {};
+  dataRows.forEach(r => {
+    var cat = r['Category'];
+    if (!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push({ label: r['Label'], brand: Number(r['Brand'])||0, bm: r['Benchmark'] });
+  });
+
+  var cards = [
+    { key:'age', title:'Usia' }, { key:'gender', title:'Gender' },
+    { key:'device_os', title:'Device OS' }, { key:'location', title:'Lokasi (Top 10)' },
+    { key:'interests', title:'Top 10 Interests' }, { key:'personas', title:'Persona Audiens' },
+  ];
+
+  document.getElementById('audience-grid').innerHTML = cards.filter(c => byCat[c.key]).map(c => {
+    var items = (byCat[c.key] || []).sort((a,b) => b.brand - a.brand);
+    var maxB = Math.max(...items.map(i=>i.brand), 0.001);
+    var rows = items.map(item => {
+      var bPct = (item.brand/maxB*100).toFixed(1);
+      var bmPct = item.bm ? ((Number(item.bm)||0)/maxB*100).toFixed(1) : 0;
+      var brandDisplay = item.brand < 1 ? (item.brand*100).toFixed(1)+'%' : item.brand.toFixed(1)+'%';
+      return '<div class="bar-row-aud">' +
+        '<span class="bar-label">'+item.label+'</span>' +
+        '<div class="bar-track"><div class="bar-fill-aud brand" style="width:'+Math.min(bPct,100)+'%"></div></div>' +
+        '<span class="bar-val">'+brandDisplay+'</span>' +
+        '</div>' +
+        (item.bm !== '' && item.bm !== null ? '<div class="bar-row-aud" style="margin-top:-6px;margin-bottom:10px">' +
+        '<span class="bar-label"></span>' +
+        '<div class="bar-track"><div class="bar-fill-aud benchmark" style="width:'+Math.min(bmPct,100)+'%"></div></div>' +
+        '<span class="bar-val" style="opacity:.6">'+(Number(item.bm)<1?(Number(item.bm)*100).toFixed(1):Number(item.bm).toFixed(1))+'%</span>' +
+        '</div>' : '');
+    }).join('');
+    return '<div class="audience-card"><div class="audience-card-title">'+c.title+'</div>' + rows + '</div>';
+  }).join('') || '<div style="color:var(--muted);font-size:12px;grid-column:1/-1">Belum ada data demografi.</div>';
+}
+
+// ── RENDER ALL ──
+
 // ── INIT: Load semua data ──
 async function initMarketScope() {
   try {
