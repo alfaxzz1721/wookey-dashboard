@@ -1524,8 +1524,8 @@ function setBar(barId, pct, numId, numVal) {
 }
 
 // ── RENDER FUNNEL (digantikan renderFunnelNew) ──
-function renderFunnel(data) { return; // deprecated
-  if(false){
+function renderFunnel(data) { return; }
+function _renderFunnelLegacy(data) { if(false) {
   if (!data.length) {
     document.getElementById('funnel-row').innerHTML = '<div class="loading" style="grid-column:1/-1;height:120px">Belum ada data funnel.</div>';
     return;
