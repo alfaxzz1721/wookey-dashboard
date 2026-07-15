@@ -919,10 +919,11 @@ function switchTab(tab) {
       btn.style.color = 'var(--muted)';
     }
   });
-  // Load audience data saat tab audience dibuka
-  if (tab === 'audience' && !window._audienceLoaded) {
-    window._audienceLoaded = true;
-    loadAudience();
+  // Render audience data saat tab audience dibuka
+  if (tab === 'audience') {
+    if (typeof allAudienceData !== 'undefined' && allAudienceData) {
+      renderAudience(allAudienceData);
+    }
   }
 }
 
