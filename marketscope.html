@@ -1230,12 +1230,16 @@ function setChip(id, pct) {
   if (!pct || isNaN(pct)) { el.style.display='none'; return; }
   var p = Math.round(pct);
   var bg, color;
-  if (p >= 80)      { bg='var(--bg-success)';  color='var(--text-success)'; }
-  else if (p >= 40) { bg='var(--bg-warning)';  color='var(--text-warning)'; }
-  else              { bg='var(--bg-danger)';   color='var(--text-danger)'; }
+  if (p >= 80)      { bg='#d1fae5'; color='#065f46'; }
+  else if (p >= 40) { bg='#fef3c7'; color='#92400e'; }
+  else              { bg='#fee2e2'; color='#991b1b'; }
   el.style.display = 'inline-flex';
   el.style.background = bg;
   el.style.color = color;
+  el.style.borderRadius = '20px';
+  el.style.padding = '2px 8px';
+  el.style.fontSize = '11px';
+  el.style.fontWeight = '500';
   el.textContent = p + '% vs bench';
 }
 
