@@ -1178,7 +1178,7 @@ async function fetchSheet(sheetName) {
       if (!cell || cell.v === null || cell.v === undefined) { obj[col] = ''; return; }
       var raw = cell.v;
       var n = parseFloat(String(raw).replace(',','.'));
-      obj[col] = (isNaN(n) || ['Tanggal','Category','Label','Tanggal Snapshot'].includes(col)) ? raw : n;
+      obj[col] = (isNaN(n) || ['Tanggal','Kategori','Label','Category','Tanggal Snapshot'].includes(col)) ? raw : n;
     });
     return obj;
   });
@@ -1570,31 +1570,41 @@ function renderAll(filtered) {
 
 // ── RENDER AUDIENCE ──
 function renderPersonas(audienceData) {
-  if (!audienceData.length) {
-    document.getElementById('persona-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Belum ada data personas.</div>';
+  var el = document.getElementById('persona-list');
+  if (!el) return;
+  if (!audienceData || !audienceData.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;">Belum ada data personas.</div>';
     return;
   }
-  var snapDate = audienceData[0]['Tanggal Snapshot'] || audienceData[0]['Tanggal'] || '';
-  document.getElementById('persona-date').textContent = snapDate;
 
-  var personas = audienceData.filter(r => r['Category'] === 'personas' && r['Label'] && r['Label'] !== 'Label');
+  // Kolom baru: Kategori, Label, Persen, Jumlah Orang
+  var dates = audienceData.map(r=>r['Tanggal']).filter(Boolean).sort();
+  var latestDate = dates[dates.length-1] || '';
+  var snapEl = document.getElementById('persona-date');
+  if (snapEl) snapEl.textContent = latestDate;
+
+  var latestRows = latestDate ? audienceData.filter(r=>r['Tanggal']===latestDate) : audienceData;
+  var personas = latestRows.filter(r =>
+    r['Kategori'] === 'Audience Personas' && r['Label'] && r['Label'] !== 'Label'
+  );
+
   if (!personas.length) {
-    document.getElementById('persona-list').innerHTML = '<div style="color:var(--muted);font-size:12px;">Data personas belum tersedia.</div>';
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;">Data personas belum tersedia.</div>';
     return;
   }
-  personas.sort((a,b) => (Number(b['Brand'])||0) - (Number(a['Brand'])||0));
-  var max = Math.max(...personas.map(p => Number(p['Brand'])||0)) || 1;
+
+  personas.sort((a,b) => (parseFloat(String(b['Persen']).replace(',','.'))||0) - (parseFloat(String(a['Persen']).replace(',','.'))||0));
+  var max = Math.max(...personas.map(p => parseFloat(String(p['Persen']).replace(',','.'))||0)) || 1;
 
   var isHighSpender = label => label.toLowerCase().includes('high');
-  document.getElementById('persona-list').innerHTML = personas.slice(0,7).map(p => {
-    var val = Number(p['Brand']) || 0;
-    var pct = val < 1 ? (val*100).toFixed(1) : val.toFixed(1);
-    var barW = (val/max*100).toFixed(1);
+  el.innerHTML = personas.slice(0,8).map(p => {
+    var pct = parseFloat(String(p['Persen']).replace(',','.')) || 0;
+    var barW = (pct/max*100).toFixed(1);
     var color = isHighSpender(p['Label']) ? '#1D9E75' : '#7F77DD';
     return '<div class="pr-row">' +
       '<span class="pr-name">'+p['Label']+'</span>' +
       '<div class="pr-bar-bg"><div class="pr-bar-fill" style="width:'+barW+'%;background:'+color+'"></div></div>' +
-      '<span class="pr-pct">'+pct+'%</span>' +
+      '<span class="pr-pct">'+pct.toFixed(1)+'%</span>' +
       '</div>';
   }).join('');
 }
@@ -1605,7 +1615,7 @@ function renderAudience(audienceData) {
     document.getElementById('audience-grid').innerHTML = '<div class="loading" style="grid-column:1/-1">Belum ada data audiens.</div>';
     return;
   }
-  var snap = audienceData[0]['Tanggal Snapshot'] || audienceData[0]['Tanggal'] || '-';
+  var snap = audienceData[0]['Tanggal'] || '-';
   document.getElementById('audience-date-note').textContent = '📅 Snapshot terbaru: ' + snap + ' (data demografi update sesuai ketersediaan dari TikTok)';
 
   // Kolom sheet: Tanggal, Kategori, Label, Persen, Jumlah Orang
