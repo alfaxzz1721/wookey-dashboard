@@ -921,9 +921,20 @@ function switchTab(tab) {
   });
   // Render audience data saat tab audience dibuka
   if (tab === 'audience') {
-    if (typeof allAudienceData !== 'undefined' && allAudienceData) {
-      renderAudience(allAudienceData);
-    }
+    setTimeout(function() {
+      if (typeof allAudienceData !== 'undefined' && allAudienceData && allAudienceData.length > 0) {
+        renderAudience(allAudienceData);
+      } else {
+        // Data belum ready, coba lagi setelah 2 detik
+        setTimeout(function() {
+          if (typeof allAudienceData !== 'undefined' && allAudienceData && allAudienceData.length > 0) {
+            renderAudience(allAudienceData);
+          } else {
+            document.getElementById('audience-grid').innerHTML = '<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px">⚠️ Data belum tersedia. Pilih tanggal dan klik Terapkan dulu.</div>';
+          }
+        }, 2000);
+      }
+    }, 300);
   }
 }
 
