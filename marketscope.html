@@ -1303,13 +1303,7 @@ function renderVShare(data) {
   var vsBmDisplay = vsBm < 1 ? (vsBm*100).toFixed(2)+'%' : vsBm.toFixed(2)+'%';
   var maxVs = Math.max(vs, vsBm) || 1;
 
-  document.getElementById('vs-val').textContent = vsDisplay;
-  document.getElementById('vs-wookey-lbl').textContent = vsDisplay;
-  document.getElementById('vs-bench-lbl').textContent = vsBmDisplay;
-  document.getElementById('vs-bar-wookey').style.width = (vs/maxVs*100).toFixed(1) + '%';
-  document.getElementById('vs-bar-bench').style.width  = (vsBm/maxVs*100).toFixed(1) + '%';
-  document.getElementById('sv-val').textContent = fmtNum(sv);
-  document.getElementById('sv-bench').textContent = svBm ? 'Bench: ' + fmtNum(svBm) : 'Bench: —';
+  // vs-val, sv-val elements dihapus (vertical share section dihapus)
 }
 
 // ── RENDER NSR ──
@@ -1326,15 +1320,7 @@ function renderNSR(data) {
   var nsrBmPct = nsrBm ? (nsrBm < 2 ? (nsrBm*100).toFixed(1)+'%' : nsrBm.toFixed(1)+'%') : '—';
   var nsrVal = nsr < 2 ? nsr*100 : nsr;
 
-  document.getElementById('nsr-val').textContent = nsrVal > 0 ? '+'+nsrVal.toFixed(1)+'%' : nsrVal.toFixed(1)+'%';
-  document.getElementById('nsr-label').textContent = nsrVal >= 60 ? 'Sangat Positif' : nsrVal >= 30 ? 'Positif' : nsrVal >= 0 ? 'Netral' : 'Negatif';
-  document.getElementById('nsr-bench').textContent = nsrBmPct;
-  document.getElementById('nsr-bar').style.width = Math.min(nsrVal, 100).toFixed(0) + '%';
-  document.getElementById('nsr-bar-label').textContent = nsrVal.toFixed(1) + '%';
-
-  if (nsrPos) document.getElementById('nsr-pos').textContent = fmtPctRaw(nsrPos);
-  if (nsrNeu) document.getElementById('nsr-neu').textContent = fmtPctRaw(nsrNeu);
-  if (nsrNeg) document.getElementById('nsr-neg').textContent = fmtPctRaw(nsrNeg);
+  // nsr-val, nsr-label elements dihapus (NSR kini di renderSearchNSR)
 }
 
 // ── RENDER PERSONAS ──
