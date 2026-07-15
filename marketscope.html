@@ -549,6 +549,23 @@
         <div style="font-size:13px;color:var(--muted);line-height:1.7;" id="kpi-popup-body">—</div>
       </div>
 
+      <!-- TREN IMPRESSIONS — fullwidth -->
+      <div class="section-title"><span class="dot" style="background:var(--blue,#3b82f6)"></span>Tren impressions harian</div>
+      <div class="chart-card" style="margin-bottom:20px;">
+        <div class="chart-title-row">
+          <div class="card-title">
+            Tren Impressions Harian
+            <button class="info-btn" onclick="showInfo(event,'impressions')" aria-label="Info Impressions">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="chart-legend">
+            <span class="cleg-item"><span class="cleg-dot" style="background:#f59e0b"></span>Wookey</span>
+            <span class="cleg-item"><span class="cleg-dot" style="background:#374151"></span>Benchmark</span>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Line chart impressions harian Wookey vs benchmark">Tren impressions Wookey dibanding benchmark.</canvas></div>
+      </div>
       <!-- FUNNEL PYRAMID -->
       <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
       <div class="pyramid-section">
@@ -658,60 +675,7 @@
       <!-- FUNNEL (hidden, legacy) -->
       <div id="funnel-row" style="display:none"></div>
 
-      <!-- MID: Chart + Vertical Share -->
-      <div class="mid-grid">
-        <div class="chart-card">
-          <div class="chart-title-row">
-            <div class="card-title">
-              Tren Impressions Harian
-              <button class="info-btn" onclick="showInfo(event,'impressions')" aria-label="Info Impressions">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-            <div class="chart-legend">
-              <span class="cleg-item"><span class="cleg-dot" style="background:#f59e0b"></span>Wookey</span>
-              <span class="cleg-item"><span class="cleg-dot" style="background:#374151"></span>Benchmark</span>
-            </div>
-          </div>
-          <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Line chart impressions harian Wookey vs benchmark">Tren impressions Wookey dibanding benchmark.</canvas></div>
-        </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              Vertical Share
-              <button class="info-btn" onclick="showInfo(event,'vertical_share')" aria-label="Info Vertical Share">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="vs-big" id="vs-val">—</div>
-          <div class="vs-sub">dari total tayangan F&B di TikTok</div>
-          <div class="bar-wrap">
-            <div style="margin-bottom:8px">
-              <div class="bar-row-lbl"><span>Wookey</span><span id="vs-wookey-lbl" style="color:var(--c-cons)">—</span></div>
-              <div class="bar-bg"><div class="bar-fill" id="vs-bar-wookey" style="background:var(--c-cons);width:0"></div></div>
-            </div>
-            <div>
-              <div class="bar-row-lbl"><span>Benchmark Top 5</span><span id="vs-bench-lbl" style="color:var(--muted)">—</span></div>
-              <div class="bar-bg"><div class="bar-fill" id="vs-bar-bench" style="background:#374151;width:0"></div></div>
-            </div>
-          </div>
-          <div class="divider-sm"></div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="card-title" style="font-size:11px">
-              Search Volume
-              <button class="info-btn" onclick="showInfo(event,'search_volume')" aria-label="Info Search Volume">
-                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v5M8 5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-            <div style="text-align:right">
-              <div id="sv-val" style="font-size:17px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--c-aware)">—</div>
-              <div id="sv-bench" style="font-size:9px;color:var(--muted)">Bench: —</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- SEARCH + NSR ROW -->
       <div class="section-title"><span class="dot" style="background:var(--c-rate,#8b5cf6)"></span>Search dan sentimen</div>
