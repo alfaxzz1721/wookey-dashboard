@@ -127,6 +127,8 @@
   .kpi-snap-val { font-size:22px; font-weight:700; }
   .kpi-snap-sub { font-size:11px; color:var(--muted); margin-top:4px; }
   .kpi-snap-extra { font-size:11px; margin-top:2px; }
+  .kpi-info-btn { background:none; border:1px solid var(--border); border-radius:50%; width:16px; height:16px; font-size:9px; cursor:pointer; color:var(--muted); display:flex; align-items:center; justify-content:center; padding:0; line-height:1; transition:all .15s; flex-shrink:0; }
+  .kpi-info-btn:hover { border-color:var(--accent,#3b82f6); color:var(--accent,#3b82f6); }
 
   /* ── PYRAMID FUNNEL ── */
   .pyramid-section { display:flex; gap:16px; margin-bottom:16px; }
@@ -508,23 +510,43 @@
       <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Ringkasan periode</div>
       <div class="kpi-snapshot" id="kpi-snapshot">
         <div class="kpi-snap-card">
-          <div class="kpi-snap-label">Impresi</div>
+          <div class="kpi-snap-label" style="display:flex;align-items:center;justify-content:space-between;">
+            Impresi
+            <button class="kpi-info-btn" onclick="showKpiInfo('impresi')" title="Penjelasan">?</button>
+          </div>
           <div class="kpi-snap-val" style="color:var(--c-aware)" id="kpi-impresi">—</div>
           <div class="kpi-snap-sub" id="kpi-impresi-bench">Bench: —</div>
           <div class="kpi-snap-extra" id="kpi-vshare" style="color:var(--muted)">Vertical share: —</div>
         </div>
         <div class="kpi-snap-card">
-          <div class="kpi-snap-label">Net Sentiment Rate</div>
+          <div class="kpi-snap-label" style="display:flex;align-items:center;justify-content:space-between;">
+            Net Sentiment Rate
+            <button class="kpi-info-btn" onclick="showKpiInfo('nsr')" title="Penjelasan">?</button>
+          </div>
           <div class="kpi-snap-val" style="color:var(--green)" id="kpi-nsr">—</div>
           <div class="kpi-snap-sub" id="kpi-nsr-bench">Bench: —</div>
           <div class="kpi-snap-extra" id="kpi-nsr-label" style="color:var(--green)">—</div>
         </div>
         <div class="kpi-snap-card">
-          <div class="kpi-snap-label">Search volume</div>
+          <div class="kpi-snap-label" style="display:flex;align-items:center;justify-content:space-between;">
+            Search volume
+            <button class="kpi-info-btn" onclick="showKpiInfo('search')" title="Penjelasan">?</button>
+          </div>
           <div class="kpi-snap-val" style="color:var(--c-rate,#8b5cf6)" id="kpi-search">—</div>
           <div class="kpi-snap-sub" id="kpi-search-bench">Bench: —</div>
           <div class="kpi-snap-extra" id="kpi-ctr" style="color:var(--green)">CTR: —</div>
+          <div class="kpi-snap-extra" id="kpi-unique-search" style="color:var(--muted)">Unique search: —</div>
         </div>
+      </div>
+
+      <!-- KPI INFO POPUP -->
+      <div id="kpi-info-overlay" onclick="closeKpiInfo()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;"></div>
+      <div id="kpi-info-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:420px;width:90%;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:14px;font-weight:600;" id="kpi-popup-title">—</div>
+          <button onclick="closeKpiInfo()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;">×</button>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;" id="kpi-popup-body">—</div>
       </div>
 
       <!-- FUNNEL PYRAMID -->
@@ -1085,7 +1107,9 @@ function renderKPISnapshot(data) {
   setText('kpi-nsr-label', nsrVal>=80?'Sangat positif':nsrVal>=50?'Positif':nsrVal>=0?'Netral':'Negatif');
   setText('kpi-search', fmtFull(sv));
   setText('kpi-search-bench', 'Bench: '+fmtFull(svB));
-  setText('kpi-ctr', 'CTR: '+(ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2))+'% (Bench: '+(Number(latest['search_ctr']||0)*1).toFixed(2)+'%)');
+  setText('kpi-ctr', 'CTR: '+(ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2))+'%');
+  var uq = Number(latest['Uniqe Search']||latest['unique_search']||0);
+  setText('kpi-unique-search', uq ? 'Unique search: '+fmtFull(uq)+' orang' : 'Unique search: —');
 }
 
 // ── RENDER PYRAMID ──
@@ -1162,6 +1186,34 @@ function renderSearchNSR(data) {
 }
 
 function setText(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+
+// ── KPI INFO POPUP ──
+var KPI_INFO = {
+  impresi: {
+    title: 'Impresi (Impressions)',
+    body: 'Jumlah total berapa kali konten Wookey ditayangkan di TikTok hari itu — dari semua sumber gabungan: iklan berbayar, video organik, live streaming, dan konten KOL.\n\nBerbeda dengan Awareness (orang unik), impresi menghitung setiap kejadian tayang. Jika 1 orang lihat 3x = 3 impresi.\n\nVertical Share menunjukkan berapa persen impresi Wookey dari total semua konten F&B di TikTok hari itu.'
+  },
+  nsr: {
+    title: 'Net Sentiment Rate (NSR)',
+    body: 'Persentase bersih sentimen positif dari seluruh komentar di konten Wookey di TikTok.\n\nRumus: (Komentar Positif - Komentar Negatif) / Total Komentar\n\nNilai mendekati 100% = hampir semua komentar positif. TikTok membaca komentar secara otomatis dan mengklasifikasikan ke Positif, Netral, atau Negatif.\n\nNSR tinggi membantu distribusi algoritma TikTok dan meningkatkan kepercayaan calon pembeli.'
+  },
+  search: {
+    title: 'Search Volume & CTR',
+    body: 'Search Volume: Berapa kali kata kunci Wookey diketik di kolom pencarian TikTok hari itu. Ini menunjukkan seberapa banyak orang yang aktif mencari brand.\n\nUnique Search: Jumlah orang berbeda yang melakukan pencarian (1 orang bisa search berkali-kali).\n\nCTR (Click Through Rate): Dari yang search, berapa persen yang akhirnya klik ke profil atau konten Wookey. CTR tinggi artinya orang yang search memang berniat dan tertarik.'
+  }
+};
+function showKpiInfo(key) {
+  var info = KPI_INFO[key];
+  if (!info) return;
+  document.getElementById('kpi-popup-title').textContent = info.title;
+  document.getElementById('kpi-popup-body').innerHTML = info.body.replace(/\n\n/g, '<br><br>');
+  document.getElementById('kpi-info-overlay').style.display = 'block';
+  document.getElementById('kpi-info-popup').style.display = 'block';
+}
+function closeKpiInfo() {
+  document.getElementById('kpi-info-overlay').style.display = 'none';
+  document.getElementById('kpi-info-popup').style.display = 'none';
+}
 function setBar(barId, pct, numId, numVal) {
   var el=document.getElementById(barId); if(el) el.style.width=Math.min(pct,100).toFixed(0)+'%';
   var nel=document.getElementById(numId); if(nel) nel.textContent=numVal;
