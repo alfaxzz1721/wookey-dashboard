@@ -1537,6 +1537,26 @@ function setBar(barId, pct, numId, numVal) {
 // ── RENDER FUNNEL (digantikan renderFunnelNew) ──
 function renderFunnel(data) { return; }
 
+// ── RENDER ALL ──
+function renderAll(filtered) {
+  if (filtered.length) {
+    var dates = filtered.map(d => d['Tanggal']);
+    document.getElementById('date-range').textContent =
+      dates.length === 1 ? dates[0] + ' · 1 hari' :
+      dates[0] + ' — ' + dates[dates.length-1] + ' · ' + dates.length + ' hari';
+  } else {
+    document.getElementById('date-range').textContent = 'Tidak ada data untuk periode ini';
+  }
+  renderFunnel(filtered);
+  renderImpChart(filtered);
+  renderVShare(filtered);
+  renderNSR(filtered);
+  renderPersonas(allAudienceData);
+  renderAudience(allAudienceData);
+}
+
+// ── SIDEBAR ──
+
 // ── RENDER AUDIENCE ──
 function renderPersonas(audienceData) {
   if (!audienceData.length) {
