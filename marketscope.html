@@ -127,6 +127,10 @@
   .kpi-snap-val { font-size:22px; font-weight:700; }
   .kpi-snap-sub { font-size:11px; color:var(--muted); margin-top:4px; }
   .kpi-snap-extra { font-size:11px; margin-top:2px; }
+  .chart-toggle { display:flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; }
+  .chart-toggle:hover { border-color:var(--text); color:var(--text); }
+  .chart-toggle.active { background:var(--surface2); border-color:var(--text); color:var(--text); }
+  .chart-toggle .cleg-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
   .kpi-info-btn { background:none; border:1px solid var(--border); border-radius:50%; width:16px; height:16px; font-size:9px; cursor:pointer; color:var(--muted); display:flex; align-items:center; justify-content:center; padding:0; line-height:1; transition:all .15s; flex-shrink:0; }
   .kpi-info-btn:hover { border-color:var(--accent,#3b82f6); color:var(--accent,#3b82f6); }
 
@@ -549,20 +553,24 @@
         <div style="font-size:13px;color:var(--muted);line-height:1.7;" id="kpi-popup-body">—</div>
       </div>
 
-      <!-- TREN IMPRESSIONS — fullwidth -->
-      <div class="section-title"><span class="dot" style="background:var(--blue,#3b82f6)"></span>Tren impressions harian</div>
+      <!-- GRAFIK TREN HARIAN -->
+      <div class="section-title"><span class="dot" style="background:var(--blue,#3b82f6)"></span>Grafik tren harian</div>
       <div class="chart-card" style="margin-bottom:20px;">
-        <div class="chart-title-row">
-          <div class="card-title">
-            Tren Impressions Harian
-            <button class="info-btn" onclick="showInfo(event,'impressions')" aria-label="Info Impressions">?</button>
-          </div>
-          <div class="chart-legend">
-            <span class="cleg-item"><span class="cleg-dot" style="background:#f59e0b"></span>Wookey</span>
-            <span class="cleg-item"><span class="cleg-dot" style="background:#374151"></span>Benchmark</span>
+        <div class="chart-title-row" style="flex-wrap:wrap;gap:8px;">
+          <div class="card-title">Grafik Tren Harian</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <button class="chart-toggle active" data-metric="impressions" onclick="toggleChartMetric('impressions',this)">
+              <span class="cleg-dot" style="background:#f59e0b"></span>Impressions
+            </button>
+            <button class="chart-toggle" data-metric="nsr" onclick="toggleChartMetric('nsr',this)">
+              <span class="cleg-dot" style="background:#10b981"></span>NSR
+            </button>
+            <button class="chart-toggle" data-metric="search" onclick="toggleChartMetric('search',this)">
+              <span class="cleg-dot" style="background:#8b5cf6"></span>Search Volume
+            </button>
           </div>
         </div>
-        <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Line chart impressions harian Wookey vs benchmark">Tren impressions Wookey dibanding benchmark.</canvas></div>
+        <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Grafik tren harian Wookey">Grafik tren harian.</canvas></div>
       </div>
       <!-- FUNNEL PYRAMID -->
       <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
@@ -1256,21 +1264,94 @@ function renderFunnel(data) {
 
 // ── RENDER CHART ──
 var impChart = null;
+var activeChartMetrics = { impressions: true, nsr: false, search: false };
+var lastChartData = [];
+
+function toggleChartMetric(metric, btn) {
+  activeChartMetrics[metric] = !activeChartMetrics[metric];
+  btn.classList.toggle('active', activeChartMetrics[metric]);
+  renderImpChart(lastChartData);
+}
+
 function renderImpChart(data) {
+  lastChartData = data;
+  var isSingle = data.length === 1;
   var labels = data.map(d => d['Tanggal']);
-  var wookey = data.map(d => Number(d['Impressions']) || 0);
-  var bench  = data.map(d => Number(d['Impressions']) || 0);
+  var datasets = [];
+
+  // Impressions
+  if (activeChartMetrics.impressions) {
+    datasets.push({
+      label:'Impressions (Wookey)', yAxisID:'y',
+      data: data.map(d => Number(d['Impressions'])||0),
+      borderColor:'#f59e0b', backgroundColor:'#f59e0b14',
+      tension:.35, fill:true,
+      pointRadius: isSingle?6:3, borderWidth:2,
+      pointBackgroundColor:'#f59e0b',
+      pointStyle: isSingle ? 'circle' : 'circle'
+    });
+  }
+
+  // NSR
+  if (activeChartMetrics.nsr) {
+    datasets.push({
+      label:'NSR (%)', yAxisID:'y2',
+      data: data.map(d => {
+        var v = Number(d['NSR'])||0;
+        return v < 2 ? v*100 : v;
+      }),
+      borderColor:'#10b981', backgroundColor:'transparent',
+      tension:.35, fill:false,
+      pointRadius: isSingle?6:3, borderWidth:2,
+      pointBackgroundColor:'#10b981',
+      borderDash: []
+    });
+  }
+
+  // Search Volume
+  if (activeChartMetrics.search) {
+    datasets.push({
+      label:'Search Volume', yAxisID:'y3',
+      data: data.map(d => Number(d['Search Volume'])||0),
+      borderColor:'#8b5cf6', backgroundColor:'transparent',
+      tension:.35, fill:false,
+      pointRadius: isSingle?6:3, borderWidth:2,
+      pointBackgroundColor:'#8b5cf6',
+      borderDash: [3,2]
+    });
+  }
+
+  var scales = {
+    x:{
+      grid:{ color:'#252836' },
+      ticks:{ color:'#5a6070', font:{ size:10, family:'JetBrains Mono' }, maxTicksLimit:8 },
+      offset: isSingle  // titik di tengah saat 1 data
+    },
+    y:{
+      display: activeChartMetrics.impressions,
+      position:'left',
+      grid:{ color:'#252836' },
+      ticks:{ color:'#f59e0b', font:{ size:10 }, callback: v => fmtNum(v) }
+    },
+    y2:{
+      display: activeChartMetrics.nsr,
+      position:'right',
+      grid:{ drawOnChartArea:false },
+      ticks:{ color:'#10b981', font:{ size:10 }, callback: v => v.toFixed(1)+'%' },
+      min:0, max:100
+    },
+    y3:{
+      display: activeChartMetrics.search,
+      position:'right',
+      grid:{ drawOnChartArea:false },
+      ticks:{ color:'#8b5cf6', font:{ size:10 }, callback: v => fmtNum(v) }
+    }
+  };
 
   if (impChart) impChart.destroy();
   impChart = new Chart(document.getElementById('impChart').getContext('2d'), {
     type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        { label:'Wookey', data:wookey, borderColor:'#f59e0b', backgroundColor:'#f59e0b14', tension:.35, fill:true, pointRadius: data.length===1?6:3, borderWidth:2, pointBackgroundColor:'#f59e0b' },
-        { label:'Benchmark', data:bench, borderColor:'#374151', backgroundColor:'transparent', tension:.35, fill:false, pointRadius: data.length===1?6:2, borderWidth:1.5, borderDash:[4,3], pointBackgroundColor:'#374151' }
-      ]
-    },
+    data: { labels, datasets },
     options: {
       responsive:true, maintainAspectRatio:false,
       interaction:{ mode:'index', intersect:false },
@@ -1279,13 +1360,10 @@ function renderImpChart(data) {
         tooltip:{
           backgroundColor:'#13151f', borderColor:'#374151', borderWidth:1,
           titleColor:'#e8eaf2', bodyColor:'#9ca3af', padding:10,
-          callbacks:{ label: ctx => ' ' + ctx.dataset.label + ': ' + fmtNum(ctx.parsed.y) }
+          callbacks:{ label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.dataset.yAxisID==='y' ? fmtNum(ctx.parsed.y) : ctx.parsed.y.toFixed(ctx.dataset.yAxisID==='y2'?1:0)) }
         }
       },
-      scales:{
-        x:{ grid:{ color:'#252836' }, ticks:{ color:'#5a6070', font:{ size:10, family:'JetBrains Mono' }, maxTicksLimit:8 } },
-        y:{ grid:{ color:'#252836' }, ticks:{ color:'#5a6070', font:{ size:10 }, callback: v => fmtNum(v) } }
-      }
+      scales
     }
   });
 }
