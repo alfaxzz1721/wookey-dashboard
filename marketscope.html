@@ -1677,10 +1677,11 @@ function renderAll(filtered) {
   } else {
     document.getElementById('date-range').textContent = 'Tidak ada data untuk periode ini';
   }
-  renderFunnel(filtered);
+  renderKPISnapshot(filtered);
+  renderFunnelNew(filtered);
+  renderPyramid(filtered);
   renderImpChart(filtered);
-  renderVShare(filtered);
-  renderNSR(filtered);
+  renderSearchNSR(filtered);
   renderPersonas(allAudienceData);
   renderAudience(allAudienceData);
 }
