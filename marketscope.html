@@ -1074,6 +1074,7 @@ function msQuickSelect(val) {
 function msApplyDay() {
   var date = document.getElementById('ms-date-single').value;
   if (!date) return;
+  console.log('[DEBUG] date:', date, '| allData:', allData.length, '| sample:', allData.length ? allData[0]['Tanggal'] : 'EMPTY');
   msFilteredData = allData.filter(d => d['Tanggal'] === date);
   if (!msFilteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Tidak ada data untuk tanggal ini.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
