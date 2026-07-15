@@ -1526,6 +1526,48 @@ function setBar(barId, pct, numId, numVal) {
 // ── RENDER FUNNEL (digantikan renderFunnelNew) ──
 function renderFunnel(data) { return; }
 
+// ── INIT: Load semua data ──
+async function initMarketScope() {
+  try {
+    var [trendData, audienceData, benchData] = await Promise.all([
+      fetchSheet('Market Scope Harian'),
+      fetchSheet('Market Scope Audience'),
+      fetchSheet('Market Scope Benchmark'),
+    ]);
+
+    var validTrend = trendData.filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
+    validTrend.sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
+
+    allData         = validTrend;
+    allAudienceData = audienceData;
+    allBenchData    = benchData.filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
+    msFilteredData  = [...allData];
+
+    // Set default date
+    var lastDate = validTrend.length ? validTrend[validTrend.length-1]['Tanggal'] : '';
+    if (lastDate) {
+      var el = document.getElementById('ms-date-single');
+      if (el) el.value = lastDate;
+    }
+
+    msBuildWeekOptions && msBuildWeekOptions();
+    msBuildMonthOptions && msBuildMonthOptions();
+    msApplyDay && msApplyDay();
+
+    // Render audience jika panel audience aktif
+    var panelAud = document.getElementById('panel-audience');
+    if (panelAud && panelAud.style.display !== 'none') {
+      renderAudience(allAudienceData);
+    }
+
+    console.log('[MS] Data loaded:', allData.length, 'trend,', allAudienceData.length, 'audience');
+  } catch(e) {
+    console.error('[MS] Init error:', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initMarketScope);
+
 </script>
 </body>
 </html>
