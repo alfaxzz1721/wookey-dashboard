@@ -885,6 +885,7 @@ document.addEventListener('click', closeInfo);
 
 // ── PERIOD ──
 var allData = [];
+var allBenchData = [];
 var allAudienceData = [];
 var msCurrentGroup = 'day';
 var msFilteredData = [];
@@ -1065,17 +1066,52 @@ function fmtPct(v) {
 function fmtPctRaw(v) { return (Number(v)*100).toFixed(2) + '%'; }
 function fmtFull(v) { return Math.round(Number(v)||0).toLocaleString('id-ID'); }
 
+// ── BENCH HELPER — ambil data benchmark sesuai periode ──
+function getBenchForPeriod(filtered) {
+  if (!allBenchData.length || !filtered.length) return {};
+  var dates = filtered.map(d => d['Tanggal']).sort();
+  var from  = dates[0];
+  var to    = dates[dates.length-1];
+  var bRows = allBenchData.filter(r => r['Tanggal'] >= from && r['Tanggal'] <= to);
+  if (!bRows.length) return {};
+
+  var latest = bRows[bRows.length-1];
+  var result = {};
+
+  // Akumulasi (sum) untuk metrik harian
+  result['Impressions']    = bRows.reduce((s,r)=>s+(Number(r['Impressions'])||0), 0);
+  result['Search Volume']  = bRows.reduce((s,r)=>s+(Number(r['Search Volume'])||0), 0);
+  result['Uniqe Search']   = bRows.reduce((s,r)=>s+(Number(r['Uniqe Search'])||0), 0);
+
+  // Rata-rata untuk NSR dan CTR
+  var nsrVals = bRows.map(r=>Number(r['NSR'])||0).filter(v=>v>0);
+  result['NSR'] = nsrVals.length ? nsrVals.reduce((s,v)=>s+v,0)/nsrVals.length : 0;
+
+  var ctrVals = bRows.map(r=>Number(r['CTR by Search'])||0).filter(v=>v>0);
+  result['CTR by Search'] = ctrVals.length ? ctrVals.reduce((s,v)=>s+v,0)/ctrVals.length : 0;
+
+  // Latest untuk akumulasi TikTok (Awareness, Consideration, Conversion)
+  result['Awareness']       = Number(latest['Awareness'])||0;
+  result['Consideration']   = Number(latest['Consideration'])||0;
+  result['Conversion']      = Number(latest['Conversion'])||0;
+  result['% Aware to Consider'] = Number(latest['% Aware to Consider'])||0;
+  result['Awareness By Premium Reach'] = Number(latest['Awareness By Premium Reach'])||0;
+  result['Awareness By Massive Reach'] = Number(latest['Awareness By Massive Reach'])||0;
+
+  return result;
+}
+
 // ── RENDER KPI SNAPSHOT ──
 function renderKPISnapshot(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
+  var bench  = getBenchForPeriod(data);
   var imp  = data.reduce((s,d)=>s+(Number(d['Impressions'])||0),0);
-  var impB = Number(latest['Impressions'])||0;
-  var vs   = Number(latest['Impressions'])||0;
+  var impB = bench['Impressions']||0;
   var nsr  = Number(latest['NSR'])||0;
-  var nsrB = Number(latest['NSR'])||0;
+  var nsrB = bench['NSR']||0;
   var sv   = data.reduce((s,d)=>s+(Number(d['Search Volume'])||0),0);
-  var svB  = Number(latest['Search Volume'])||0;
+  var svB  = bench['Search Volume']||0;
   var ctr  = Number(latest['CTR by Search'])||0;
 
   var nsrVal = nsr < 2 ? nsr*100 : nsr;
@@ -1098,12 +1134,13 @@ function renderKPISnapshot(data) {
 function renderPyramid(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
-  var aware  = Number(latest['funnel_awareness'])||0;
-  var awareBm= Number(latest['funnel_awareness_bm'])||0;
-  var cons   = Number(latest['funnel_consideration'])||0;
-  var consBm = Number(latest['funnel_consideration_bm'])||0;
-  var conv   = Number(latest['funnel_conversion'])||0;
-  var convBm = Number(latest['funnel_conversion_bm'])||0;
+  var bench  = getBenchForPeriod(data);
+  var aware  = Number(latest['Awareness'])||0;
+  var awareBm= bench['Awareness']||0;
+  var cons   = Number(latest['Consideration'])||0;
+  var consBm = bench['Consideration']||0;
+  var conv   = Number(latest['Conversion'])||0;
+  var convBm = bench['Conversion']||0;
 
   var acRate = aware>0 ? (cons/aware*100) : 0;
   var ccRate = cons>0  ? (conv/cons*100)  : 0;
@@ -1145,12 +1182,13 @@ function renderPyramid(data) {
 function renderSearchNSR(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
+  var bench  = getBenchForPeriod(data);
   var sv   = data.reduce((s,d)=>s+(Number(d['Search Volume'])||0),0);
-  var svB  = Number(latest['Search Volume'])||0;
+  var svB  = bench['Search Volume']||0;
   var ctr  = Number(latest['CTR by Search'])||0;
   var ctrV = ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2);
   var nsr  = Number(latest['NSR'])||0;
-  var nsrB = Number(latest['NSR'])||0;
+  var nsrB = bench['NSR']||0;
   var nsrVal = nsr<2?nsr*100:nsr;
   var nsrBVal= nsrB<2?nsrB*100:nsrB;
 
@@ -1518,9 +1556,10 @@ function toggleSidebar() {
 // ── INIT ──
 async function init() {
   try {
-    var [trendData, audienceData] = await Promise.all([
+    var [trendData, audienceData, benchData] = await Promise.all([
       fetchSheet('Market Scope Harian'),
       fetchSheet('Market Scope Audience'),
+      fetchSheet('Market Scope Benchmark'),
     ]);
     var validTrend = trendData.filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
     validTrend.sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
@@ -1534,6 +1573,7 @@ async function init() {
 
     allData = validTrend;
     allAudienceData = audienceData;
+    allBenchData = benchData.filter(r => r['Tanggal'] && r['Tanggal'] !== 'Tanggal');
     msFilteredData = [...allData];
 
     // Set default date input ke tanggal terbaru
