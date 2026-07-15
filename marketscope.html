@@ -1087,14 +1087,14 @@ function fmtFull(v) { return Math.round(Number(v)||0).toLocaleString('id-ID'); }
 function renderKPISnapshot(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
-  var imp  = data.reduce((s,d)=>s+(Number(d['trend_impressions'])||0),0);
-  var impB = Number(latest['trend_impressions_bm'])||0;
-  var vs   = Number(latest['trend_vertical_share'])||0;
-  var nsr  = Number(latest['diag_nsr'])||0;
-  var nsrB = Number(latest['diag_nsr_bm'])||0;
-  var sv   = data.reduce((s,d)=>s+(Number(d['search_volume'])||0),0);
-  var svB  = Number(latest['search_volume_bm'])||0;
-  var ctr  = Number(latest['search_ctr'])||0;
+  var imp  = data.reduce((s,d)=>s+(Number(d['Impressions'])||0),0);
+  var impB = Number(latest['Impressions'])||0;
+  var vs   = Number(latest['Impressions'])||0;
+  var nsr  = Number(latest['NSR'])||0;
+  var nsrB = Number(latest['NSR'])||0;
+  var sv   = data.reduce((s,d)=>s+(Number(d['Search volume'])||0),0);
+  var svB  = Number(latest['Search volume'])||0;
+  var ctr  = Number(latest['CTR by Search'])||0;
 
   var nsrVal = nsr < 2 ? nsr*100 : nsr;
   var nsrBVal = nsrB < 2 ? nsrB*100 : nsrB;
@@ -1163,12 +1163,12 @@ function renderPyramid(data) {
 function renderSearchNSR(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
-  var sv   = data.reduce((s,d)=>s+(Number(d['search_volume'])||0),0);
-  var svB  = Number(latest['search_volume_bm'])||0;
-  var ctr  = Number(latest['search_ctr'])||0;
+  var sv   = data.reduce((s,d)=>s+(Number(d['Search volume'])||0),0);
+  var svB  = Number(latest['Search volume'])||0;
+  var ctr  = Number(latest['CTR by Search'])||0;
   var ctrV = ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2);
-  var nsr  = Number(latest['diag_nsr'])||0;
-  var nsrB = Number(latest['diag_nsr_bm'])||0;
+  var nsr  = Number(latest['NSR'])||0;
+  var nsrB = Number(latest['NSR'])||0;
   var nsrVal = nsr<2?nsr*100:nsr;
   var nsrBVal= nsrB<2?nsrB*100:nsrB;
 
@@ -1284,8 +1284,8 @@ function renderFunnel(data) {
 var impChart = null;
 function renderImpChart(data) {
   var labels = data.map(d => d['Tanggal']);
-  var wookey = data.map(d => Number(d['trend_impressions']) || 0);
-  var bench  = data.map(d => Number(d['trend_impressions_bm']) || 0);
+  var wookey = data.map(d => Number(d['Impressions']) || 0);
+  var bench  = data.map(d => Number(d['Impressions']) || 0);
 
   if (impChart) impChart.destroy();
   impChart = new Chart(document.getElementById('impChart').getContext('2d'), {
@@ -1320,10 +1320,10 @@ function renderImpChart(data) {
 function renderVShare(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
-  var vs = Number(latest['trend_vertical_share']) || 0;
+  var vs = Number(latest['Impressions']) || 0;
   var vsBm = 0 || 0;
-  var sv = data.reduce((s,d) => s+(Number(d['search_volume'])||0), 0);
-  var svBm = Number(latest['search_volume_bm']) || 0;
+  var sv = data.reduce((s,d) => s+(Number(d['Search volume'])||0), 0);
+  var svBm = Number(latest['Search volume']) || 0;
 
   var vsDisplay = vs < 1 ? (vs*100).toFixed(2)+'%' : vs.toFixed(2)+'%';
   var vsBmDisplay = vsBm < 1 ? (vsBm*100).toFixed(2)+'%' : vsBm.toFixed(2)+'%';
@@ -1342,8 +1342,8 @@ function renderVShare(data) {
 function renderNSR(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
-  var nsr = Number(latest['diag_nsr']) || 0;
-  var nsrBm = Number(latest['diag_nsr_bm']) || 0;
+  var nsr = Number(latest['NSR']) || 0;
+  var nsrBm = Number(latest['NSR']) || 0;
   var nsrPos = 0 || 0;
   var nsrNeu = 0 || 0;
   var nsrNeg = 0 || 0;
