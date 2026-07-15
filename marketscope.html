@@ -1075,7 +1075,7 @@ function renderKPISnapshot(data) {
 
   setText('kpi-impresi', fmtFull(imp));
   setText('kpi-impresi-bench', 'Bench: '+fmtFull(impB));
-  setText('kpi-vshare', 'Vertical share: '+(vs<1?(vs*100).toFixed(2):vs.toFixed(2))+'%');
+  // kpi-vshare dihapus
   setText('kpi-nsr', (nsrVal>0?'+':'')+nsrVal.toFixed(1)+'%');
   setText('kpi-nsr-bench', 'Bench: '+(nsrBVal>0?'+':'')+nsrBVal.toFixed(1)+'%');
   setText('kpi-nsr-label', nsrVal>=80?'Sangat positif':nsrVal>=50?'Positif':nsrVal>=0?'Netral':'Negatif');
