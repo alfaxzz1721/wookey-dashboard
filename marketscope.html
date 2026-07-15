@@ -135,36 +135,50 @@
   .kpi-info-btn:hover { border-color:var(--accent,#3b82f6); color:var(--accent,#3b82f6); }
 
   /* ── PYRAMID FUNNEL ── */
-  .pyramid-section { display:flex; gap:16px; margin-bottom:16px; }
-  .pyramid-wrap { flex:1.4; display:flex; flex-direction:column; align-items:center; gap:4px; }
-  .pyramid-layer { border-radius:8px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px; cursor:pointer; transition:opacity .15s; }
-  .pyramid-layer:hover { opacity:.82; }
-  .p-aware { width:100%; height:76px; background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3); }
-  .p-cons  { width:76%;  height:76px; background:rgba(245,158,11,.10); border:1px solid rgba(245,158,11,.3); }
-  .p-conv  { width:52%;  height:76px; background:rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.3); }
+  .funnel-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px; }
+  .funnel-card-head { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--surface2); }
+  .funnel-body { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:16px; padding:16px; }
+  .pyramid-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .pyramid-layer { border-radius:8px; display:flex; flex-direction:column; padding:10px 12px; cursor:default; }
+  .p-layer-head { display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:2px; }
+  .p-aware { width:100%; background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3); }
+  .p-cons  { width:78%; align-self:center; background:rgba(245,158,11,.10); border:1px solid rgba(245,158,11,.3); }
+  .p-conv  { width:56%; align-self:center; background:rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.3); }
   .p-tag { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
-  .p-num { font-size:20px; font-weight:700; }
-  .p-rate { font-size:10px; color:var(--muted); margin-top:1px; }
-  .p-arrow { width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-top:7px solid var(--border); }
-  .pyramid-detail { flex:1; display:flex; flex-direction:column; gap:8px; }
-  .pdetail-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
-  .pdetail-head { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
-  .pdetail-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid var(--border); }
-  .pdetail-row:last-child { border-bottom:none; }
-  .pdetail-key { font-size:11px; color:var(--muted); }
-  .pdetail-val { font-size:12px; font-weight:600; }
+  .p-num { font-size:17px; font-weight:700; text-align:center; }
+  .p-bench { font-size:10px; color:var(--muted); text-align:center; margin-top:1px; }
+  .p-chip { font-size:10px; font-weight:600; padding:1px 7px; border-radius:20px; flex-shrink:0; }
+  .p-chip-r { background:#fee2e2; color:#991b1b; }
+  .p-chip-w { background:#fef3c7; color:#92400e; }
+  .p-chip-g { background:#d1fae5; color:#065f46; }
+  .p-rate-row { display:flex; align-items:center; justify-content:center; gap:6px; padding:3px 0; }
+  .p-rate-arrow { width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:5px solid var(--border); }
+  .p-rate-lbl { font-size:10px; color:var(--muted); }
+  .p-rate-val { font-size:10px; font-weight:600; color:var(--text); }
+  .funnel-toggle { display:flex; gap:3px; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:3px; }
+  .f-tp { font-size:11px; padding:3px 10px; border-radius:20px; cursor:pointer; color:var(--muted); border:none; background:transparent; font-family:inherit; }
+  .f-tp.active { background:var(--surface); color:var(--text); border:1px solid var(--border); }
+  .ftabs { display:flex; border-bottom:1px solid var(--border); }
+  .ftab { font-size:11px; padding:7px 12px; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; background:none; border-top:none; border-left:none; border-right:none; font-family:inherit; }
+  .ftab.ft-aware { color:#185FA5; border-bottom-color:#185FA5; }
+  .ftab.ft-cons  { color:#854F0B; border-bottom-color:#BA7517; }
+  .ftab.ft-conv  { color:#085041; border-bottom-color:#1D9E75; }
+  .ftab-body { padding:10px 0; display:flex; flex-direction:column; }
+  .fhero-val { display:flex; align-items:baseline; gap:8px; margin-bottom:3px; }
+  .fhero-num { font-size:20px; font-weight:700; }
+  .fhero-bench { font-size:11px; color:var(--muted); margin-bottom:6px; }
+  .fbar-bg { height:4px; background:var(--border); border-radius:2px; overflow:hidden; margin-bottom:10px; }
+  .fbar-fill { height:100%; border-radius:2px; }
+  .fsub-head { font-size:10px; color:var(--muted); font-weight:600; margin:8px 0 2px; letter-spacing:.04em; text-transform:uppercase; }
+  .fdrow { display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid var(--border); }
+  .fdrow:last-child { border-bottom:none; }
+  .fdkey { font-size:11px; color:var(--muted); }
+  .fdkey.ind { padding-left:10px; }
+  .fdval { font-size:12px; font-weight:600; color:var(--text); }
   .chip-ok { background:rgba(16,185,129,.15); color:var(--green); border-radius:4px; padding:2px 7px; font-size:11px; font-weight:600; }
   .chip-warn { background:rgba(245,158,11,.15); color:var(--amber,#f59e0b); border-radius:4px; padding:2px 7px; font-size:11px; font-weight:600; }
 
-  /* ── BENCHMARK BARS ── */
-  .bench-bars { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
-  .bench-bar-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
-  .bench-bar-title { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
-  .bbar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
-  .bbar-lbl { font-size:10px; color:var(--muted); width:44px; flex-shrink:0; }
-  .bbar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
-  .bbar-fill { height:100%; border-radius:3px; }
-  .bbar-num { font-size:10px; color:var(--muted); width:40px; text-align:right; flex-shrink:0; }
+  /* bench-bars CSS dihapus - digabung ke funnel card */
 
   /* ── SEARCH+NSR ROW ── */
   .search-nsr-row { display:grid; grid-template-columns:1fr 1fr 2fr; gap:10px; margin-bottom:20px; }
@@ -581,118 +595,174 @@
         </div>
         <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Grafik tren harian Wookey">Grafik tren harian.</canvas></div>
       </div>
-      <!-- FUNNEL PYRAMID -->
-      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
-      <div class="pyramid-section">
-        <div class="pyramid-wrap">
-          <div class="pyramid-layer p-aware" id="py-aware">
-            <div class="p-tag" style="color:var(--c-aware)">Awareness</div>
-            <div class="p-num" style="color:var(--c-aware)" id="py-aware-num">—</div>
-            <div class="p-rate" id="py-aware-pct">— dari benchmark</div>
-          </div>
-          <div class="p-arrow"></div>
-          <div class="pyramid-layer p-cons" id="py-cons">
-            <div class="p-tag" style="color:var(--c-cons)">Consideration</div>
-            <div class="p-num" style="color:var(--c-cons)" id="py-cons-num">—</div>
-            <div class="p-rate" id="py-cons-pct">— dari benchmark</div>
-          </div>
-          <div class="p-arrow"></div>
-          <div class="pyramid-layer p-conv" id="py-conv">
-            <div class="p-tag" style="color:var(--c-conv)">Conversion</div>
-            <div class="p-num" style="color:var(--c-conv)" id="py-conv-num">—</div>
-            <div class="p-rate" id="py-conv-pct">— dari benchmark</div>
+      <!-- FUNNEL PYRAMID + TAB DETAIL -->
+      <div class="funnel-card">
+        <div class="funnel-card-head">
+          <div class="section-title" style="margin:0;border:none;padding:0;"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
+          <div class="funnel-toggle">
+            <button class="f-tp active" onclick="setFunnelPeriod('latest',this)">Terbaru</button>
+            <button class="f-tp" onclick="setFunnelPeriod('7d',this)">7 Hari</button>
+            <button class="f-tp" onclick="setFunnelPeriod('30d',this)">30 Hari</button>
           </div>
         </div>
-        <div class="pyramid-detail">
-          <div class="pdetail-card">
-            <div class="pdetail-head">Awareness</div>
-            <div class="pdetail-row">
-              <span class="pdetail-key">Reach</span>
-              <span class="pdetail-val" style="color:var(--c-aware)" id="pd-reach">—</span>
+        <div class="funnel-body">
+
+          <!-- PIRAMID -->
+          <div class="pyramid-wrap">
+            <div class="pyramid-layer p-aware" style="width:100%;">
+              <div class="p-layer-head">
+                <span class="p-tag" style="color:var(--c-aware)">Awareness</span>
+                <span class="p-chip p-chip-r" id="py-aware-chip">—</span>
+              </div>
+              <div class="p-num" style="color:var(--c-aware)" id="py-aware-num">—</div>
+              <div class="p-bench" id="py-aware-bench">Bench: —</div>
             </div>
-            <div class="pdetail-row">
-              <span class="pdetail-key">Penetrasi audiens</span>
-              <span class="pdetail-val" id="pd-penetration">—</span>
+
+            <div class="p-rate-row">
+              <div class="p-rate-arrow"></div>
+              <div style="text-align:center;">
+                <div class="p-rate-lbl">% Aware to Consider</div>
+                <div class="p-rate-val" id="py-ac-rate">—</div>
+              </div>
+              <div class="p-rate-arrow"></div>
+            </div>
+
+            <div class="pyramid-layer p-cons">
+              <div class="p-layer-head">
+                <span class="p-tag" style="color:var(--c-cons)">Consideration</span>
+                <span class="p-chip p-chip-w" id="py-cons-chip">—</span>
+              </div>
+              <div class="p-num" style="color:var(--c-cons)" id="py-cons-num">—</div>
+              <div class="p-bench" id="py-cons-bench">Bench: —</div>
+            </div>
+
+            <div class="p-rate-row">
+              <div class="p-rate-arrow"></div>
+              <div style="text-align:center;">
+                <div class="p-rate-lbl">% Consider to Convers</div>
+                <div class="p-rate-val" id="py-cc-rate">—</div>
+              </div>
+              <div class="p-rate-arrow"></div>
+            </div>
+
+            <div class="pyramid-layer p-conv">
+              <div class="p-layer-head">
+                <span class="p-tag" style="color:var(--c-conv)">Conversion</span>
+                <span class="p-chip p-chip-w" id="py-conv-chip">—</span>
+              </div>
+              <div class="p-num" style="color:var(--c-conv)" id="py-conv-num">—</div>
+              <div class="p-bench" id="py-conv-bench">Bench: —</div>
             </div>
           </div>
-          <div class="pdetail-card">
-            <div class="pdetail-head">Conversion rates</div>
-            <div class="pdetail-row">
-              <span class="pdetail-key">Aware → Consider</span>
-              <span class="chip-warn" id="pd-ac-rate">—</span>
+
+          <!-- TAB DETAIL -->
+          <div>
+            <div class="ftabs">
+              <button class="ftab ft-aware" id="ftab-aware">Awareness</button>
+              <button class="ftab" id="ftab-cons">Consideration</button>
+              <button class="ftab" id="ftab-conv">Conversion</button>
             </div>
-            <div class="pdetail-row">
-              <span class="pdetail-key">Consider → Convert</span>
-              <span class="chip-ok" id="pd-cc-rate">—</span>
+
+            <!-- Awareness -->
+            <div class="ftab-body" id="fbody-aware">
+              <div class="fhero-val">
+                <span class="fhero-num" style="color:var(--c-aware)" id="fd-aware-num">—</span>
+                <span class="p-chip p-chip-r" id="fd-aware-chip">—</span>
+              </div>
+              <div class="fhero-bench" id="fd-aware-bench">Bench: —</div>
+              <div class="fbar-bg"><div class="fbar-fill" id="fd-aware-bar" style="background:var(--c-aware)"></div></div>
+              <div class="fdrow">
+                <span class="fdkey">Rasio Awareness Wookey vs F&B Tiktok</span>
+                <span class="fdval" id="fd-rasio">—</span>
+              </div>
+              <div class="fsub-head">Via Iklan</div>
+              <div class="fdrow">
+                <span class="fdkey">Awareness By Ads</span>
+                <span class="fdval" id="fd-aware-ads">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey ind">↳ Awareness By Premium Reach</span>
+                <span class="fdval" id="fd-premium">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey ind">↳ Awareness By Massive Reach</span>
+                <span class="fdval" id="fd-massive">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey ind">↳ Uniqe Awareness By Ads</span>
+                <span class="fdval" id="fd-uniq-ads">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey ind">↳ Frekuensi View By Ads</span>
+                <span class="fdval" id="fd-freq-ads">—</span>
+              </div>
+              <div class="fsub-head">Via Organik</div>
+              <div class="fdrow">
+                <span class="fdkey">Awareness By Organik</span>
+                <span class="fdval" id="fd-aware-org">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey ind">↳ Uniqe Awareness By Organik</span>
+                <span class="fdval" id="fd-uniq-org">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey ind">↳ Frekuensi View By Organik</span>
+                <span class="fdval" id="fd-freq-org">—</span>
+              </div>
+            </div>
+
+            <!-- Consideration -->
+            <div class="ftab-body" id="fbody-cons" style="display:none;">
+              <div class="fhero-val">
+                <span class="fhero-num" style="color:var(--c-cons)" id="fd-cons-num">—</span>
+                <span class="p-chip p-chip-w" id="fd-cons-chip">—</span>
+              </div>
+              <div class="fhero-bench" id="fd-cons-bench">Bench: —</div>
+              <div class="fbar-bg"><div class="fbar-fill" id="fd-cons-bar" style="background:var(--c-cons)"></div></div>
+              <div class="fdrow">
+                <span class="fdkey">% Aware to Consider</span>
+                <span class="fdval" id="fd-ac-rate">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey">Consideration By Ads</span>
+                <span class="fdval" id="fd-cons-ads">—</span>
+              </div>
+              <div class="fdrow">
+                <span class="fdkey">Consideration By Organik</span>
+                <span class="fdval" id="fd-cons-org">—</span>
+              </div>
+            </div>
+
+            <!-- Conversion -->
+            <div class="ftab-body" id="fbody-conv" style="display:none;">
+              <div class="fhero-val">
+                <span class="fhero-num" style="color:var(--c-conv)" id="fd-conv-num">—</span>
+                <span class="p-chip p-chip-w" id="fd-conv-chip">—</span>
+              </div>
+              <div class="fhero-bench" id="fd-conv-bench">Bench: —</div>
+              <div class="fbar-bg"><div class="fbar-fill" id="fd-conv-bar" style="background:var(--c-conv)"></div></div>
+              <div class="fdrow">
+                <span class="fdkey">% Consider to Convers</span>
+                <span class="fdval" id="fd-cc-rate">—</span>
+              </div>
             </div>
           </div>
-          <div class="pdetail-card">
-            <div class="pdetail-head">Biaya dan engagement</div>
-            <div class="pdetail-row">
-              <span class="pdetail-key">Per consideration</span>
-              <span class="pdetail-val" id="pd-cons-cost">—</span>
-            </div>
-            <div class="pdetail-row">
-              <span class="pdetail-key">Per conversion</span>
-              <span class="pdetail-val" id="pd-conv-cost">—</span>
-            </div>
-            <div class="pdetail-row">
-              <span class="pdetail-key">Ad engagements</span>
-              <span class="pdetail-val" id="pd-engagements">—</span>
-            </div>
-          </div>
+
         </div>
       </div>
 
-      <!-- BENCHMARK BARS -->
-      <div class="bench-bars">
-        <div class="bench-bar-card">
-          <div class="bench-bar-title">Awareness vs benchmark</div>
-          <div class="bbar-row">
-            <span class="bbar-lbl">Wookey</span>
-            <div class="bbar"><div class="bbar-fill" id="bb-aware-w" style="background:var(--c-aware)"></div></div>
-            <span class="bbar-num" id="bb-aware-wn">—</span>
-          </div>
-          <div class="bbar-row">
-            <span class="bbar-lbl">Bench</span>
-            <div class="bbar"><div class="bbar-fill" id="bb-aware-b" style="width:100%;background:var(--muted)"></div></div>
-            <span class="bbar-num" id="bb-aware-bn">—</span>
-          </div>
-        </div>
-        <div class="bench-bar-card">
-          <div class="bench-bar-title">Consideration vs benchmark</div>
-          <div class="bbar-row">
-            <span class="bbar-lbl">Wookey</span>
-            <div class="bbar"><div class="bbar-fill" id="bb-cons-w" style="background:var(--c-cons)"></div></div>
-            <span class="bbar-num" id="bb-cons-wn">—</span>
-          </div>
-          <div class="bbar-row">
-            <span class="bbar-lbl">Bench</span>
-            <div class="bbar"><div class="bbar-fill" id="bb-cons-b" style="width:100%;background:var(--muted)"></div></div>
-            <span class="bbar-num" id="bb-cons-bn">—</span>
-          </div>
-        </div>
-        <div class="bench-bar-card">
-          <div class="bench-bar-title">Conversion vs benchmark</div>
-          <div class="bbar-row">
-            <span class="bbar-lbl">Wookey</span>
-            <div class="bbar"><div class="bbar-fill" id="bb-conv-w" style="background:var(--c-conv)"></div></div>
-            <span class="bbar-num" id="bb-conv-wn">—</span>
-          </div>
-          <div class="bbar-row">
-            <span class="bbar-lbl">Bench</span>
-            <div class="bbar"><div class="bbar-fill" id="bb-conv-b" style="width:100%;background:var(--muted)"></div></div>
-            <span class="bbar-num" id="bb-conv-bn">—</span>
-          </div>
-        </div>
+      <!-- hidden legacy ids untuk backward compat -->
+      <div style="display:none">
+        <span id="py-aware-pct"></span><span id="py-cons-pct"></span><span id="py-conv-pct"></span>
+        <span id="pd-reach"></span><span id="pd-penetration"></span>
+        <span id="pd-ac-rate"></span><span id="pd-cc-rate"></span>
+        <span id="pd-cons-cost"></span><span id="pd-conv-cost"></span><span id="pd-engagements"></span>
+        <span id="bb-aware-w"></span><span id="bb-aware-wn"></span><span id="bb-aware-b"></span><span id="bb-aware-bn"></span>
+        <span id="bb-cons-w"></span><span id="bb-cons-wn"></span><span id="bb-cons-b"></span><span id="bb-cons-bn"></span>
+        <span id="bb-conv-w"></span><span id="bb-conv-wn"></span><span id="bb-conv-b"></span><span id="bb-conv-bn"></span>
       </div>
 
-      <!-- FUNNEL (hidden, legacy) -->
-      <div id="funnel-row" style="display:none"></div>
-
-
-
-      <!-- SEARCH + NSR ROW -->
+            <!-- SEARCH + NSR ROW -->
       <div class="section-title"><span class="dot" style="background:var(--c-rate,#8b5cf6)"></span>Search dan sentimen</div>
       <div class="search-nsr-row">
         <div class="search-mini-card">
@@ -1138,6 +1208,140 @@ function getBenchForPeriod(filtered) {
   result['Awareness By Massive Reach'] = Number(latest['Awareness By Massive Reach'])||0;
 
   return result;
+}
+
+// ── FUNNEL TAB SWITCHING ──
+(function(){
+  var tabs=['aware','cons','conv'];
+  var cls={aware:'ft-aware',cons:'ft-cons',conv:'ft-conv'};
+  function initFunnelTabs(){
+    tabs.forEach(function(t){
+      var el=document.getElementById('ftab-'+t);
+      if(!el) return;
+      el.addEventListener('click',function(){
+        tabs.forEach(function(x){
+          var tb=document.getElementById('ftab-'+x);
+          var bd=document.getElementById('fbody-'+x);
+          if(tb) tb.className='ftab';
+          if(bd) bd.style.display='none';
+        });
+        el.className='ftab '+cls[t];
+        var bd=document.getElementById('fbody-'+t);
+        if(bd) bd.style.display='flex';
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded', initFunnelTabs);
+  setTimeout(initFunnelTabs, 500);
+})();
+
+var funnelPeriod = 'latest';
+function setFunnelPeriod(period, btn){
+  funnelPeriod = period;
+  document.querySelectorAll('.f-tp').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  renderFunnelNew(msFilteredData);
+}
+
+function getFunnelData(data){
+  if(!data.length) return [];
+  var sorted = data.slice().sort(function(a,b){ return String(a['Tanggal']).localeCompare(String(b['Tanggal'])); });
+  if(funnelPeriod === 'latest') return [sorted[sorted.length-1]];
+  if(funnelPeriod === '7d'){
+    var last = sorted[sorted.length-1]['Tanggal'];
+    var from = last.slice(0,8) + String(Number(last.slice(8))-6).padStart(2,'0');
+    return sorted.filter(function(d){ return d['Tanggal'] >= from; });
+  }
+  if(funnelPeriod === '30d'){
+    var last2 = sorted[sorted.length-1]['Tanggal'];
+    var from2 = last2.slice(0,8) + String(Number(last2.slice(8))-29).padStart(2,'0');
+    return sorted.filter(function(d){ return d['Tanggal'] >= from2; });
+  }
+  return [sorted[sorted.length-1]];
+}
+
+function pChip(pct){
+  if(pct>=80) return 'p-chip-g';
+  if(pct>=40) return 'p-chip-w';
+  return 'p-chip-r';
+}
+
+function setFChip(id, pct){
+  var el=document.getElementById(id);
+  if(!el) return;
+  el.className='p-chip '+pChip(pct);
+  el.textContent=Math.round(pct)+'% vs bench';
+}
+
+function renderFunnelNew(data){
+  if(!data || !data.length) return;
+  var fd = getFunnelData(data);
+  var latest = fd[fd.length-1];
+  var bench  = getBenchForPeriod(fd);
+
+  var aware  = Number(latest['Awareness'])||0;
+  var cons   = Number(latest['Consideration'])||0;
+  var conv   = Number(latest['Conversion'])||0;
+  var awareBm= bench['Awareness']||0;
+  var consBm = bench['Consideration']||0;
+  var convBm = bench['Conversion']||0;
+
+  var awarePct = awareBm>0 ? aware/awareBm*100 : 0;
+  var consPct  = consBm>0  ? cons/consBm*100   : 0;
+  var convPct  = convBm>0  ? conv/convBm*100   : 0;
+
+  var acRate = Number(latest['% Aware to Consider'])||0;
+  var ccRate = Number(latest['% Consider to Convers'])||0;
+
+  // Piramid
+  setText('py-aware-num', fmtFull(aware));
+  setText('py-aware-bench', 'Bench: '+fmtFull(awareBm));
+  setFChip('py-aware-chip', awarePct);
+  setText('py-cons-num', fmtFull(cons));
+  setText('py-cons-bench', 'Bench: '+fmtFull(consBm));
+  setFChip('py-cons-chip', consPct);
+  setText('py-conv-num', fmtFull(conv));
+  setText('py-conv-bench', 'Bench: '+fmtFull(convBm));
+  setFChip('py-conv-chip', convPct);
+  setText('py-ac-rate', (acRate<2?(acRate*100).toFixed(1):acRate.toFixed(1))+'%');
+  setText('py-cc-rate', (ccRate<2?(ccRate*100).toFixed(1):ccRate.toFixed(1))+'%');
+
+  // Tab Awareness
+  setText('fd-aware-num', fmtFull(aware));
+  setText('fd-aware-bench', 'Bench: '+fmtFull(awareBm));
+  setFChip('fd-aware-chip', awarePct);
+  var aBar=document.getElementById('fd-aware-bar');
+  if(aBar) aBar.style.width=Math.min(awarePct,100).toFixed(0)+'%';
+
+  setText('fd-rasio', (Number(latest['Rasio Awareness Wookey vs F&B Tiktok'])||0).toFixed(2)+'%');
+  setText('fd-aware-ads', fmtFull(Number(latest['Awareness By Ads'])||0));
+  setText('fd-premium',   fmtFull(Number(latest['Awareness By Premium Reach'])||0));
+  setText('fd-massive',   fmtFull(Number(latest['Awareness By Massive Reach'])||0));
+  setText('fd-uniq-ads',  fmtFull(Number(latest['Uniqe Awareness By Ads'])||0));
+  var freqAds = Number(latest['Frekuensi View By Ads'])||0;
+  setText('fd-freq-ads',  freqAds>0 ? freqAds.toFixed(2)+'x' : '—');
+  setText('fd-aware-org', fmtFull(Number(latest['Awareness By Organik'])||0));
+  setText('fd-uniq-org',  fmtFull(Number(latest['Uniqe Awareness By Organik'])||0));
+  var freqOrg = Number(latest['Frekuensi View By Organik'])||0;
+  setText('fd-freq-org',  freqOrg>0 ? freqOrg.toFixed(2)+'x' : '—');
+
+  // Tab Consideration
+  setText('fd-cons-num', fmtFull(cons));
+  setText('fd-cons-bench', 'Bench: '+fmtFull(consBm));
+  setFChip('fd-cons-chip', consPct);
+  var cBar=document.getElementById('fd-cons-bar');
+  if(cBar) cBar.style.width=Math.min(consPct,100).toFixed(0)+'%';
+  setText('fd-ac-rate', (acRate<2?(acRate*100).toFixed(1):acRate.toFixed(1))+'%');
+  setText('fd-cons-ads', fmtFull(Number(latest['Consideration By Ads'])||0));
+  setText('fd-cons-org', fmtFull(Number(latest['Consideration By Organik'])||0));
+
+  // Tab Conversion
+  setText('fd-conv-num', fmtFull(conv));
+  setText('fd-conv-bench', 'Bench: '+fmtFull(convBm));
+  setFChip('fd-conv-chip', convPct);
+  var vBar=document.getElementById('fd-conv-bar');
+  if(vBar) vBar.style.width=Math.min(convPct,100).toFixed(0)+'%';
+  setText('fd-cc-rate', (ccRate<2?(ccRate*100).toFixed(1):ccRate.toFixed(1))+'%');
 }
 
 // ── RENDER KPI SNAPSHOT ──
@@ -1594,6 +1798,7 @@ function renderAll(filtered) {
   }
   renderKPISnapshot(filtered);
   renderPyramid(filtered);
+  renderFunnelNew(filtered);
   renderSearchNSR(filtered);
   renderFunnel(filtered);
   renderImpChart(filtered);
