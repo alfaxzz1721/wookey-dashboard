@@ -1096,8 +1096,13 @@ function msBuildWeekOptions() {
 
 function msApplyWeek() {
   var monday = document.getElementById('ms-week-select').value;
-  var sun = new Date(monday); sun.setDate(sun.getDate()+6);
-  var sunStr = sun.toISOString().split('T')[0];
+  if (!monday) return;
+  // Pastikan format YYYY-MM-DD valid sebelum buat Date object
+  var parts = monday.split('-');
+  if (parts.length !== 3) return;
+  var sun = new Date(Number(parts[0]), Number(parts[1])-1, Number(parts[2])+6);
+  if (isNaN(sun.getTime())) return;
+  var sunStr = sun.getFullYear()+'-'+String(sun.getMonth()+1).padStart(2,'0')+'-'+String(sun.getDate()).padStart(2,'0');
   msFilteredData = allData.filter(d => d['Tanggal'] >= monday && d['Tanggal'] <= sunStr);
   if (!msFilteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Tidak ada data.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
@@ -1571,6 +1576,81 @@ function toggleTheme() {
 initTheme();
 
 // ── RENDER ALL ──
+var impChart = null;
+var activeChartMetrics = { impressions: true, nsr: false, search: false };
+var lastChartData = [];
+
+function toggleChartMetric(metric, btn) {
+  activeChartMetrics[metric] = !activeChartMetrics[metric];
+  btn.classList.toggle('active', activeChartMetrics[metric]);
+  renderImpChart(lastChartData);
+}
+
+function renderImpChart(data) {
+  if (!data || !data.length) return;
+  lastChartData = data;
+  var isSingle = data.length === 1;
+  var labels = data.map(d => d['Tanggal']);
+  var datasets = [];
+
+  if (activeChartMetrics.impressions) {
+    datasets.push({
+      label:'Impressions', yAxisID:'y',
+      data: data.map(d => Number(d['Impressions'])||0),
+      borderColor:'#f59e0b', backgroundColor:'#f59e0b14',
+      tension:.35, fill:true,
+      pointRadius: isSingle?6:3, borderWidth:2,
+      pointBackgroundColor:'#f59e0b'
+    });
+  }
+  if (activeChartMetrics.nsr) {
+    datasets.push({
+      label:'NSR (%)', yAxisID:'y2',
+      data: data.map(d => { var v=Number(d['NSR'])||0; return v<2?v*100:v; }),
+      borderColor:'#10b981', backgroundColor:'transparent',
+      tension:.35, fill:false,
+      pointRadius: isSingle?6:3, borderWidth:2,
+      pointBackgroundColor:'#10b981'
+    });
+  }
+  if (activeChartMetrics.search) {
+    datasets.push({
+      label:'Search Volume', yAxisID:'y3',
+      data: data.map(d => Number(d['Search Volume'])||0),
+      borderColor:'#8b5cf6', backgroundColor:'transparent',
+      tension:.35, fill:false,
+      pointRadius: isSingle?6:3, borderWidth:2,
+      pointBackgroundColor:'#8b5cf6',
+      borderDash:[3,2]
+    });
+  }
+
+  var GRID = { color:'rgba(0,0,0,0.08)', lineWidth:1 };
+  var scales = {
+    x:{ grid:GRID, ticks:{ color:'#5a6070', font:{ size:10, family:'JetBrains Mono' }, maxTicksLimit:8 }, offset:isSingle },
+    y:{ display:activeChartMetrics.impressions, position:'left', grid:GRID, ticks:{ color:'#f59e0b', font:{size:10}, callback:v=>fmtNum(v) } },
+    y2:{ display:activeChartMetrics.nsr, position:'right', grid:{ color:'rgba(0,0,0,0.08)', drawOnChartArea:!activeChartMetrics.impressions }, ticks:{ color:'#10b981', font:{size:10}, callback:v=>v.toFixed(1)+'%' }, min:0, max:100 },
+    y3:{ display:activeChartMetrics.search, position:'right', grid:{ color:'rgba(0,0,0,0.08)', drawOnChartArea:false }, ticks:{ color:'#8b5cf6', font:{size:10}, callback:v=>fmtNum(v) } }
+  };
+
+  if (impChart) impChart.destroy();
+  var canvas = document.getElementById('impChart');
+  if (!canvas) return;
+  impChart = new Chart(canvas.getContext('2d'), {
+    type:'line', data:{ labels, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#13151f', borderColor:'#374151', borderWidth:1, titleColor:'#e8eaf2', bodyColor:'#9ca3af', padding:10 } },
+      scales
+    }
+  });
+}
+
+function renderVShare(data) { /* deprecated — data sudah di KPI snapshot */ }
+
+function renderNSR(data) { /* deprecated — data sudah di renderSearchNSR */ }
+
 function renderAll(filtered) {
   if (filtered.length) {
     var dates = filtered.map(d => d['Tanggal']);
