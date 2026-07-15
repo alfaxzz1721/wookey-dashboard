@@ -787,6 +787,11 @@
         </div>
       </div>
 
+      </div><!-- end panel-scope -->
+
+      <!-- TAB: AUDIENCE ANALYSIS -->
+      <div id="panel-audience" class="main-content" style="display:none">
+
       <!-- AUDIENCE DEMOGRAPHICS -->
       <div class="section-title"><span class="dot" style="background:var(--c-conv)"></span>Audience Analysis — Demografi Snapshot</div>
       <div class="info-note" id="audience-date-note">Memuat tanggal snapshot...</div>
@@ -797,6 +802,8 @@
       <div class="audience-grid" id="audience-grid">
         <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data audiens...</div>
       </div>
+
+      </div><!-- end panel-audience -->
 
     </div>
   </div>
@@ -812,6 +819,29 @@
 
 <script>
 const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
+
+// ── TAB NAVIGATION ──
+function switchTab(tab) {
+  const panels = ['scope','audience'];
+  panels.forEach(p => {
+    document.getElementById('panel-' + p).style.display = p === tab ? '' : 'none';
+    const btn = document.getElementById('tab-' + p);
+    if (p === tab) {
+      btn.style.borderBottom = '2px solid var(--tiktok)';
+      btn.style.background = 'rgba(37,244,238,.08)';
+      btn.style.color = 'var(--tiktok)';
+    } else {
+      btn.style.borderBottom = '2px solid transparent';
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--muted)';
+    }
+  });
+  // Load audience data saat tab audience dibuka
+  if (tab === 'audience' && !window._audienceLoaded) {
+    window._audienceLoaded = true;
+    loadAudience();
+  }
+}
 
 // ── INFO POPUP DATA ──
 const INFO = {
