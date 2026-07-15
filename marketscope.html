@@ -518,7 +518,10 @@
             Impresi
             <button class="kpi-info-btn" onclick="showKpiInfo('impresi')" title="Penjelasan">?</button>
           </div>
-          <div class="kpi-snap-val" style="color:var(--c-aware)" id="kpi-impresi">—</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="kpi-snap-val" style="color:var(--c-aware)" id="kpi-impresi">—</div>
+            <span id="kpi-impresi-chip" style="display:none;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;"></span>
+          </div>
           <div class="kpi-snap-sub" id="kpi-impresi-bench">Bench: —</div>
 
         </div>
@@ -527,7 +530,10 @@
             Net Sentiment Rate
             <button class="kpi-info-btn" onclick="showKpiInfo('nsr')" title="Penjelasan">?</button>
           </div>
-          <div class="kpi-snap-val" style="color:var(--green)" id="kpi-nsr">—</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="kpi-snap-val" style="color:var(--green)" id="kpi-nsr">—</div>
+            <span id="kpi-nsr-chip" style="display:none;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;"></span>
+          </div>
           <div class="kpi-snap-sub" id="kpi-nsr-bench">Bench: —</div>
           <div class="kpi-snap-extra" id="kpi-nsr-label" style="color:var(--green)">—</div>
         </div>
@@ -536,7 +542,10 @@
             Search volume
             <button class="kpi-info-btn" onclick="showKpiInfo('search')" title="Penjelasan">?</button>
           </div>
-          <div class="kpi-snap-val" style="color:var(--c-rate,#8b5cf6)" id="kpi-search">—</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="kpi-snap-val" style="color:var(--c-rate,#8b5cf6)" id="kpi-search">—</div>
+            <span id="kpi-search-chip" style="display:none;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;"></span>
+          </div>
           <div class="kpi-snap-sub" id="kpi-search-bench">Bench: —</div>
           <div class="kpi-snap-extra" id="kpi-unique-search" style="color:var(--muted)">Unique search: —</div>
           <div class="kpi-snap-extra" id="kpi-ctr" style="color:var(--green)">CTR: —</div>
@@ -1122,12 +1131,15 @@ function renderKPISnapshot(data) {
 
   setText('kpi-impresi', fmtFull(imp));
   setText('kpi-impresi-bench', 'Bench: '+fmtFull(impB));
+  setChip('kpi-impresi-chip', impB > 0 ? imp/impB*100 : null);
   // kpi-vshare dihapus
   setText('kpi-nsr', (nsrVal>0?'+':'')+nsrVal.toFixed(1)+'%');
   setText('kpi-nsr-bench', 'Bench: '+(nsrBVal>0?'+':'')+nsrBVal.toFixed(1)+'%');
+  setChip('kpi-nsr-chip', nsrBVal > 0 ? nsrVal/nsrBVal*100 : null);
   setText('kpi-nsr-label', nsrVal>=80?'Sangat positif':nsrVal>=50?'Positif':nsrVal>=0?'Netral':'Negatif');
   setText('kpi-search', fmtFull(sv));
   setText('kpi-search-bench', 'Bench: '+fmtFull(svB));
+  setChip('kpi-search-chip', svB > 0 ? sv/svB*100 : null);
   setText('kpi-ctr', 'CTR: '+(ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2))+'%');
   var uq = Number(latest['Uniqe Search']||latest['unique_search']||0);
   setText('kpi-unique-search', uq ? 'Unique search: '+fmtFull(uq)+' orang' : 'Unique search: —');
@@ -1212,6 +1224,20 @@ function renderSearchNSR(data) {
 }
 
 function setText(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+function setChip(id, pct) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  if (!pct || isNaN(pct)) { el.style.display='none'; return; }
+  var p = Math.round(pct);
+  var bg, color;
+  if (p >= 80)      { bg='var(--bg-success)';  color='var(--text-success)'; }
+  else if (p >= 40) { bg='var(--bg-warning)';  color='var(--text-warning)'; }
+  else              { bg='var(--bg-danger)';   color='var(--text-danger)'; }
+  el.style.display = 'inline-flex';
+  el.style.background = bg;
+  el.style.color = color;
+  el.textContent = p + '% vs bench';
+}
 
 // ── KPI INFO POPUP ──
 var KPI_INFO = {
