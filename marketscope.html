@@ -1732,7 +1732,10 @@ async function initMarketScope() {
       renderAudience(allAudienceData);
     }
 
-    console.log('[MS] Data loaded:', allData.length, 'trend,', allAudienceData.length, 'audience');
+    console.log('[MS] Data loaded:', allData.length, 'trend,', allAudienceData.length, 'audience,', allBenchData.length, 'bench');
+    console.log('[MS] Sample tanggal trend:', allData.length ? allData[0]['Tanggal'] : 'KOSONG');
+    console.log('[MS] Sample audience:', allAudienceData.length ? JSON.stringify(allAudienceData[0]) : 'KOSONG');
+    console.log('[MS] msFilteredData:', msFilteredData.length);
   } catch(e) {
     console.error('[MS] Init error:', e);
   }
