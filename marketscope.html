@@ -1537,6 +1537,17 @@ function setBar(barId, pct, numId, numVal) {
 // ── RENDER FUNNEL (digantikan renderFunnelNew) ──
 function renderFunnel(data) { return; }
 
+// ── THEME ──
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+initTheme();
+
+</script>
+</body>
+</html>
+
 // ── RENDER ALL ──
 function renderAll(filtered) {
   if (filtered.length) {
@@ -1632,6 +1643,17 @@ function renderAudience(audienceData) {
     return '<div class="audience-card"><div class="audience-card-title">'+c.title+'</div>' + rows + '</div>';
   }).join('') || '<div style="color:var(--muted);font-size:12px;grid-column:1/-1">Belum ada data demografi.</div>';
 }
+
+// ── THEME ──
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+initTheme();
+
+</script>
+</body>
+</html>
 
 // ── RENDER ALL ──
 
