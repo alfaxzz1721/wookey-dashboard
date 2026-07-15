@@ -1108,11 +1108,14 @@ function renderKPISnapshot(data) {
   var bench  = getBenchForPeriod(data);
   var imp  = data.reduce((s,d)=>s+(Number(d['Impressions'])||0),0);
   var impB = bench['Impressions']||0;
-  var nsr  = Number(latest['NSR'])||0;
+  // NSR dan CTR → average periode
+  var nsrVals = data.map(d=>Number(d['NSR'])||0).filter(v=>v>0);
+  var nsr  = nsrVals.length ? nsrVals.reduce((s,v)=>s+v,0)/nsrVals.length : 0;
   var nsrB = bench['NSR']||0;
   var sv   = data.reduce((s,d)=>s+(Number(d['Search Volume'])||0),0);
   var svB  = bench['Search Volume']||0;
-  var ctr  = Number(latest['CTR by Search'])||0;
+  var ctrArr = data.map(d=>Number(d['CTR by Search'])||0).filter(v=>v>0);
+  var ctr  = ctrArr.length ? ctrArr.reduce((s,v)=>s+v,0)/ctrArr.length : 0;
 
   var nsrVal = nsr < 2 ? nsr*100 : nsr;
   var nsrBVal = nsrB < 2 ? nsrB*100 : nsrB;
@@ -1185,9 +1188,12 @@ function renderSearchNSR(data) {
   var bench  = getBenchForPeriod(data);
   var sv   = data.reduce((s,d)=>s+(Number(d['Search Volume'])||0),0);
   var svB  = bench['Search Volume']||0;
-  var ctr  = Number(latest['CTR by Search'])||0;
+  // CTR dan NSR → average periode
+  var ctrVals = data.map(d=>Number(d['CTR by Search'])||0).filter(v=>v>0);
+  var ctr  = ctrVals.length ? ctrVals.reduce((s,v)=>s+v,0)/ctrVals.length : 0;
   var ctrV = ctr<1?(ctr*100).toFixed(2):ctr.toFixed(2);
-  var nsr  = Number(latest['NSR'])||0;
+  var nsrVals2 = data.map(d=>Number(d['NSR'])||0).filter(v=>v>0);
+  var nsr  = nsrVals2.length ? nsrVals2.reduce((s,v)=>s+v,0)/nsrVals2.length : 0;
   var nsrB = bench['NSR']||0;
   var nsrVal = nsr<2?nsr*100:nsr;
   var nsrBVal= nsrB<2?nsrB*100:nsrB;
