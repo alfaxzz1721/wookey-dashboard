@@ -1538,15 +1538,21 @@ function setBar(barId, pct, numId, numVal) {
 function renderFunnel(data) { return; }
 
 // ── THEME ──
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('ms-theme', theme);
+  var track = document.getElementById('theme-track');
+  if (track) track.classList.toggle('on', theme === 'light');
+}
+function initTheme() {
+  var saved = localStorage.getItem('ms-theme') || 'dark';
+  applyTheme(saved);
+}
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'dark';
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 initTheme();
-
-</script>
-</body>
-</html>
 
 // ── RENDER ALL ──
 function renderAll(filtered) {
@@ -1659,12 +1665,6 @@ function renderAudience(audienceData) {
 }
 
 // ── THEME ──
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  applyTheme(current === 'dark' ? 'light' : 'dark');
-}
-initTheme();
-
 </script>
 </body>
 </html>
