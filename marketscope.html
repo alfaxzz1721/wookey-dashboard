@@ -921,20 +921,22 @@ function switchTab(tab) {
   });
   // Render audience data saat tab audience dibuka
   if (tab === 'audience') {
-    setTimeout(function() {
-      if (typeof allAudienceData !== 'undefined' && allAudienceData && allAudienceData.length > 0) {
+    var audGrid = document.getElementById('audience-grid');
+    if (audGrid) audGrid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px">⏳ Memuat data audiens...</div>';
+    // Retry sampai 10 detik
+    var retryCount = 0;
+    var maxRetry = 20;
+    function tryRenderAudience() {
+      if (allAudienceData && allAudienceData.length > 0) {
         renderAudience(allAudienceData);
+      } else if (retryCount < maxRetry) {
+        retryCount++;
+        setTimeout(tryRenderAudience, 500);
       } else {
-        // Data belum ready, coba lagi setelah 2 detik
-        setTimeout(function() {
-          if (typeof allAudienceData !== 'undefined' && allAudienceData && allAudienceData.length > 0) {
-            renderAudience(allAudienceData);
-          } else {
-            document.getElementById('audience-grid').innerHTML = '<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px">⚠️ Data belum tersedia. Pilih tanggal dan klik Terapkan dulu.</div>';
-          }
-        }, 2000);
+        if (audGrid) audGrid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px">⚠️ Data audiens belum tersedia. Coba refresh halaman.</div>';
       }
-    }, 300);
+    }
+    setTimeout(tryRenderAudience, 300);
   }
 }
 
