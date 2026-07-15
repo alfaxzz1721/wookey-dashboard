@@ -524,6 +524,19 @@
         <button onclick="msResetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
       </div>
 
+      <!-- TAB NAVIGATION -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin:16px 0;background:var(--surface);border-radius:10px 10px 0 0;overflow:hidden;">
+        <button id="tab-scope" onclick="switchTab('scope')" style="padding:11px 24px;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .2s;border-bottom:2px solid var(--tiktok);background:rgba(37,244,238,.08);color:var(--tiktok);">
+          🧭 Market Scope
+        </button>
+        <button id="tab-audience" onclick="switchTab('audience')" style="padding:11px 24px;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;background:transparent;color:var(--muted);">
+          👥 Audience Analysis
+        </button>
+      </div>
+
+      <!-- PANEL: MARKET SCOPE -->
+      <div id="panel-scope">
+
       <!-- KPI SNAPSHOT -->
       <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Ringkasan periode</div>
       <div class="kpi-snapshot" id="kpi-snapshot">
@@ -1509,8 +1522,9 @@ function setBar(barId, pct, numId, numVal) {
   var nel=document.getElementById(numId); if(nel) nel.textContent=numVal;
 }
 
-// ── RENDER FUNNEL ──
-function renderFunnel(data) {
+// ── RENDER FUNNEL (digantikan renderFunnelNew) ──
+function renderFunnel(data) { return; // deprecated
+  if(false){
   if (!data.length) {
     document.getElementById('funnel-row').innerHTML = '<div class="loading" style="grid-column:1/-1;height:120px">Belum ada data funnel.</div>';
     return;
@@ -1837,7 +1851,7 @@ async function init() {
 
     if (!validTrend.length) {
       document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Belum ada data Market Scope di sheet. Pastikan sheet "Market Scope Harian" sudah terisi.</div>';
-      document.getElementById('funnel-row').innerHTML = '';
+      // funnel-row deprecated
       renderAudience(audienceData);
       return;
     }
