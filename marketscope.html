@@ -450,6 +450,7 @@
         <div style="display:flex;align-items:center;gap:10px;width:100%;"><span class="sidebar-icon">🧭</span><span>Market Scope</span></div>
         <div class="sidebar-sub" style="width:100%;margin-top:4px;">
           <a class="sidebar-sub-item active" onclick="switchTab('scope')" style="cursor:pointer" id="sub-scope">Market Scope</a>
+          <a class="sidebar-sub-item" onclick="switchTab('funnel')" style="cursor:pointer" id="sub-funnel">Brand Funnel</a>
           <a class="sidebar-sub-item" onclick="switchTab('audience')" style="cursor:pointer" id="sub-audience">Audience Analysis</a>
         </div>
       </div>
@@ -617,7 +618,14 @@
         </div>
         <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Grafik tren harian Wookey">Grafik tren harian.</canvas></div>
       </div>
-      <!-- FUNNEL PYRAMID + TAB DETAIL -->
+
+      </div><!-- end panel-scope -->
+
+      <!-- PANEL: BRAND FUNNEL -->
+      <div id="panel-funnel" class="main-content" style="display:none">
+      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
+
+      <!-- Funnel Pyramid + Tab Detail -->
       <div class="funnel-card">
         <div class="funnel-card-head">
           <div class="section-title" style="margin:0;border:none;padding:0;"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
@@ -628,152 +636,78 @@
           </div>
         </div>
         <div class="funnel-body">
-
-          <!-- PIRAMID -->
-          <div class="pyramid-wrap">
+          <div class="pyramid-wrap" id="pyramid-wrap">
             <div class="pyramid-layer p-aware" style="width:100%;">
-              <div class="p-layer-head">
-                <span class="p-tag" style="color:var(--c-aware)">Awareness</span>
-                <span class="p-chip p-chip-r" id="py-aware-chip">—</span>
-              </div>
-              <div class="p-num" style="color:var(--c-aware)" id="py-aware-num">—</div>
+              <div class="p-label">AWARENESS</div>
+              <div class="p-val" id="py-aware-val">—</div>
               <div class="p-bench" id="py-aware-bench">Bench: —</div>
-            </div>
-
-            <div class="p-rate-row">
-              <div class="p-rate-arrow"></div>
-              <div style="text-align:center;">
-                <div class="p-rate-lbl">% Aware to Consider</div>
-                <div class="p-rate-val" id="py-ac-rate">—</div>
+              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-aware-bar" style="width:0%"></div></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted)">
+                <span id="py-aware-chip"></span>
               </div>
-              <div class="p-rate-arrow"></div>
             </div>
-
-            <div class="pyramid-layer p-cons">
-              <div class="p-layer-head">
-                <span class="p-tag" style="color:var(--c-cons)">Consideration</span>
-                <span class="p-chip p-chip-w" id="py-cons-chip">—</span>
-              </div>
-              <div class="p-num" style="color:var(--c-cons)" id="py-cons-num">—</div>
+            <div class="p-rate-row"><span class="p-rate-lbl">% Aware to Consider</span><span class="p-rate-val" id="py-ac-rate">—</span></div>
+            <div class="pyramid-layer p-cons" style="width:80%">
+              <div class="p-label">CONSIDERATION</div>
+              <div class="p-val" id="py-cons-val">—</div>
               <div class="p-bench" id="py-cons-bench">Bench: —</div>
-            </div>
-
-            <div class="p-rate-row">
-              <div class="p-rate-arrow"></div>
-              <div style="text-align:center;">
-                <div class="p-rate-lbl">% Consider to Convers</div>
-                <div class="p-rate-val" id="py-cc-rate">—</div>
+              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-cons-bar" style="width:0%"></div></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted)">
+                <span id="py-cons-chip"></span>
               </div>
-              <div class="p-rate-arrow"></div>
             </div>
-
-            <div class="pyramid-layer p-conv">
-              <div class="p-layer-head">
-                <span class="p-tag" style="color:var(--c-conv)">Conversion</span>
-                <span class="p-chip p-chip-w" id="py-conv-chip">—</span>
-              </div>
-              <div class="p-num" style="color:var(--c-conv)" id="py-conv-num">—</div>
+            <div class="p-rate-row"><span class="p-rate-lbl">% Consider to Convers</span><span class="p-rate-val" id="py-cc-rate">—</span></div>
+            <div class="pyramid-layer p-conv" style="width:60%">
+              <div class="p-label">CONVERSION</div>
+              <div class="p-val" id="py-conv-val">—</div>
               <div class="p-bench" id="py-conv-bench">Bench: —</div>
-            </div>
-          </div>
-
-          <!-- TAB DETAIL -->
-          <div>
-            <div class="ftabs">
-              <button class="ftab ft-aware" id="ftab-aware">Awareness</button>
-              <button class="ftab" id="ftab-cons">Consideration</button>
-              <button class="ftab" id="ftab-conv">Conversion</button>
-            </div>
-
-            <!-- Awareness -->
-            <div class="ftab-body" id="fbody-aware">
-              <div class="fhero-val">
-                <span class="fhero-num" style="color:var(--c-aware)" id="fd-aware-num">—</span>
-                <span class="p-chip p-chip-r" id="fd-aware-chip">—</span>
-              </div>
-              <div class="fhero-bench" id="fd-aware-bench">Bench: —</div>
-              <div class="fbar-bg"><div class="fbar-fill" id="fd-aware-bar" style="background:var(--c-aware)"></div></div>
-              <div class="fdrow">
-                <span class="fdkey">Rasio Awareness Wookey vs F&B Tiktok</span>
-                <span class="fdval" id="fd-rasio">—</span>
-              </div>
-              <div class="fsub-head">Via Iklan</div>
-              <div class="fdrow">
-                <span class="fdkey">Awareness By Ads</span>
-                <span class="fdval" id="fd-aware-ads">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey ind">↳ Awareness By Premium Reach</span>
-                <span class="fdval" id="fd-premium">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey ind">↳ Awareness By Massive Reach</span>
-                <span class="fdval" id="fd-massive">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey ind">↳ Uniqe Awareness By Ads</span>
-                <span class="fdval" id="fd-uniq-ads">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey ind">↳ Frekuensi View By Ads</span>
-                <span class="fdval" id="fd-freq-ads">—</span>
-              </div>
-              <div class="fsub-head">Via Organik</div>
-              <div class="fdrow">
-                <span class="fdkey">Awareness By Organik</span>
-                <span class="fdval" id="fd-aware-org">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey ind">↳ Uniqe Awareness By Organik</span>
-                <span class="fdval" id="fd-uniq-org">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey ind">↳ Frekuensi View By Organik</span>
-                <span class="fdval" id="fd-freq-org">—</span>
-              </div>
-            </div>
-
-            <!-- Consideration -->
-            <div class="ftab-body" id="fbody-cons" style="display:none;">
-              <div class="fhero-val">
-                <span class="fhero-num" style="color:var(--c-cons)" id="fd-cons-num">—</span>
-                <span class="p-chip p-chip-w" id="fd-cons-chip">—</span>
-              </div>
-              <div class="fhero-bench" id="fd-cons-bench">Bench: —</div>
-              <div class="fbar-bg"><div class="fbar-fill" id="fd-cons-bar" style="background:var(--c-cons)"></div></div>
-              <div class="fdrow">
-                <span class="fdkey">% Aware to Consider</span>
-                <span class="fdval" id="fd-ac-rate">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey">Consideration By Ads</span>
-                <span class="fdval" id="fd-cons-ads">—</span>
-              </div>
-              <div class="fdrow">
-                <span class="fdkey">Consideration By Organik</span>
-                <span class="fdval" id="fd-cons-org">—</span>
-              </div>
-            </div>
-
-            <!-- Conversion -->
-            <div class="ftab-body" id="fbody-conv" style="display:none;">
-              <div class="fhero-val">
-                <span class="fhero-num" style="color:var(--c-conv)" id="fd-conv-num">—</span>
-                <span class="p-chip p-chip-w" id="fd-conv-chip">—</span>
-              </div>
-              <div class="fhero-bench" id="fd-conv-bench">Bench: —</div>
-              <div class="fbar-bg"><div class="fbar-fill" id="fd-conv-bar" style="background:var(--c-conv)"></div></div>
-              <div class="fdrow">
-                <span class="fdkey">% Consider to Convers</span>
-                <span class="fdval" id="fd-cc-rate">—</span>
+              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-conv-bar" style="width:0%"></div></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted)">
+                <span id="py-conv-chip"></span>
               </div>
             </div>
           </div>
 
+          <!-- Detail Tab -->
+          <div class="funnel-detail" id="funnel-detail">
+            <div class="fdetail-tabs" id="fdetail-tabs">
+              <button class="fdt active" onclick="switchFDetail('aware',this)">Awareness</button>
+              <button class="fdt" onclick="switchFDetail('cons',this)">Consideration</button>
+              <button class="fdt" onclick="switchFDetail('conv',this)">Conversion</button>
+            </div>
+            <div id="fd-aware" class="fdetail-panel">
+              <div class="fhero"><div class="fhero-val" id="fd-aware-val">—</div><div class="fhero-bench" id="fd-aware-bench">Bench: —</div></div>
+              <div class="fdrows">
+                <div class="fdrow"><span class="fdkey">Rasio Awareness Wookey vs F&amp;B Tiktok</span><span class="fdval" id="fd-aware-ratio">—</span></div>
+                <div class="fdrow"><b>VIA IKLAN</b></div>
+                <div class="fdrow"><span class="fdkey">Awareness By Ads</span><span class="fdval" id="fd-aware-ads">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Awareness By Premium Reach</span><span class="fdval" id="fd-aware-premium">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Awareness By Massive Reach</span><span class="fdval" id="fd-aware-massive">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Uniqe Awareness By Ads</span><span class="fdval" id="fd-aware-uniq-ads">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Frekuensi View By Ads</span><span class="fdval" id="fd-aware-freq-ads">—</span></div>
+                <div class="fdrow"><b>VIA ORGANIK</b></div>
+                <div class="fdrow"><span class="fdkey">Awareness By Organik</span><span class="fdval" id="fd-aware-org">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Uniqe Awareness By Organik</span><span class="fdval" id="fd-aware-uniq-org">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Frekuensi View By Organik</span><span class="fdval" id="fd-aware-freq-org">—</span></div>
+              </div>
+            </div>
+            <div id="fd-cons" class="fdetail-panel" style="display:none">
+              <div class="fhero"><div class="fhero-val" id="fd-cons-val">—</div><div class="fhero-bench" id="fd-cons-bench">Bench: —</div></div>
+              <div class="fdrows">
+                <div class="fdrow"><span class="fdkey">% Aware to Consider</span><span class="fdval" id="fd-ac-rate">—</span></div>
+              </div>
+            </div>
+            <div id="fd-conv" class="fdetail-panel" style="display:none">
+              <div class="fhero"><div class="fhero-val" id="fd-conv-val">—</div><div class="fhero-bench" id="fd-conv-bench">Bench: —</div></div>
+              <div class="fdrows">
+                <div class="fdrow"><span class="fdkey">% Consider to Convers</span><span class="fdval" id="fd-cc-rate">—</span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- hidden legacy ids untuk backward compat -->
+      <!-- hidden legacy ids -->
       <div style="display:none">
         <span id="py-aware-pct"></span><span id="py-cons-pct"></span><span id="py-conv-pct"></span>
         <span id="pd-reach"></span><span id="pd-penetration"></span>
@@ -784,8 +718,7 @@
         <span id="bb-conv-w"></span><span id="bb-conv-wn"></span><span id="bb-conv-b"></span><span id="bb-conv-bn"></span>
       </div>
 
-            <!-- SEARCH + NSR ROW -->
-      </div><!-- end panel-scope -->
+      </div><!-- end panel-funnel -->
 
       <!-- TAB: AUDIENCE ANALYSIS -->
       <div id="panel-audience" class="main-content" style="display:none">
@@ -841,9 +774,14 @@ const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
 // ── TAB NAVIGATION ──
 function switchTab(tab) {
   var ps = document.getElementById('panel-scope');
+  var pf = document.getElementById('panel-funnel');
   var pa = document.getElementById('panel-audience');
   var ss = document.getElementById('sub-scope');
+  var sf = document.getElementById('sub-funnel');
   var sa = document.getElementById('sub-audience');
+  // Sembunyikan semua panel
+  [ps,pf,pa].forEach(function(p){ if(p) p.style.display='none'; });
+  [ss,sf,sa].forEach(function(s){ if(s) s.classList.remove('active'); });
 
   // Semua toggle buttons di toolbar atas
   var btnYesterday = document.querySelector('[data-quick="yesterday"]');
@@ -858,9 +796,7 @@ function switchTab(tab) {
 
   if (tab === 'scope') {
     if(ps) ps.style.display = '';
-    if(pa) pa.style.display = 'none';
     if(ss) ss.classList.add('active');
-    if(sa) sa.classList.remove('active');
     // Tampilkan semua toolbar kembali
     if(btn7days)     btn7days.style.display = '';
     if(btn30days)    btn30days.style.display = '';
@@ -869,10 +805,17 @@ function switchTab(tab) {
     if(btnPerBulan)  btnPerBulan.style.display = '';
     if(btnCustom)    btnCustom.style.display = '';
     if(periodFilter) periodFilter.style.display = 'flex';
+  } else if (tab === 'funnel') {
+    if(pf) pf.style.display = '';
+    if(sf) sf.classList.add('active');
+    // Render funnel dengan data terbaru
+    if(allData && allData.length) {
+      var fdata = msFilteredData && msFilteredData.length ? msFilteredData : allData;
+      renderFunnelNew(fdata);
+      renderPyramid(fdata);
+    }
   } else {
-    if(ps) ps.style.display = 'none';
     if(pa) pa.style.display = '';
-    if(ss) ss.classList.remove('active');
     if(sa) sa.classList.add('active');
     // Audience: hanya tampilkan Kemarin & Per Hari
     if(btn7days)     btn7days.style.display = 'none';
