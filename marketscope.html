@@ -876,11 +876,7 @@
       <!-- AWARENESS SECTION -->
       <div class="section-title"><span class="dot" style="background:#2C7873"></span>Awareness Overview</div>
 
-      <!-- Controls: Toggle Per Hari / Kemarin -->
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button id="aud-btn-today" onclick="setAudDay('today')" style="padding:6px 18px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500">Per Hari</button>
-        <button id="aud-btn-yesterday" onclick="setAudDay('yesterday')" style="padding:6px 18px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer">Kemarin</button>
-      </div>
+      <!-- Period dari toggle atas (TAMPILKAN PER) -->
 
       <!-- KPI Awareness -->
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px" id="aware-kpi-grid">
@@ -931,23 +927,49 @@ function switchTab(tab) {
   var pa = document.getElementById('panel-audience');
   var ss = document.getElementById('sub-scope');
   var sa = document.getElementById('sub-audience');
+
+  // Semua toggle buttons di toolbar atas
+  var btnYesterday = document.querySelector('[data-quick="yesterday"]');
+  var btn7days     = document.querySelector('[data-quick="7days"]');
+  var btn30days    = document.querySelector('[data-quick="30days"]');
+  var sepDivider   = document.querySelector('.toolbar div[style*="width:1px"]');
+  var btnPerHari   = document.querySelector('[data-group="day"]');
+  var btnPerMinggu = document.querySelector('[data-group="week"]');
+  var btnPerBulan  = document.querySelector('[data-group="month"]');
+  var btnCustom    = document.querySelector('[data-group="custom"]');
+  var periodFilter = document.getElementById('ms-period-filter');
+
   if (tab === 'scope') {
     if(ps) ps.style.display = '';
     if(pa) pa.style.display = 'none';
-    if(ss) { ss.classList.add('active'); }
-    if(sa) { sa.classList.remove('active'); }
+    if(ss) ss.classList.add('active');
+    if(sa) sa.classList.remove('active');
+    // Tampilkan semua toolbar kembali
+    if(btn7days)     btn7days.style.display = '';
+    if(btn30days)    btn30days.style.display = '';
+    if(sepDivider)   sepDivider.style.display = '';
+    if(btnPerMinggu) btnPerMinggu.style.display = '';
+    if(btnPerBulan)  btnPerBulan.style.display = '';
+    if(btnCustom)    btnCustom.style.display = '';
+    if(periodFilter) periodFilter.style.display = 'flex';
   } else {
     if(ps) ps.style.display = 'none';
     if(pa) pa.style.display = '';
-    if(ss) { ss.classList.remove('active'); }
-    if(sa) { sa.classList.add('active'); }
+    if(ss) ss.classList.remove('active');
+    if(sa) sa.classList.add('active');
+    // Audience: hanya tampilkan Kemarin & Per Hari
+    if(btn7days)     btn7days.style.display = 'none';
+    if(btn30days)    btn30days.style.display = 'none';
+    if(sepDivider)   sepDivider.style.display = 'none';
+    if(btnPerMinggu) btnPerMinggu.style.display = 'none';
+    if(btnPerBulan)  btnPerBulan.style.display = 'none';
+    if(btnCustom)    btnCustom.style.display = 'none';
+    if(periodFilter) periodFilter.style.display = 'none';
+    // Set Per Hari aktif by default
+    if(btnPerHari) { btnPerHari.classList.add('active'); }
+    // Render audience
     if(allData && allData.length) renderAwarenessSection(allData);
     if(allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
-    // Set default date picker ke tanggal terbaru
-    var sorted = allData.slice().sort((a,b)=>String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
-    var latestDate = sorted.length ? sorted[sorted.length-1]['Tanggal'] : '';
-    var audDateInput = document.getElementById('aud-date-input');
-    if(audDateInput && latestDate && !audDateInput.value) audDateInput.value = latestDate;
   }
 }
 
