@@ -436,7 +436,13 @@
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">Analytics</div>
-      <a class="sidebar-item active" href="marketscope.html"><span class="sidebar-icon">🧭</span>Market Scope</a>
+      <div class="sidebar-item active" style="flex-direction:column;align-items:flex-start;padding-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%;"><span class="sidebar-icon">🧭</span><span>Market Scope</span></div>
+        <div class="sidebar-sub" style="width:100%;margin-top:4px;">
+          <a class="sidebar-sub-item active" onclick="switchTab('scope')" style="cursor:pointer" id="sub-scope">Market Scope</a>
+          <a class="sidebar-sub-item" onclick="switchTab('audience')" style="cursor:pointer" id="sub-audience">Audience Analysis</a>
+        </div>
+      </div>
       <a class="sidebar-item" href="index.html"><span class="sidebar-icon">📊</span>Overview</a>
       <a class="sidebar-item" href="marketing.html"><span class="sidebar-icon">📣</span>Marketing</a>
       <div class="sidebar-item" style="flex-direction:column;align-items:flex-start;padding-bottom:4px;">
@@ -524,15 +530,7 @@
         <button onclick="msResetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
       </div>
 
-      <!-- TAB NAVIGATION -->
-      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin:16px 0;background:var(--surface);border-radius:10px 10px 0 0;overflow:hidden;">
-        <button id="tab-scope" onclick="switchTab('scope')" style="padding:11px 24px;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .2s;border-bottom:2px solid var(--tiktok);background:rgba(37,244,238,.08);color:var(--tiktok);">
-          🧭 Market Scope
-        </button>
-        <button id="tab-audience" onclick="switchTab('audience')" style="padding:11px 24px;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;background:transparent;color:var(--muted);">
-          👥 Audience Analysis
-        </button>
-      </div>
+      <!-- TAB via Sidebar -->
 
       <!-- PANEL: MARKET SCOPE -->
       <div id="panel-scope">
@@ -878,26 +876,40 @@
       <!-- AWARENESS SECTION -->
       <div class="section-title"><span class="dot" style="background:#2C7873"></span>Awareness Overview</div>
 
-      <!-- Toggle Kemarin / Per Hari -->
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button id="aud-toggle-today" onclick="setAudPeriod('today')" style="padding:6px 16px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500">Per Hari</button>
-        <button id="aud-toggle-yesterday" onclick="setAudPeriod('yesterday')" style="padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer">Kemarin</button>
+      <!-- Controls: Toggle + Date Picker -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div style="display:flex;gap:8px">
+          <button id="aud-toggle-today" onclick="setAudPeriod('today')" style="padding:6px 16px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500">Per Hari</button>
+          <button id="aud-toggle-yesterday" onclick="setAudPeriod('yesterday')" style="padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer">Kemarin</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:8px">
+          <span style="font-size:12px;color:var(--muted)">Tanggal:</span>
+          <input type="date" id="aud-date-input" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:4px 8px;font-family:monospace">
+          <button onclick="applyAudDate()" style="padding:5px 14px;border-radius:6px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer">Terapkan</button>
+        </div>
       </div>
 
       <!-- KPI Awareness -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px" id="aware-kpi-grid">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px" id="aware-kpi-grid">
         <div class="loading"><div class="spinner"></div> Memuat...</div>
       </div>
 
       <!-- Grafik Tren Awareness -->
       <div class="chart-card" style="margin-bottom:24px">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Tren Awareness Harian</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">Tren Awareness Harian</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="setAwareChartRange(1)" id="acr-1" style="padding:4px 12px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500">Kemarin</button>
+            <button onclick="setAwareChartRange(7)" id="acr-7" style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">7 Hari</button>
+            <button onclick="setAwareChartRange(30)" id="acr-30" style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">30 Hari</button>
+          </div>
+        </div>
         <div style="position:relative;height:220px"><canvas id="aware-chart" role="img" aria-label="Grafik tren awareness harian"></canvas></div>
       </div>
 
       <!-- DEMOGRAFI -->
-      <div class="section-title"><span class="dot" style="background:var(--c-conv)"></span>Demografi Audience</div>
-      <div class="audience-grid" id="audience-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="section-title" style="margin-top:8px"><span class="dot" style="background:var(--c-conv)"></span>Demografi Audience</div>
+      <div id="audience-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
         <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data audiens...</div>
       </div>
 
@@ -920,38 +932,27 @@ const SHEET_ID = '1l8xk-SOZdmYQvHabXisCrVNCh8lcfQ-yHYnhiXE0KME';
 
 // ── TAB NAVIGATION ──
 function switchTab(tab) {
-  const panels = ['scope','audience'];
-  panels.forEach(p => {
-    document.getElementById('panel-' + p).style.display = p === tab ? '' : 'none';
-    const btn = document.getElementById('tab-' + p);
-    if (p === tab) {
-      btn.style.borderBottom = '2px solid var(--tiktok)';
-      btn.style.background = 'rgba(37,244,238,.08)';
-      btn.style.color = 'var(--tiktok)';
-    } else {
-      btn.style.borderBottom = '2px solid transparent';
-      btn.style.background = 'transparent';
-      btn.style.color = 'var(--muted)';
-    }
-  });
-  // Render audience data saat tab audience dibuka
-  if (tab === 'audience') {
-    var audGrid = document.getElementById('audience-grid');
-    if (audGrid) audGrid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px">⏳ Memuat data audiens...</div>';
-    // Retry sampai 10 detik
-    var retryCount = 0;
-    var maxRetry = 20;
-    function tryRenderAudience() {
-      if (allAudienceData && allAudienceData.length > 0) {
-        renderAudience(allAudienceData);
-      } else if (retryCount < maxRetry) {
-        retryCount++;
-        setTimeout(tryRenderAudience, 500);
-      } else {
-        if (audGrid) audGrid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:40px">⚠️ Data audiens belum tersedia. Coba refresh halaman.</div>';
-      }
-    }
-    setTimeout(tryRenderAudience, 300);
+  var ps = document.getElementById('panel-scope');
+  var pa = document.getElementById('panel-audience');
+  var ss = document.getElementById('sub-scope');
+  var sa = document.getElementById('sub-audience');
+  if (tab === 'scope') {
+    if(ps) ps.style.display = '';
+    if(pa) pa.style.display = 'none';
+    if(ss) { ss.classList.add('active'); }
+    if(sa) { sa.classList.remove('active'); }
+  } else {
+    if(ps) ps.style.display = 'none';
+    if(pa) pa.style.display = '';
+    if(ss) { ss.classList.remove('active'); }
+    if(sa) { sa.classList.add('active'); }
+    if(allData && allData.length) renderAwarenessSection(allData);
+    if(allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
+    // Set default date picker ke tanggal terbaru
+    var sorted = allData.slice().sort((a,b)=>String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
+    var latestDate = sorted.length ? sorted[sorted.length-1]['Tanggal'] : '';
+    var audDateInput = document.getElementById('aud-date-input');
+    if(audDateInput && latestDate && !audDateInput.value) audDateInput.value = latestDate;
   }
 }
 
@@ -1745,89 +1746,79 @@ function renderPersonas(audienceData) {
 }
 
 // ── RENDER AWARENESS SECTION ──
-var _awareChart = null;
-var _audPeriod  = 'today'; // 'today' | 'yesterday'
+var _awareChart   = null;
+var _audPeriod    = 'today';
+var _audDateOverride = null; // tanggal custom dari date picker
+var _awareRange   = 1; // default: kemarin (1 hari terakhir)
+var _allTrendData = []; // cache sorted trend
 
 function setAudPeriod(p) {
   _audPeriod = p;
+  _audDateOverride = null;
   var btnT = document.getElementById('aud-toggle-today');
   var btnY = document.getElementById('aud-toggle-yesterday');
-  if (btnT) { btnT.style.background = p==='today'?'#2C7873':'transparent'; btnT.style.color = p==='today'?'#fff':'var(--muted)'; btnT.style.border = p==='today'?'1px solid #2C7873':'1px solid var(--border)'; }
-  if (btnY) { btnY.style.background = p==='yesterday'?'#2C7873':'transparent'; btnY.style.color = p==='yesterday'?'#fff':'var(--muted)'; btnY.style.border = p==='yesterday'?'1px solid #2C7873':'1px solid var(--border)'; }
-  if (allData && allData.length) renderAwarenessSection(allData);
-  if (allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
+  var style_on  = 'padding:6px 16px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500';
+  var style_off = 'padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer';
+  if(btnT) btnT.style.cssText = p==='today' ? style_on : style_off;
+  if(btnY) btnY.style.cssText = p==='yesterday' ? style_on : style_off;
+  if(_allTrendData.length) renderAwarenessSection(_allTrendData);
+  if(allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
 }
 
-function renderAwarenessSection(trendData) {
-  var kpiGrid = document.getElementById('aware-kpi-grid');
-  if (!kpiGrid) return;
+function applyAudDate() {
+  var inp = document.getElementById('aud-date-input');
+  if(!inp || !inp.value) return;
+  _audDateOverride = inp.value;
+  _audPeriod = 'custom';
+  var btnT = document.getElementById('aud-toggle-today');
+  var btnY = document.getElementById('aud-toggle-yesterday');
+  var style_off = 'padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer';
+  if(btnT) btnT.style.cssText = style_off;
+  if(btnY) btnY.style.cssText = style_off;
+  if(_allTrendData.length) renderAwarenessSection(_allTrendData);
+}
 
-  var sorted = trendData.slice().sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
+function setAwareChartRange(n) {
+  _awareRange = n;
+  ['1','7','30'].forEach(function(x){
+    var btn = document.getElementById('acr-'+x);
+    if(!btn) return;
+    var active = String(n)===x;
+    btn.style.cssText = active
+      ? 'padding:4px 12px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500'
+      : 'padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer';
+  });
+  if(_allTrendData.length) _drawAwareChart(_allTrendData);
+}
 
-  // Pilih baris sesuai toggle
-  var targetRow = _audPeriod === 'yesterday'
-    ? sorted[sorted.length-2] || sorted[sorted.length-1]
-    : sorted[sorted.length-1];
-  targetRow = targetRow || {};
-
-  function fmtNum(v) {
-    var n = parseFloat(String(v||0).replace(',','.')) || 0;
-    if (n>=1e6) return (n/1e6).toFixed(2)+'jt';
-    if (n>=1e3) return (n/1e3).toFixed(1)+'rb';
-    return Math.round(n).toLocaleString('id-ID');
-  }
-
-  // Hanya 1 KPI: Total Awareness
-  var val  = targetRow['Awareness'] || 0;
-  var vn   = parseFloat(String(val).replace(',','.')) || 0;
-  var prevRow = _audPeriod === 'yesterday'
-    ? sorted[sorted.length-3] || sorted[sorted.length-2]
-    : sorted[sorted.length-2];
-  var pn = parseFloat(String((prevRow||{})['Awareness']||0).replace(',','.')) || 0;
-  var delta = pn ? ((vn-pn)/pn*100) : 0;
-  var dSign = delta>=0 ? '▲' : '▼';
-  var dColor = delta>=0 ? '#2C7873' : '#C84B31';
-  var tgl = targetRow['Tanggal'] || '-';
-
-  kpiGrid.innerHTML =
-    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;border-top:3px solid #2C7873;grid-column:1/-1">' +
-      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Total Awareness · '+tgl+'</div>' +
-      '<div style="font-size:28px;font-weight:600;color:var(--text);line-height:1.1">'+fmtNum(vn)+'</div>' +
-      (delta!==0?'<div style="font-size:11px;color:'+dColor+';margin-top:6px">'+dSign+' '+Math.abs(delta).toFixed(1)+'% vs hari sebelumnya</div>':'') +
-    '</div>';
-
-  // Grafik tren — 30 hari terakhir, hanya Total Awareness
-  var last30 = sorted.slice(-30);
+function _drawAwareChart(sorted) {
   var canvas = document.getElementById('aware-chart');
-  if (!canvas) return;
-  if (_awareChart) { try{_awareChart.destroy();}catch(e){} }
+  if(!canvas) return;
+  if(_awareChart) { try{_awareChart.destroy();}catch(e){} }
 
-  var labels = last30.map(d => {
-    var p = (d['Tanggal']||'').split('-');
+  var slice = _awareRange === 1 ? sorted.slice(-2) : (_awareRange===7 ? sorted.slice(-7) : sorted.slice(-30));
+
+  var labels = slice.map(function(d){
+    var p=(d['Tanggal']||'').split('-');
     return p.length===3 ? p[2]+'/'+p[1] : d['Tanggal'];
   });
-  var dataVals = last30.map(d => parseFloat(String(d['Awareness']||0).replace(',','.')) || 0);
-
-  // Cari index today/yesterday untuk highlight
-  var hlIdx = _audPeriod==='yesterday' ? last30.length-2 : last30.length-1;
-
-  var pointColors = dataVals.map((_,i) => i===hlIdx ? '#2C7873' : 'transparent');
-  var pointRadius = dataVals.map((_,i) => i===hlIdx ? 5 : 2);
+  var dataVals = slice.map(function(d){ return parseFloat(String(d['Awareness']||0).replace(',','.')) || 0; });
 
   _awareChart = new Chart(canvas.getContext('2d'), {
     type:'line',
     data:{
-      labels: labels,
+      labels:labels,
       datasets:[{
         label:'Awareness',
-        data: dataVals,
+        data:dataVals,
         borderColor:'#2C7873',
         backgroundColor:'rgba(44,120,115,0.07)',
         borderWidth:2,
-        pointRadius: pointRadius,
-        pointBackgroundColor: pointColors,
-        pointBorderColor: '#2C7873',
-        pointHoverRadius:5,
+        pointRadius:4,
+        pointBackgroundColor:'#2C7873',
+        pointBorderColor:'#fff',
+        pointBorderWidth:2,
+        pointHoverRadius:6,
         fill:true,
         tension:0.4
       }]
@@ -1838,24 +1829,111 @@ function renderAwarenessSection(trendData) {
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'rgba(20,20,20,0.85)',
-          titleFont:{size:11},bodyFont:{size:11},
+          backgroundColor:'rgba(20,20,20,0.88)',
+          titleFont:{size:11}, bodyFont:{size:11},
           callbacks:{
             label:function(ctx){
               var v=ctx.raw||0;
-              if(v>=1e6) return 'Awareness: '+(v/1e6).toFixed(2)+'jt';
-              if(v>=1e3) return 'Awareness: '+(v/1e3).toFixed(1)+'rb';
               return 'Awareness: '+Math.round(v).toLocaleString('id-ID');
             }
           }
         }
       },
       scales:{
-        x:{ticks:{color:'#888',font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(128,128,128,0.06)'},border:{display:false}},
-        y:{ticks:{color:'#888',font:{size:9},callback:function(v){if(v>=1e6)return(v/1e6).toFixed(1)+'jt';if(v>=1e3)return(v/1e3).toFixed(0)+'rb';return v;}},grid:{color:'rgba(128,128,128,0.06)'},border:{display:false}}
+        x:{ticks:{color:'#888',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(128,128,128,0.06)'},border:{display:false}},
+        y:{ticks:{color:'#888',font:{size:10},callback:function(v){if(v>=1e6)return(v/1e6).toFixed(1)+'jt';if(v>=1e3)return(v/1e3).toFixed(0)+'rb';return v;}},grid:{color:'rgba(128,128,128,0.06)'},border:{display:false}}
       }
     }
   });
+}
+
+function renderAwarenessSection(trendData) {
+  _allTrendData = trendData.slice().sort(function(a,b){ return String(a['Tanggal']).localeCompare(String(b['Tanggal'])); });
+  var kpiGrid = document.getElementById('aware-kpi-grid');
+  if(!kpiGrid) return;
+
+  // Tentukan baris target
+  var targetRow;
+  if(_audDateOverride) {
+    targetRow = _allTrendData.find(function(r){ return r['Tanggal']===_audDateOverride; }) || _allTrendData[_allTrendData.length-1];
+  } else if(_audPeriod==='yesterday') {
+    targetRow = _allTrendData[_allTrendData.length-2] || _allTrendData[_allTrendData.length-1];
+  } else {
+    targetRow = _allTrendData[_allTrendData.length-1];
+  }
+  targetRow = targetRow || {};
+
+  // Cari bench untuk tanggal yang sama
+  var tgl = targetRow['Tanggal'] || '-';
+  var benchRow = allBenchData ? allBenchData.find(function(r){ return r['Tanggal']===tgl; }) : null;
+
+  function parseN(v){ return parseFloat(String(v||0).replace(',','.')) || 0; }
+  function fmtFull(v){
+    var n = parseN(v);
+    return Math.round(n).toLocaleString('id-ID');
+  }
+  function fmtPct(v){ return parseN(v).toFixed(2)+'%'; }
+
+  var val   = parseN(targetRow['Awareness']);
+  var bench = benchRow ? parseN(benchRow['Awareness']) : null;
+  var ratio = bench && bench>0 ? (val/bench*100).toFixed(1) : null;
+  var chipColor = ratio ? (parseFloat(ratio)>=80?'#2C7873':parseFloat(ratio)>=40?'#B5773A':'#C84B31') : '#888';
+
+  // Prev row untuk delta
+  var prevIdx = _allTrendData.indexOf(targetRow) - 1;
+  var prevRow = prevIdx>=0 ? _allTrendData[prevIdx] : null;
+  var prevVal = prevRow ? parseN(prevRow['Awareness']) : 0;
+  var delta   = prevVal ? ((val-prevVal)/prevVal*100) : 0;
+  var dSign   = delta>=0?'▲':'▼';
+  var dColor  = delta>=0?'#2C7873':'#C84B31';
+
+  // Rasio vs F&B
+  var rasio    = parseN(targetRow['Rasio Awareness Wookey vs F&B Tiktok']);
+  var rasioFmt = (rasio*100).toFixed(2)+'%';
+  var benchRasio = benchRow ? parseN(benchRow['Rasio Awareness Wookey vs F&B Tiktok']) : null;
+
+  // % Aware to Consider
+  var a2c = parseN(targetRow['% Aware to Consider']);
+  var benchA2c = benchRow ? parseN(benchRow['% Aware to Consider']) : null;
+
+  function kpiCard(label, valStr, benchStr, chipStr, chipCol, deltaStr, dCol, borderCol) {
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-top:3px solid '+borderCol+'">' +
+      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+label+'</div>' +
+      '<div style="font-size:22px;font-weight:600;color:var(--text);line-height:1.1;margin-bottom:4px">'+valStr+'</div>' +
+      (benchStr?'<div style="font-size:11px;color:var(--muted);margin-bottom:3px">Bench: '+benchStr+'</div>':'') +
+      (chipStr?'<div style="display:inline-block;background:'+chipCol+'22;color:'+chipCol+';border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600;margin-bottom:3px">'+chipStr+'</div>':'') +
+      (deltaStr?'<div style="font-size:10px;color:'+dCol+';margin-top:2px">'+dCol===dColor?dSign:''+(delta>=0?'▲':'▼')+' '+Math.abs(delta).toFixed(1)+'% vs sebelumnya</div>':'') +
+    '</div>';
+  }
+
+  kpiGrid.innerHTML =
+    kpiCard(
+      'Total Awareness · '+tgl,
+      fmtFull(val),
+      bench ? fmtFull(bench) : null,
+      ratio ? 'Brand '+ratio+'% vs Bench' : null,
+      chipColor,
+      deltaStr=true, dColor, '#2C7873'
+    ) +
+    kpiCard(
+      'Rasio vs F&B TikTok',
+      rasioFmt,
+      benchRasio ? (benchRasio*100).toFixed(2)+'%' : null,
+      null, null, null, null, '#B5773A'
+    ) +
+    kpiCard(
+      '% Aware → Consider',
+      a2c.toFixed(2)+'%',
+      benchA2c ? benchA2c.toFixed(2)+'%' : null,
+      null, null, null, null, '#C84B31'
+    );
+
+  // Set date picker ke tanggal aktif
+  var audDateInput = document.getElementById('aud-date-input');
+  if(audDateInput && !_audDateOverride) audDateInput.value = tgl;
+
+  // Gambar grafik
+  _drawAwareChart(_allTrendData);
 }
 
 // ── RENDER AUDIENCE DEMOGRAPHICS ──
@@ -1932,20 +2010,20 @@ function renderAudience(audienceData) {
     'default':           ['#2C7873','#1B3A5C','#C84B31','#B5773A','#52AB98','#E2703A','#6B4226','#2E6BA6']
   };
 
-  // ── TOP INTERESTS: render sebagai horizontal bar chart ──
+  // ── TOP INTERESTS: render horizontal bar chart — inject SETELAH grid donut ──
   var intCat = 'Top Interests';
   if (byCat[intCat]) {
     var intEntries = Object.entries(byCat[intCat]).sort((a,b)=>b[1]-a[1]).slice(0,8);
     var intPal = ['#2C7873','#1B3A5C','#C84B31','#B5773A','#52AB98','#2E6BA6','#E2703A','#6B4226'];
     var maxInt = Math.max(...intEntries.map(e=>e[1]));
     var minInt = Math.min(...intEntries.map(e=>e[1]));
-    var intHtml = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;margin-top:4px">' +
+    var intHtml = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;margin-top:0">' +
       '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2C7873,#C84B31,#1B3A5C)"></div>' +
       '<div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px">Top Interests</div>' +
       intEntries.map(function([lbl,pct],i){
         var w = ((pct-minInt+0.5)/(maxInt-minInt+0.5)*65+35).toFixed(1);
         var col = intPal[i%intPal.length];
-        return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">' +
+        return '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">' +
           '<div style="font-size:10px;color:var(--muted);width:180px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right">'+lbl+'</div>' +
           '<div style="flex:1;height:22px;background:var(--surface2);border-radius:4px;overflow:hidden">' +
             '<div style="width:'+w+'%;height:100%;background:'+col+';border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .6s">' +
@@ -1955,14 +2033,15 @@ function renderAudience(audienceData) {
           '</div>';
       }).join('') +
     '</div>';
-    // Inject sebelum audience grid
+    // Inject SETELAH audience grid (paling bawah)
     var gridEl = document.getElementById('audience-grid');
     if (gridEl) {
       var intContainer = document.getElementById('interests-bar-container');
       if (!intContainer) {
         intContainer = document.createElement('div');
         intContainer.id = 'interests-bar-container';
-        gridEl.parentNode.insertBefore(intContainer, gridEl);
+        intContainer.style.marginTop = '16px';
+        gridEl.parentNode.insertBefore(intContainer, gridEl.nextSibling);
       }
       intContainer.innerHTML = intHtml;
     }
