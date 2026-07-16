@@ -1086,6 +1086,15 @@ function msSetGroup(group) {
   });
   msFilteredData = [...allData];
   renderAll(msFilteredData);
+
+  // Sync ke audience tab jika Per Hari
+  var pa = document.getElementById('panel-audience');
+  if (pa && pa.style.display !== 'none' && group === 'day') {
+    _audPeriod = 'today';
+    _audDateOverride = null;
+    if (_allTrendData.length) renderAwarenessSection(_allTrendData);
+    if (allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
+  }
 }
 
 function msQuickSelect(val) {
@@ -1104,6 +1113,20 @@ function msQuickSelect(val) {
     : allData.filter(d => d['Tanggal'] >= from && d['Tanggal'] <= last);
   if (!msFilteredData.length) return;
   renderAll(msFilteredData);
+
+  // Sync ke audience tab
+  var pa = document.getElementById('panel-audience');
+  if (pa && pa.style.display !== 'none') {
+    if (val === 'yesterday') {
+      _audPeriod = 'yesterday';
+      _audDateOverride = null;
+    } else {
+      _audPeriod = 'today';
+      _audDateOverride = last;
+    }
+    if (_allTrendData.length) renderAwarenessSection(_allTrendData);
+    if (allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
+  }
 }
 
 function msApplyDay() {
@@ -1113,6 +1136,15 @@ function msApplyDay() {
   if (!msFilteredData.length) { document.getElementById('error-container').innerHTML = '<div class="error-box">⚠️ Tidak ada data untuk tanggal ini.</div>'; return; }
   document.getElementById('error-container').innerHTML = '';
   renderAll(msFilteredData);
+
+  // Sync ke audience tab
+  var pa = document.getElementById('panel-audience');
+  if (pa && pa.style.display !== 'none') {
+    _audPeriod = 'custom';
+    _audDateOverride = date;
+    if (_allTrendData.length) renderAwarenessSection(_allTrendData);
+    if (allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
+  }
 }
 
 function msBuildWeekOptions() {
