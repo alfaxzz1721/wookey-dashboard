@@ -627,13 +627,12 @@
         <span id="scope-funnel-date" style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px"></span>
       </div>
       <div class="funnel-card" id="scope-funnel-card" style="border-radius:12px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border)">
-        <div class="funnel-card-head" style="padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <div class="funnel-toggle">
-            <button id="sfb-today" class="f-tp active" onclick="setScopeFunnelDay('today')">Per Hari</button>
-            <button id="sfb-yesterday" class="f-tp" onclick="setScopeFunnelDay('yesterday')">Kemarin</button>
-          </div>
+        <div class="toolbar" style="margin-bottom:0;border-radius:0;border-left:none;border-right:none;border-top:none;padding:10px 16px">
+          <button id="sfb-yesterday" class="toggle" onclick="setScopeFunnelDay('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+          <button id="sfb-today" class="toggle active" onclick="setScopeFunnelDay('today')">Per Hari</button>
+          <div style="width:1px;height:16px;background:var(--border);margin:0 2px"></div>
           <input type="date" id="sfb-date-input"
-            style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:4px 8px;font-family:'JetBrains Mono',monospace">
+            style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace">
           <button onclick="applyScopeFunnelDate()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
         </div>
         <div class="funnel-body" style="display:block;padding:16px">
@@ -644,7 +643,7 @@
                 <div class="p-val" id="py-aware-num" style="color:#0F6E56">—</div>
                 <span id="py-aware-chip" class="p-chip p-chip-r" style="display:none"></span>
               </div>
-              <div class="p-bench" id="py-aware-pct" style="color:#1D9E75">—</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px" id="py-aware-pct">—</div>
             </div>
             <div class="p-rate-row"><span class="p-rate-lbl">% Aware to Consider</span><span class="p-rate-val" id="pd-ac-rate">—</span></div>
             <div class="pyramid-layer p-cons" style="width:80%;text-align:center">
@@ -653,7 +652,7 @@
                 <div class="p-val" id="py-cons-num" style="color:#854F0B">—</div>
                 <span id="py-cons-chip" class="p-chip p-chip-w" style="display:none"></span>
               </div>
-              <div class="p-bench" id="py-cons-pct" style="color:#BA7517">—</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px" id="py-cons-pct">—</div>
             </div>
             <div class="p-rate-row"><span class="p-rate-lbl">% Consider to Convers</span><span class="p-rate-val" id="pd-cc-rate">—</span></div>
             <div class="pyramid-layer p-conv" style="width:60%;text-align:center">
@@ -662,7 +661,7 @@
                 <div class="p-val" id="py-conv-num" style="color:#085041">—</div>
                 <span id="py-conv-chip" class="p-chip p-chip-w" style="display:none"></span>
               </div>
-              <div class="p-bench" id="py-conv-pct" style="color:#1D9E75">—</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px" id="py-conv-pct">—</div>
             </div>
           </div>
           <!-- Tombol Detail ke tab Brand Funnel -->
@@ -1493,12 +1492,10 @@ function renderKPISnapshot(data) {
 // ── RENDER PYRAMID ──
 // ── SCOPE FUNNEL TOGGLE (Brand Diagnosis) ──
 function setScopeFunnelDay(p) {
-  var on  = 'padding:4px 14px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500';
-  var off = 'padding:4px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer';
   var btnT = document.getElementById('sfb-today');
   var btnY = document.getElementById('sfb-yesterday');
-  if(btnT) btnT.style.cssText = p==='today' ? on : off;
-  if(btnY) btnY.style.cssText = p==='yesterday' ? on : off;
+  if(btnT) { btnT.classList.toggle('active', p==='today'); }
+  if(btnY) { btnY.classList.toggle('active', p==='yesterday'); }
 
   var sorted = allData.slice().sort(function(a,b){ return String(a['Tanggal']).localeCompare(String(b['Tanggal'])); });
   var targetDate = p==='yesterday'
