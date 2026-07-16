@@ -151,12 +151,14 @@
   .pyramid-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
   .pyramid-layer { border-radius:8px; display:flex; flex-direction:column; padding:10px 12px; cursor:default; }
   .p-layer-head { display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:2px; }
-  .p-aware { width:100%; background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3); }
-  .p-cons  { width:78%; align-self:center; background:rgba(245,158,11,.10); border:1px solid rgba(245,158,11,.3); }
-  .p-conv  { width:56%; align-self:center; background:rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.3); }
+  .p-aware { width:100%; background:#E1F5EE; border:1px solid #9FE1CB; }
+  .p-cons  { width:78%; align-self:center; background:#FAEEDA; border:1px solid #FAC775; }
+  .p-conv  { width:56%; align-self:center; background:#E1F5EE; border:1px solid #5DCAA5; }
   .p-tag { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
   .p-num { font-size:17px; font-weight:700; text-align:center; }
   .p-bench { font-size:10px; color:var(--muted); text-align:center; margin-top:1px; }
+  .p-label { font-size:9px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; text-align:center; margin-bottom:4px; }
+  .p-val { font-size:18px; font-weight:600; text-align:center; }
   .p-chip { font-size:10px; font-weight:600; padding:1px 7px; border-radius:20px; flex-shrink:0; }
   .p-chip-r { background:#fee2e2; color:#991b1b; }
   .p-chip-w { background:#fef3c7; color:#92400e; }
@@ -647,26 +649,20 @@
           <div class="pyramid-wrap" id="pyramid-wrap">
             <div class="pyramid-layer p-aware" style="width:100%;">
               <div class="p-label">AWARENESS</div>
-              <div class="p-val" id="py-aware-val">—</div>
-              <div class="p-bench" id="py-aware-bench">Bench: —</div>
-              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-aware-bar" style="width:0%"></div></div></div>
-              <span id="py-aware-chip"></span>
+              <div class="p-val" id="py-aware-num">—</div>
+              <div class="p-bench" id="py-aware-pct">—</div>
             </div>
-            <div class="p-rate-row"><span class="p-rate-lbl">% Aware to Consider</span><span class="p-rate-val" id="py-ac-rate">—</span></div>
+            <div class="p-rate-row"><span class="p-rate-lbl">% Aware to Consider</span><span class="p-rate-val" id="pd-ac-rate">—</span></div>
             <div class="pyramid-layer p-cons" style="width:80%">
               <div class="p-label">CONSIDERATION</div>
-              <div class="p-val" id="py-cons-val">—</div>
-              <div class="p-bench" id="py-cons-bench">Bench: —</div>
-              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-cons-bar" style="width:0%"></div></div></div>
-              <span id="py-cons-chip"></span>
+              <div class="p-val" id="py-cons-num">—</div>
+              <div class="p-bench" id="py-cons-pct">—</div>
             </div>
-            <div class="p-rate-row"><span class="p-rate-lbl">% Consider to Convers</span><span class="p-rate-val" id="py-cc-rate">—</span></div>
+            <div class="p-rate-row"><span class="p-rate-lbl">% Consider to Convers</span><span class="p-rate-val" id="pd-cc-rate">—</span></div>
             <div class="pyramid-layer p-conv" style="width:60%">
               <div class="p-label">CONVERSION</div>
-              <div class="p-val" id="py-conv-val">—</div>
-              <div class="p-bench" id="py-conv-bench">Bench: —</div>
-              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-conv-bar" style="width:0%"></div></div></div>
-              <span id="py-conv-chip"></span>
+              <div class="p-val" id="py-conv-num">—</div>
+              <div class="p-bench" id="py-conv-pct">—</div>
             </div>
           </div>
           <!-- Tombol Detail ke tab Brand Funnel -->
