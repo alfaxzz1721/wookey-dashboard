@@ -876,17 +876,11 @@
       <!-- AWARENESS SECTION -->
       <div class="section-title"><span class="dot" style="background:#2C7873"></span>Awareness Overview</div>
 
-      <!-- Controls: Toggle + Date Picker -->
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-        <div style="display:flex;gap:8px">
-          <button id="aud-toggle-today" onclick="setAudPeriod('today')" style="padding:6px 16px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500">Per Hari</button>
-          <button id="aud-toggle-yesterday" onclick="setAudPeriod('yesterday')" style="padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer">Kemarin</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-left:8px">
-          <span style="font-size:12px;color:var(--muted)">Tanggal:</span>
-          <input type="date" id="aud-date-input" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:4px 8px;font-family:monospace">
-          <button onclick="applyAudDate()" style="padding:5px 14px;border-radius:6px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer">Terapkan</button>
-        </div>
+      <!-- Controls: Date Picker saja -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <span style="font-size:12px;color:var(--muted)">Tanggal:</span>
+        <input type="date" id="aud-date-input" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:4px 8px;font-family:monospace">
+        <button onclick="applyAudDate()" style="padding:5px 14px;border-radius:6px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer">Terapkan</button>
       </div>
 
       <!-- KPI Awareness -->
@@ -1769,13 +1763,8 @@ function applyAudDate() {
   var inp = document.getElementById('aud-date-input');
   if(!inp || !inp.value) return;
   _audDateOverride = inp.value;
-  _audPeriod = 'custom';
-  var btnT = document.getElementById('aud-toggle-today');
-  var btnY = document.getElementById('aud-toggle-yesterday');
-  var style_off = 'padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer';
-  if(btnT) btnT.style.cssText = style_off;
-  if(btnY) btnY.style.cssText = style_off;
   if(_allTrendData.length) renderAwarenessSection(_allTrendData);
+  if(allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
 }
 
 function setAwareChartRange(n) {
@@ -1896,36 +1885,23 @@ function renderAwarenessSection(trendData) {
   var a2c = parseN(targetRow['% Aware to Consider']);
   var benchA2c = benchRow ? parseN(benchRow['% Aware to Consider']) : null;
 
-  function kpiCard(label, valStr, benchStr, chipStr, chipCol, deltaStr, dCol, borderCol) {
+  function kpiCard(label, valStr, benchStr, chipStr, chipCol, _unused, _dCol, borderCol) {
     return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-top:3px solid '+borderCol+'">' +
       '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+label+'</div>' +
-      '<div style="font-size:22px;font-weight:600;color:var(--text);line-height:1.1;margin-bottom:4px">'+valStr+'</div>' +
-      (benchStr?'<div style="font-size:11px;color:var(--muted);margin-bottom:3px">Bench: '+benchStr+'</div>':'') +
-      (chipStr?'<div style="display:inline-block;background:'+chipCol+'22;color:'+chipCol+';border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600;margin-bottom:3px">'+chipStr+'</div>':'') +
-      (deltaStr?'<div style="font-size:10px;color:'+dCol+';margin-top:2px">'+dCol===dColor?dSign:''+(delta>=0?'▲':'▼')+' '+Math.abs(delta).toFixed(1)+'% vs sebelumnya</div>':'') +
+      '<div style="font-size:22px;font-weight:600;color:var(--text);line-height:1.1;margin-bottom:6px">'+valStr+'</div>' +
+      (benchStr?'<div style="font-size:11px;color:var(--muted);margin-bottom:4px">Bench: '+benchStr+'</div>':'') +
+      (chipStr?'<div style="display:inline-block;background:'+chipCol+'22;color:'+chipCol+';border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600">'+chipStr+'</div>':'') +
     '</div>';
   }
 
   kpiGrid.innerHTML =
     kpiCard(
-      'Total Awareness · '+tgl,
+      'Total Awareness Audience',
       fmtFull(val),
       bench ? fmtFull(bench) : null,
       ratio ? 'Brand '+ratio+'% vs Bench' : null,
       chipColor,
-      deltaStr=true, dColor, '#2C7873'
-    ) +
-    kpiCard(
-      'Rasio vs F&B TikTok',
-      rasioFmt,
-      benchRasio ? (benchRasio*100).toFixed(2)+'%' : null,
-      null, null, null, null, '#B5773A'
-    ) +
-    kpiCard(
-      '% Aware → Consider',
-      a2c.toFixed(2)+'%',
-      benchA2c ? benchA2c.toFixed(2)+'%' : null,
-      null, null, null, null, '#C84B31'
+      false, dColor, '#2C7873'
     );
 
   // Set date picker ke tanggal aktif
@@ -1956,9 +1932,19 @@ function renderAudience(audienceData) {
   var dateNote = document.getElementById('audience-date-note');
   if (dateNote) dateNote.style.display = 'none';
 
-  // Filter ke latestDate saja + validasi kolom
+  // Gunakan tanggal dari date picker jika ada, fallback ke latestDate
+  var targetDate = _audDateOverride || latestDate;
+  // Cek apakah ada data untuk targetDate, fallback ke latestDate
+  var hasTarget = audienceData.some(r => r['Tanggal'] === targetDate);
+  if (!hasTarget) targetDate = latestDate;
+
+  // Update date picker supaya sinkron
+  var audInp = document.getElementById('aud-date-input');
+  if (audInp && !audInp.value) audInp.value = targetDate;
+
+  // Filter ke tanggal target saja + validasi kolom
   var dataRows = audienceData.filter(r =>
-    r['Tanggal'] === latestDate &&
+    r['Tanggal'] === targetDate &&
     r['Kategori'] && r['Kategori'] !== 'Kategori' &&
     r['Label'] && r['Label'] !== 'Label'
   );
