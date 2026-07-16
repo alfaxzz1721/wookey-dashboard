@@ -493,7 +493,8 @@
       <div id="error-container"></div>
 
       <!-- TOOLBAR PERIODE (identik dengan Overview) -->
-      <div class="toolbar">
+      <div id="ms-toolbar-sticky" style="position:sticky;top:0;z-index:50;background:var(--bg, var(--surface));border-bottom:1px solid var(--border);padding:6px 0;margin:0 0 8px 0;">
+      <div class="toolbar" style="margin-bottom:0">
         <span class="toolbar-label">Tampilkan per:</span>
         <button class="toggle" data-quick="yesterday" onclick="msQuickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
         <button class="toggle" data-quick="7days"     onclick="msQuickSelect('7days')"     style="--accent:#94a3b8">7 Hari</button>
@@ -503,7 +504,7 @@
         <button class="toggle"        data-group="week"   onclick="msSetGroup('week')">Per Minggu</button>
         <button class="toggle"        data-group="month"  onclick="msSetGroup('month')">Per Bulan</button>
         <button class="toggle"        data-group="custom" onclick="msSetGroup('custom')">Custom</button>
-      </div>
+      </div><!-- end toolbar Tampilkan Per -->
 
       <div class="toolbar" id="ms-period-filter" style="display:flex;">
         <span class="toolbar-label">Periode:</span>
@@ -529,6 +530,7 @@
         </div>
         <button onclick="msResetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
       </div>
+      </div><!-- end ms-toolbar-sticky -->
 
       <!-- TAB via Sidebar -->
 
@@ -879,7 +881,7 @@
       <!-- Period dari toggle atas (TAMPILKAN PER) -->
 
       <!-- KPI Awareness -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px" id="aware-kpi-grid">
+      <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:20px" id="aware-kpi-grid">
         <div class="loading"><div class="spinner"></div> Memuat...</div>
       </div>
 
@@ -1942,11 +1944,13 @@ function renderAwarenessSection(trendData) {
   var benchA2c = benchRow ? parseN(benchRow['% Aware to Consider']) : null;
 
   function kpiCard(label, valStr, benchStr, chipStr, chipCol, _unused, _dCol, borderCol) {
-    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-top:3px solid '+borderCol+'">' +
-      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+label+'</div>' +
-      '<div style="font-size:22px;font-weight:600;color:var(--text);line-height:1.1;margin-bottom:6px">'+valStr+'</div>' +
-      (benchStr?'<div style="font-size:11px;color:var(--muted);margin-bottom:4px">Bench: '+benchStr+'</div>':'') +
-      (chipStr?'<div style="display:inline-block;background:'+chipCol+'22;color:'+chipCol+';border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600">'+chipStr+'</div>':'') +
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px">' +
+      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">' + label + '</div>' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">' +
+        '<span style="font-size:26px;font-weight:600;color:var(--text);line-height:1">' + valStr + '</span>' +
+        (chipStr ? '<span style="background:'+chipCol+'18;color:'+chipCol+';border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600">' + chipStr + '</span>' : '') +
+      '</div>' +
+      (benchStr ? '<div style="font-size:11px;color:var(--muted)">Bench: ' + benchStr + '</div>' : '') +
     '</div>';
   }
 
