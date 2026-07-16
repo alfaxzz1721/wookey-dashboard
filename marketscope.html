@@ -623,12 +623,11 @@
 
       <!-- PANEL: BRAND FUNNEL -->
       <div id="panel-funnel" class="main-content" style="display:none">
-      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
 
       <!-- Funnel Pyramid + Tab Detail -->
       <div class="funnel-card">
         <div class="funnel-card-head">
-          <div class="section-title" style="margin:0;border:none;padding:0;"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
+          <div class="section-title" style="margin:0;border:none;padding:0;"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
           <div class="funnel-toggle">
             <button class="f-tp active" onclick="setFunnelPeriod('latest',this)">Terbaru</button>
             <button class="f-tp" onclick="setFunnelPeriod('7d',this)">7 Hari</button>
@@ -808,9 +807,32 @@ function switchTab(tab) {
   } else if (tab === 'funnel') {
     if(pf) pf.style.display = '';
     if(sf) sf.classList.add('active');
+    // Toolbar: hanya Kemarin + Per Hari (sama seperti audience)
+    if(btn7days)     btn7days.style.display = 'none';
+    if(btn30days)    btn30days.style.display = 'none';
+    if(sepDivider)   sepDivider.style.display = 'none';
+    if(btnPerMinggu) btnPerMinggu.style.display = 'none';
+    if(btnPerBulan)  btnPerBulan.style.display = 'none';
+    if(btnCustom)    btnCustom.style.display = 'none';
+    // Tampilkan period filter + input tanggal
+    document.querySelectorAll('[data-group]').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('[data-quick]').forEach(function(b){ b.classList.remove('active'); });
+    if(btnPerHari) btnPerHari.classList.add('active');
+    var periodFilter3 = document.getElementById('ms-period-filter');
+    if(periodFilter3) periodFilter3.style.display = 'flex';
+    ['day','week','month','custom'].forEach(function(g){
+      var el = document.getElementById('ms-filter-'+g);
+      if(el) el.style.display = g==='day' ? 'flex' : 'none';
+    });
+    // Set tanggal default ke terbaru
+    var _sdF = allData.slice().sort(function(a,b){ return String(a['Tanggal']).localeCompare(String(b['Tanggal'])); });
+    var _ltF = _sdF.length ? _sdF[_sdF.length-1]['Tanggal'] : '';
+    var _diF = document.getElementById('ms-date-single');
+    if(_diF && _ltF && !_diF.value) _diF.value = _ltF;
     // Render funnel dengan data terbaru
     if(allData && allData.length) {
-      var fdata = msFilteredData && msFilteredData.length ? msFilteredData : allData;
+      var fdata = _ltF ? allData.filter(function(d){ return d['Tanggal']===_ltF; }) : allData.slice(-1);
+      if(!fdata.length) fdata = allData.slice(-1);
       renderFunnelNew(fdata);
       renderPyramid(fdata);
     }
@@ -1015,6 +1037,14 @@ function msApplyDay() {
     _audDateOverride = date;
     if (_allTrendData.length) renderAwarenessSection(_allTrendData);
     if (allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
+  }
+  // Sync ke funnel tab
+  var pf = document.getElementById('panel-funnel');
+  if (pf && pf.style.display !== 'none') {
+    var fd = allData.filter(function(d){ return d['Tanggal']===date; });
+    if(!fd.length) fd = allData.slice(-1);
+    renderFunnelNew(fd);
+    renderPyramid(fd);
   }
 }
 
