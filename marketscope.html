@@ -599,14 +599,37 @@
         <div style="font-size:13px;color:var(--muted);line-height:1.7;" id="kpi-popup-body">—</div>
       </div>
 
+      <!-- GRAFIK TREN HARIAN -->
+      <div class="section-title"><span class="dot" style="background:var(--blue,#3b82f6)"></span>Grafik tren harian</div>
+      <div class="chart-card" style="margin-bottom:20px;">
+        <div class="chart-title-row" style="flex-wrap:wrap;gap:8px;">
+          <div class="card-title">Grafik Tren Harian</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <button class="chart-toggle active" data-metric="impressions" onclick="toggleChartMetric('impressions',this)">
+              <span class="cleg-dot" style="background:#f59e0b"></span>Impressions
+            </button>
+            <button class="chart-toggle" data-metric="nsr" onclick="toggleChartMetric('nsr',this)">
+              <span class="cleg-dot" style="background:#10b981"></span>NSR
+            </button>
+            <button class="chart-toggle" data-metric="search" onclick="toggleChartMetric('search',this)">
+              <span class="cleg-dot" style="background:#8b5cf6"></span>Search Volume
+            </button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Grafik tren harian Wookey">Grafik tren harian.</canvas></div>
+      </div>
+
       <!-- BRAND FUNNEL MINI di Brand Diagnosis -->
-      <div class="funnel-card" id="scope-funnel-card">
-        <div class="funnel-card-head">
-          <div class="section-title" style="margin:0;border:none;padding:0;"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
-          <div class="funnel-toggle">
-            <button class="f-tp active" onclick="setFunnelPeriod('latest',this)">Terbaru</button>
-            <button class="f-tp" onclick="setFunnelPeriod('7d',this)">7 Hari</button>
-            <button class="f-tp" onclick="setFunnelPeriod('30d',this)">30 Hari</button>
+      <div class="funnel-card" id="scope-funnel-card" style="border-radius:12px;overflow:hidden;margin-bottom:20px">
+        <div class="funnel-card-head" style="background:linear-gradient(135deg,#1B3A5C 0%,#2C7873 100%);border-bottom:none;padding:12px 18px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:8px;height:8px;border-radius:50%;background:#52AB98;flex-shrink:0"></span>
+            <span style="font-size:12px;font-weight:600;color:#fff;letter-spacing:.3px">Brand Funnel</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="f-tp active" onclick="setFunnelPeriod('latest',this)" style="padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);color:#fff;font-size:11px;cursor:pointer">Terbaru</button>
+            <button class="f-tp" onclick="setFunnelPeriod('7d',this)" style="padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);font-size:11px;cursor:pointer">7 Hari</button>
+            <button class="f-tp" onclick="setFunnelPeriod('30d',this)" style="padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);font-size:11px;cursor:pointer">30 Hari</button>
           </div>
         </div>
         <div class="funnel-body" style="display:block">
@@ -636,9 +659,9 @@
             </div>
           </div>
           <!-- Tombol Detail ke tab Brand Funnel -->
-          <div style="text-align:right;margin-top:16px">
-            <button onclick="switchTab('funnel')" style="padding:8px 20px;border-radius:20px;border:1px solid var(--c-aware);background:transparent;color:var(--c-aware);font-size:12px;font-weight:600;cursor:pointer">
-              Lihat Detail Lengkap → Brand Funnel
+          <div style="text-align:right;margin-top:10px">
+            <button onclick="switchTab('funnel')" style="padding:3px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">
+              Detail lengkap →
             </button>
           </div>
           <!-- Hidden IDs untuk backward compat -->
@@ -665,25 +688,6 @@
         <span id="bb-conv-w"></span><span id="bb-conv-wn"></span><span id="bb-conv-b"></span><span id="bb-conv-bn"></span>
       </div>
 
-      <!-- GRAFIK TREN HARIAN -->
-      <div class="section-title"><span class="dot" style="background:var(--blue,#3b82f6)"></span>Grafik tren harian</div>
-      <div class="chart-card" style="margin-bottom:20px;">
-        <div class="chart-title-row" style="flex-wrap:wrap;gap:8px;">
-          <div class="card-title">Grafik Tren Harian</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-            <button class="chart-toggle active" data-metric="impressions" onclick="toggleChartMetric('impressions',this)">
-              <span class="cleg-dot" style="background:#f59e0b"></span>Impressions
-            </button>
-            <button class="chart-toggle" data-metric="nsr" onclick="toggleChartMetric('nsr',this)">
-              <span class="cleg-dot" style="background:#10b981"></span>NSR
-            </button>
-            <button class="chart-toggle" data-metric="search" onclick="toggleChartMetric('search',this)">
-              <span class="cleg-dot" style="background:#8b5cf6"></span>Search Volume
-            </button>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="impChart" role="img" aria-label="Grafik tren harian Wookey">Grafik tren harian.</canvas></div>
-      </div>
 
       </div><!-- end panel-scope -->
 
