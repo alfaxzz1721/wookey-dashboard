@@ -620,19 +620,11 @@
       </div>
 
       <!-- BRAND FUNNEL MINI di Brand Diagnosis -->
-      <div class="funnel-card" id="scope-funnel-card" style="border-radius:12px;overflow:hidden;margin-bottom:20px">
-        <div class="funnel-card-head" style="background:linear-gradient(135deg,#1B3A5C 0%,#2C7873 100%);border-bottom:none;padding:12px 18px">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="width:8px;height:8px;border-radius:50%;background:#52AB98;flex-shrink:0"></span>
-            <span style="font-size:12px;font-weight:600;color:#fff;letter-spacing:.3px">Brand Funnel</span>
-          </div>
-          <div style="display:flex;gap:6px">
-            <button class="f-tp active" onclick="setFunnelPeriod('latest',this)" style="padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);color:#fff;font-size:11px;cursor:pointer">Terbaru</button>
-            <button class="f-tp" onclick="setFunnelPeriod('7d',this)" style="padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);font-size:11px;cursor:pointer">7 Hari</button>
-            <button class="f-tp" onclick="setFunnelPeriod('30d',this)" style="padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);font-size:11px;cursor:pointer">30 Hari</button>
-          </div>
-        </div>
-        <div class="funnel-body" style="display:block">
+      <div class="section-title" style="margin-top:20px"><span class="dot" style="background:#2C7873"></span>Brand Funnel
+        <span id="scope-funnel-date" style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px"></span>
+      </div>
+      <div class="funnel-card" id="scope-funnel-card" style="border-radius:12px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border)">
+        <div class="funnel-body" style="display:block;padding:16px">
           <div class="pyramid-wrap" id="pyramid-wrap">
             <div class="pyramid-layer p-aware" style="width:100%;">
               <div class="p-label">AWARENESS</div>
@@ -1482,6 +1474,9 @@ function renderKPISnapshot(data) {
 function renderPyramid(data) {
   if (!data.length) return;
   var latest = data[data.length-1];
+  // Update info tanggal di Brand Diagnosis
+  var dateEl = document.getElementById('scope-funnel-date');
+  if (dateEl && latest['Tanggal']) dateEl.textContent = '· ' + latest['Tanggal'];
   var bench  = getBenchForPeriod(data);
   var aware  = Number(latest['Awareness'])||0;
   var awareBm= bench['Awareness']||0;
