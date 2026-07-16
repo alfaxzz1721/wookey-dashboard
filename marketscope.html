@@ -493,8 +493,8 @@
       <div id="error-container"></div>
 
       <!-- TOOLBAR PERIODE (identik dengan Overview) -->
-      <div id="ms-toolbar-sticky" style="position:sticky;top:0;z-index:50;background:var(--bg, var(--surface));border-bottom:1px solid var(--border);padding:6px 0;margin:0 0 8px 0;">
-      <div class="toolbar" style="margin-bottom:0">
+      <div id="ms-toolbar-sticky" style="position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border);padding:4px 0 0 0;margin:0 0 4px 0;">
+      <div class="toolbar" style="margin-bottom:0;border-bottom:none;border-radius:10px 10px 0 0;">
         <span class="toolbar-label">Tampilkan per:</span>
         <button class="toggle" data-quick="yesterday" onclick="msQuickSelect('yesterday')" style="--accent:#94a3b8">Kemarin</button>
         <button class="toggle" data-quick="7days"     onclick="msQuickSelect('7days')"     style="--accent:#94a3b8">7 Hari</button>
@@ -505,6 +505,7 @@
         <button class="toggle"        data-group="month"  onclick="msSetGroup('month')">Per Bulan</button>
         <button class="toggle"        data-group="custom" onclick="msSetGroup('custom')">Custom</button>
       </div><!-- end toolbar Tampilkan Per -->
+      </div><!-- end ms-toolbar-sticky -->
 
       <div class="toolbar" id="ms-period-filter" style="display:flex;">
         <span class="toolbar-label">Periode:</span>
@@ -530,7 +531,6 @@
         </div>
         <button onclick="msResetFilter()" class="toggle" style="--accent:var(--muted);margin-left:4px;">Reset</button>
       </div>
-      </div><!-- end ms-toolbar-sticky -->
 
       <!-- TAB via Sidebar -->
 
@@ -966,9 +966,20 @@ function switchTab(tab) {
     if(btnPerMinggu) btnPerMinggu.style.display = 'none';
     if(btnPerBulan)  btnPerBulan.style.display = 'none';
     if(btnCustom)    btnCustom.style.display = 'none';
-    if(periodFilter) periodFilter.style.display = 'none';
-    // Set Per Hari aktif by default
-    if(btnPerHari) { btnPerHari.classList.add('active'); }
+    // Set Per Hari aktif by default + tampilkan period filter + input tanggal
+    document.querySelectorAll('[data-group]').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('[data-quick]').forEach(function(b){ b.classList.remove('active'); });
+    if(btnPerHari) btnPerHari.classList.add('active');
+    if(periodFilter) periodFilter.style.display = 'flex';
+    ['day','week','month','custom'].forEach(function(g){
+      var el = document.getElementById('ms-filter-'+g);
+      if(el) el.style.display = g==='day' ? 'flex' : 'none';
+    });
+    // Set tanggal default ke terbaru
+    var _sd = allData.slice().sort(function(a,b){ return String(a['Tanggal']).localeCompare(String(b['Tanggal'])); });
+    var _lt = _sd.length ? _sd[_sd.length-1]['Tanggal'] : '';
+    var _di = document.getElementById('ms-date-single');
+    if(_di && _lt) _di.value = _lt;
     // Render audience
     if(allData && allData.length) renderAwarenessSection(allData);
     if(allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
