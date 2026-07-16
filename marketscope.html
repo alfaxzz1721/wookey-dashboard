@@ -609,7 +609,7 @@
             <button class="f-tp" onclick="setFunnelPeriod('30d',this)">30 Hari</button>
           </div>
         </div>
-        <div class="funnel-body">
+        <div class="funnel-body" style="display:block">
           <div class="pyramid-wrap" id="pyramid-wrap">
             <div class="pyramid-layer p-aware" style="width:100%;">
               <div class="p-label">AWARENESS</div>
@@ -635,36 +635,24 @@
               <span id="py-conv-chip"></span>
             </div>
           </div>
-          <div class="funnel-detail" id="funnel-detail">
-            <div class="fdetail-tabs" id="fdetail-tabs">
-              <button class="fdt active" onclick="switchFDetail('aware',this)">Awareness</button>
-              <button class="fdt" onclick="switchFDetail('cons',this)">Consideration</button>
-              <button class="fdt" onclick="switchFDetail('conv',this)">Conversion</button>
-            </div>
-            <div id="fd-aware" class="fdetail-panel">
-              <div class="fhero"><div class="fhero-val" id="fd-aware-val">—</div><div class="fhero-bench" id="fd-aware-bench">Bench: —</div></div>
-              <div class="fdrows">
-                <div class="fdrow"><span class="fdkey">Rasio Awareness Wookey vs F&amp;B Tiktok</span><span class="fdval" id="fd-aware-ratio">—</span></div>
-                <div class="fdrow"><b>VIA IKLAN</b></div>
-                <div class="fdrow"><span class="fdkey">Awareness By Ads</span><span class="fdval" id="fd-aware-ads">—</span></div>
-                <div class="fdrow"><span class="fdkey">↳ Awareness By Premium Reach</span><span class="fdval" id="fd-aware-premium">—</span></div>
-                <div class="fdrow"><span class="fdkey">↳ Awareness By Massive Reach</span><span class="fdval" id="fd-aware-massive">—</span></div>
-                <div class="fdrow"><span class="fdkey">↳ Uniqe Awareness By Ads</span><span class="fdval" id="fd-aware-uniq-ads">—</span></div>
-                <div class="fdrow"><span class="fdkey">↳ Frekuensi View By Ads</span><span class="fdval" id="fd-aware-freq-ads">—</span></div>
-                <div class="fdrow"><b>VIA ORGANIK</b></div>
-                <div class="fdrow"><span class="fdkey">Awareness By Organik</span><span class="fdval" id="fd-aware-org">—</span></div>
-                <div class="fdrow"><span class="fdkey">↳ Uniqe Awareness By Organik</span><span class="fdval" id="fd-aware-uniq-org">—</span></div>
-                <div class="fdrow"><span class="fdkey">↳ Frekuensi View By Organik</span><span class="fdval" id="fd-aware-freq-org">—</span></div>
-              </div>
-            </div>
-            <div id="fd-cons" class="fdetail-panel" style="display:none">
-              <div class="fhero"><div class="fhero-val" id="fd-cons-val">—</div><div class="fhero-bench" id="fd-cons-bench">Bench: —</div></div>
-              <div class="fdrows"><div class="fdrow"><span class="fdkey">% Aware to Consider</span><span class="fdval" id="fd-ac-rate">—</span></div></div>
-            </div>
-            <div id="fd-conv" class="fdetail-panel" style="display:none">
-              <div class="fhero"><div class="fhero-val" id="fd-conv-val">—</div><div class="fhero-bench" id="fd-conv-bench">Bench: —</div></div>
-              <div class="fdrows"><div class="fdrow"><span class="fdkey">% Consider to Convers</span><span class="fdval" id="fd-cc-rate">—</span></div></div>
-            </div>
+          <!-- Tombol Detail ke tab Brand Funnel -->
+          <div style="text-align:right;margin-top:16px">
+            <button onclick="switchTab('funnel')" style="padding:8px 20px;border-radius:20px;border:1px solid var(--c-aware);background:transparent;color:var(--c-aware);font-size:12px;font-weight:600;cursor:pointer">
+              Lihat Detail Lengkap → Brand Funnel
+            </button>
+          </div>
+          <!-- Hidden IDs untuk backward compat -->
+          <div style="display:none">
+            <span id="fd-aware-val"></span><span id="fd-aware-bench"></span>
+            <span id="fd-aware-ratio"></span><span id="fd-aware-ads"></span>
+            <span id="fd-aware-premium"></span><span id="fd-aware-massive"></span>
+            <span id="fd-aware-uniq-ads"></span><span id="fd-aware-freq-ads"></span>
+            <span id="fd-aware-org"></span><span id="fd-aware-uniq-org"></span>
+            <span id="fd-aware-freq-org"></span>
+            <span id="fd-cons-val"></span><span id="fd-cons-bench"></span><span id="fd-ac-rate"></span>
+            <span id="fd-conv-val"></span><span id="fd-conv-bench"></span><span id="fd-cc-rate"></span>
+            <span id="funnel-detail"></span><span id="fdetail-tabs"></span>
+            <span id="fd-aware"></span><span id="fd-cons"></span><span id="fd-conv"></span>
           </div>
         </div>
       </div>
