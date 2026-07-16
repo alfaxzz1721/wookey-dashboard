@@ -1730,52 +1730,189 @@ function renderPersonas(audienceData) {
 }
 
 // ── RENDER AUDIENCE DEMOGRAPHICS ──
+var _audCharts = {};
+
 function renderAudience(audienceData) {
-  if (!audienceData.length) {
-    document.getElementById('audience-grid').innerHTML = '<div class="loading" style="grid-column:1/-1">Belum ada data audiens.</div>';
+  var grid = document.getElementById('audience-grid');
+  if (!audienceData || !audienceData.length) {
+    grid.innerHTML = '<div class="loading" style="grid-column:1/-1">Belum ada data audiens.</div>';
     return;
   }
-  var snap = audienceData[0]['Tanggal'] || '-';
-  document.getElementById('audience-date-note').textContent = '📅 Snapshot terbaru: ' + snap + ' (data demografi update sesuai ketersediaan dari TikTok)';
 
-  // Kolom sheet: Tanggal, Kategori, Label, Persen, Jumlah Orang
-  // Ambil tanggal terbaru dari data
+  // Ambil tanggal terbaru & filter hanya latestDate
   var dates = audienceData.map(r => r['Tanggal']).filter(Boolean).sort();
   var latestDate = dates[dates.length-1] || '';
   if (latestDate) {
     document.getElementById('audience-date-note').textContent = '📅 Snapshot: ' + latestDate + ' (data demografi dari TikTok MarketScope)';
   }
 
-  var dataRows = audienceData.filter(r => r['Kategori'] && r['Kategori'] !== 'Kategori' && r['Label'] && r['Label'] !== 'Label');
+  // Filter ke latestDate saja + validasi kolom
+  var dataRows = audienceData.filter(r =>
+    r['Tanggal'] === latestDate &&
+    r['Kategori'] && r['Kategori'] !== 'Kategori' &&
+    r['Label'] && r['Label'] !== 'Label'
+  );
+
+  // Group by kategori, deduplikasi label (ambil pct tertinggi)
   var byCat = {};
   dataRows.forEach(r => {
     var cat = r['Kategori'];
-    if (!byCat[cat]) byCat[cat] = [];
+    var lbl = r['Label'];
     var pct = parseFloat(String(r['Persen']).replace(',','.')) || 0;
-    byCat[cat].push({ label: r['Label'], pct: pct });
+    if (!byCat[cat]) byCat[cat] = {};
+    if (!byCat[cat][lbl] || pct > byCat[cat][lbl]) byCat[cat][lbl] = pct;
   });
 
-  // Urutkan kategori
-  var catOrder = Object.keys(byCat).sort();
-  
+  var catOrder = ['Age','Gender','Location','Audience Personas','Top Interests'].filter(k => byCat[k]);
+  Object.keys(byCat).forEach(k => { if (!catOrder.includes(k)) catOrder.push(k); });
+
   if (!catOrder.length) {
-    document.getElementById('audience-grid').innerHTML = '<div style="color:var(--muted);font-size:12px;grid-column:1/-1;text-align:center;padding:40px">Belum ada data demografi untuk periode ini.</div>';
+    grid.innerHTML = '<div style="color:var(--muted);font-size:12px;grid-column:1/-1;text-align:center;padding:40px">Belum ada data demografi.</div>';
     return;
   }
 
-  document.getElementById('audience-grid').innerHTML = catOrder.map(cat => {
-    var items = (byCat[cat] || []).sort((a,b) => b.pct - a.pct).slice(0, 10);
-    var maxP = Math.max(...items.map(i=>i.pct), 0.001);
-    var rows = items.map(item => {
-      var barPct = (item.pct/maxP*100).toFixed(1);
-      return '<div class="bar-row-aud">' +
-        '<span class="bar-label" style="font-size:11px;min-width:120px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+item.label+'</span>' +
-        '<div class="bar-track" style="flex:1"><div class="bar-fill-aud brand" style="width:'+Math.min(barPct,100)+'%;background:var(--tiktok)"></div></div>' +
-        '<span class="bar-val" style="font-size:11px;min-width:40px;text-align:right">'+item.pct.toFixed(1)+'%</span>' +
-        '</div>';
-    }).join('');
-    return '<div class="audience-card"><div class="audience-card-title" style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--text)">'+cat+'</div>' + rows + '</div>';
+  // Destroy chart instances lama
+  Object.values(_audCharts).forEach(ch => { try { ch.destroy(); } catch(e){} });
+  _audCharts = {};
+
+  // Palet warna
+  var PALETTES = {
+    'Gender':   ['#FF6B9D','#6B9DFF','#9DFFB6','#FFD96B'],
+    'Age':      ['#25F4EE','#FE2C55','#FF9500','#A855F7','#22C55E','#F59E0B'],
+    'Location': ['#6366F1','#EC4899','#14B8A6','#F97316','#84CC16','#06B6D4'],
+    'default':  ['#25F4EE','#FE2C55','#A855F7','#F59E0B','#22C55E','#6366F1','#EC4899','#14B8A6','#F97316','#84CC16']
+  };
+
+  // Popup element
+  if (!document.getElementById('aud-popup')) {
+    var pop = document.createElement('div');
+    pop.id = 'aud-popup';
+    pop.style.cssText = 'display:none;position:fixed;z-index:9999;pointer-events:none;' +
+      'background:var(--surface2);border:1px solid var(--border);border-radius:12px;' +
+      'padding:14px 18px;min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,.4);transition:opacity .15s';
+    document.body.appendChild(pop);
+  }
+  var popup = document.getElementById('aud-popup');
+
+  function showPopup(e, cat, label, pct, jumlah) {
+    popup.innerHTML =
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">' + cat + '</div>' +
+      '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">' + label + '</div>' +
+      '<div style="display:flex;gap:16px;align-items:center">' +
+        '<div><div style="font-size:22px;font-weight:800;color:var(--tiktok)">' + pct.toFixed(1) + '%</div><div style="font-size:10px;color:var(--muted)">Persentase</div></div>' +
+        (jumlah ? '<div><div style="font-size:16px;font-weight:600;color:var(--text)">' + Number(jumlah).toLocaleString('id-ID') + '</div><div style="font-size:10px;color:var(--muted)">Orang</div></div>' : '') +
+      '</div>';
+    popup.style.display = 'block';
+    popup.style.opacity = '1';
+    var x = e.clientX + 16, y = e.clientY - 80;
+    if (x + 220 > window.innerWidth) x = e.clientX - 220;
+    if (y < 0) y = e.clientY + 16;
+    popup.style.left = x + 'px';
+    popup.style.top  = y + 'px';
+  }
+  function hidePopup() { popup.style.opacity='0'; setTimeout(()=>{ popup.style.display='none'; },150); }
+  document.addEventListener('click', function(e){ if (!e.target.closest('canvas')) hidePopup(); });
+
+  // Render grid cards
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(320px,1fr))';
+  grid.style.gap = '16px';
+
+  grid.innerHTML = catOrder.map(cat => {
+    var entries = Object.entries(byCat[cat]).sort((a,b) => b[1]-a[1]).slice(0, 8);
+    return '<div class="audience-card" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px">' +
+      '<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">' + cat + '</div>' +
+      '<div style="position:relative;width:200px;height:200px;margin:0 auto 16px">' +
+        '<canvas id="aud-chart-' + cat.replace(/\s+/g,'_') + '" width="200" height="200"></canvas>' +
+        '<div id="aud-center-' + cat.replace(/\s+/g,'_') + '" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">' +
+          '<div style="font-size:11px;color:var(--muted)">Total</div>' +
+          '<div style="font-size:16px;font-weight:700;color:var(--text)">' + entries.length + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:6px">' +
+        entries.map((([lbl, pct], idx) => {
+          var pal = PALETTES[cat] || PALETTES['default'];
+          var col = pal[idx % pal.length];
+          return '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s" ' +
+            'class="aud-legend-row" data-cat="'+cat+'" data-label="'+lbl+'" data-pct="'+pct+'">' +
+            '<span style="width:10px;height:10px;border-radius:50%;background:'+col+';flex-shrink:0"></span>' +
+            '<span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+lbl+'</span>' +
+            '<span style="font-size:11px;font-weight:600;color:var(--muted)">'+pct.toFixed(1)+'%</span>' +
+            '</div>';
+        })).join('') +
+      '</div>' +
+    '</div>';
   }).join('');
+
+  // Init charts setelah DOM siap
+  requestAnimationFrame(() => {
+    catOrder.forEach(cat => {
+      var entries = Object.entries(byCat[cat]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      var pal = PALETTES[cat] || PALETTES['default'];
+      var colors = entries.map((_,i) => pal[i % pal.length]);
+      var canvasId = 'aud-chart-' + cat.replace(/\s+/g,'_');
+      var canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var ch = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: entries.map(e=>e[0]),
+          datasets: [{
+            data: entries.map(e=>e[1]),
+            backgroundColor: colors,
+            borderColor: 'var(--surface)',
+            borderWidth: 2,
+            hoverOffset: 12
+          }]
+        },
+        options: {
+          responsive: false,
+          cutout: '62%',
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          animation: { duration: 600 },
+          onClick: function(evt, els) {
+            if (!els.length) return;
+            var idx = els[0].index;
+            var lbl = entries[idx][0];
+            var pct = entries[idx][1];
+            // cari jumlah orang dari dataRows
+            var row = dataRows.find(r => r['Kategori']===cat && r['Label']===lbl);
+            var jml = row ? row['Jumlah Orang'] : null;
+            showPopup(evt.native, cat, lbl, pct, jml);
+            // highlight center
+            var ctr = document.getElementById('aud-center-'+cat.replace(/\s+/g,'_'));
+            if (ctr) ctr.innerHTML = '<div style="font-size:10px;color:var(--muted)">'+lbl+'</div><div style="font-size:18px;font-weight:800;color:var(--tiktok)">'+pct.toFixed(1)+'%</div>';
+          },
+          onHover: function(evt, els) {
+            canvas.style.cursor = els.length ? 'pointer' : 'default';
+            if (els.length) {
+              var idx = els[0].index;
+              var lbl = entries[idx][0];
+              var pct = entries[idx][1];
+              var row = dataRows.find(r => r['Kategori']===cat && r['Label']===lbl);
+              showPopup(evt.native, cat, lbl, pct, row ? row['Jumlah Orang'] : null);
+            } else { hidePopup(); }
+          }
+        }
+      });
+      _audCharts[cat] = ch;
+    });
+
+    // Legend row hover
+    document.querySelectorAll('.aud-legend-row').forEach(row => {
+      row.addEventListener('mouseenter', function(e) {
+        this.style.background = 'var(--surface2)';
+        var cat = this.dataset.cat, lbl = this.dataset.label, pct = parseFloat(this.dataset.pct);
+        var dr = dataRows.find(r => r['Kategori']===cat && r['Label']===lbl);
+        showPopup(e, cat, lbl, pct, dr ? dr['Jumlah Orang'] : null);
+      });
+      row.addEventListener('mouseleave', function() {
+        this.style.background = '';
+        hidePopup();
+      });
+    });
+  });
 }
 
 // ── THEME ──
