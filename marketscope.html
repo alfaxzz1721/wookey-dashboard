@@ -875,12 +875,21 @@
       <!-- TAB: AUDIENCE ANALYSIS -->
       <div id="panel-audience" class="main-content" style="display:none">
 
+      <!-- AWARENESS SECTION -->
+      <div class="section-title"><span class="dot" style="background:#2C7873"></span>Awareness Overview</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px" id="aware-kpi-grid">
+        <div class="loading"><div class="spinner"></div> Memuat...</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:24px">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Tren Awareness Harian</div>
+        <div style="position:relative;height:200px"><canvas id="aware-chart" role="img" aria-label="Grafik tren awareness harian"></canvas></div>
+      </div>
+
       <!-- AUDIENCE DEMOGRAPHICS -->
       <div class="section-title"><span class="dot" style="background:var(--c-conv)"></span>Audience Analysis — Demografi Snapshot</div>
       <div class="info-note" id="audience-date-note">Memuat tanggal snapshot...</div>
       <div style="display:flex;gap:14px;margin-bottom:12px;font-size:11px;">
-        <span class="leg-item"><span class="leg-dot" style="background:var(--tiktok)"></span>Wookey Weight</span>
-        <span class="leg-item"><span class="leg-dot" style="background:var(--muted);opacity:.5"></span>Benchmark Top 5</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#2C7873"></span>Wookey Weight</span>
       </div>
       <div class="audience-grid" id="audience-grid">
         <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Memuat data audiens...</div>
@@ -1729,10 +1738,150 @@ function renderPersonas(audienceData) {
   }).join('');
 }
 
+// ── RENDER AWARENESS SECTION (di tab Audience Analysis) ──
+var _awareChart = null;
+
+function renderAwarenessSection(trendData) {
+  var kpiGrid = document.getElementById('aware-kpi-grid');
+  if (!kpiGrid) return;
+
+  // Ambil data 30 hari terakhir
+  var sorted = trendData.slice().sort((a,b) => String(a['Tanggal']).localeCompare(String(b['Tanggal'])));
+  var last30 = sorted.slice(-30);
+  var latest = sorted[sorted.length-1] || {};
+
+  // KPI cards — hanya kolom Awareness
+  var kpis = [
+    { key:'Awareness',            label:'Total Awareness',         fmt:'num', color:'#2C7873' },
+    { key:'Awareness By Organik', label:'Awareness Organik',       fmt:'num', color:'#52AB98' },
+    { key:'Awareness By Ads',     label:'Awareness via Ads',       fmt:'num', color:'#1B3A5C' },
+    { key:'Rasio Awareness Wookey vs F&B Tiktok', label:'Rasio vs F&B TikTok', fmt:'pct', color:'#B5773A' },
+    { key:'% Aware to Consider',  label:'% Aware → Consider',     fmt:'pct2', color:'#C84B31' },
+  ];
+
+  function fmtVal(v, fmt) {
+    var n = parseFloat(String(v).replace(',','.')) || 0;
+    if (fmt==='pct')  return (n*100).toFixed(1)+'%';
+    if (fmt==='pct2') return n.toFixed(1)+'%';
+    if (n>=1e6) return (n/1e6).toFixed(2)+'jt';
+    if (n>=1e3) return (n/1e3).toFixed(1)+'rb';
+    return Math.round(n).toLocaleString('id-ID');
+  }
+
+  kpiGrid.innerHTML = kpis.map(kpi => {
+    var val = latest[kpi.key] || 0;
+    var prev = sorted.length>1 ? (sorted[sorted.length-2][kpi.key]||0) : 0;
+    var vn = parseFloat(String(val).replace(',','.')) || 0;
+    var pn = parseFloat(String(prev).replace(',','.')) || 0;
+    var delta = pn ? ((vn-pn)/pn*100) : 0;
+    var dSign = delta>=0 ? '▲' : '▼';
+    var dColor = delta>=0 ? '#2C7873' : '#C84B31';
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid '+kpi.color+'">' +
+      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+kpi.label+'</div>' +
+      '<div style="font-size:20px;font-weight:600;color:var(--text);line-height:1">'+fmtVal(val,kpi.fmt)+'</div>' +
+      (delta!==0?'<div style="font-size:10px;color:'+dColor+';margin-top:4px">'+dSign+' '+Math.abs(delta).toFixed(1)+'% vs kemarin</div>':'') +
+      '</div>';
+  }).join('');
+
+  // Grafik tren Awareness
+  var canvas = document.getElementById('aware-chart');
+  if (!canvas) return;
+  if (_awareChart) { try{_awareChart.destroy();}catch(e){} }
+
+  var labels = last30.map(d => {
+    var dt = d['Tanggal']||'';
+    var p = dt.split('-');
+    return p.length===3 ? p[2]+'/'+p[1] : dt;
+  });
+
+  var awarenessTotal  = last30.map(d => parseFloat(String(d['Awareness']||0).replace(',','.')) || 0);
+  var awarenessOrg    = last30.map(d => parseFloat(String(d['Awareness By Organik']||0).replace(',','.')) || 0);
+  var awarenessAds    = last30.map(d => parseFloat(String(d['Awareness By Ads']||0).replace(',','.')) || 0);
+
+  _awareChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Total Awareness',
+          data: awarenessTotal,
+          borderColor: '#2C7873',
+          backgroundColor: 'rgba(44,120,115,0.08)',
+          borderWidth: 2,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'Via Organik',
+          data: awarenessOrg,
+          borderColor: '#52AB98',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          borderDash: [4,3],
+          tension: 0.4
+        },
+        {
+          label: 'Via Ads',
+          data: awarenessAds,
+          borderColor: '#1B3A5C',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          borderDash: [2,2],
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
+      plugins: {
+        legend: { display:true, position:'top',
+          labels:{ boxWidth:10, font:{size:10}, color:'#888', padding:12 }
+        },
+        tooltip: {
+          backgroundColor:'rgba(20,20,20,0.85)',
+          titleFont:{size:11}, bodyFont:{size:11},
+          callbacks:{
+            label: function(ctx) {
+              var v = ctx.raw||0;
+              if(v>=1e6) return ctx.dataset.label+': '+(v/1e6).toFixed(2)+'jt';
+              if(v>=1e3) return ctx.dataset.label+': '+(v/1e3).toFixed(1)+'rb';
+              return ctx.dataset.label+': '+Math.round(v).toLocaleString('id-ID');
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks:{ color:'#888', font:{size:9}, maxRotation:45, autoSkip:true, maxTicksLimit:15 },
+          grid:{ color:'rgba(128,128,128,0.08)' }
+        },
+        y: {
+          ticks:{ color:'#888', font:{size:9},
+            callback: function(v){ if(v>=1e6) return (v/1e6).toFixed(1)+'jt'; if(v>=1e3) return (v/1e3).toFixed(0)+'rb'; return v; }
+          },
+          grid:{ color:'rgba(128,128,128,0.08)' }
+        }
+      }
+    }
+  });
+}
+
 // ── RENDER AUDIENCE DEMOGRAPHICS ──
 var _audCharts = {};
 
 function renderAudience(audienceData) {
+  // Render awareness section pakai allData (trend harian)
+  if (allData && allData.length) renderAwarenessSection(allData);
+
   var grid = document.getElementById('audience-grid');
   if (!audienceData || !audienceData.length) {
     grid.innerHTML = '<div class="loading" style="grid-column:1/-1">Belum ada data audiens.</div>';
@@ -1777,11 +1926,51 @@ function renderAudience(audienceData) {
 
   // Palet warna
   var PALETTES = {
-    'Gender':   ['#FF6B9D','#6B9DFF','#9DFFB6','#FFD96B'],
-    'Age':      ['#25F4EE','#FE2C55','#FF9500','#A855F7','#22C55E','#F59E0B'],
-    'Location': ['#6366F1','#EC4899','#14B8A6','#F97316','#84CC16','#06B6D4'],
-    'default':  ['#25F4EE','#FE2C55','#A855F7','#F59E0B','#22C55E','#6366F1','#EC4899','#14B8A6','#F97316','#84CC16']
+    'Age':               ['#2C7873','#52AB98','#8FD0C8','#B5773A','#6B4226'],
+    'Gender':            ['#C84B31','#2C7873','#B5773A','#1B3A5C'],
+    'Location':          ['#1B3A5C','#2E6BA6','#52AB98','#2C7873','#B5773A','#E2703A','#C84B31','#6B4226'],
+    'Audience Personas': ['#1B3A5C','#2E6BA6','#52AB98','#2C7873','#B5773A','#E2703A','#C84B31'],
+    'Top Interests':     ['#2C7873','#1B3A5C','#C84B31','#B5773A','#52AB98','#2E6BA6','#E2703A','#6B4226'],
+    'default':           ['#2C7873','#1B3A5C','#C84B31','#B5773A','#52AB98','#E2703A','#6B4226','#2E6BA6']
   };
+
+  // ── TOP INTERESTS: render sebagai horizontal bar chart ──
+  var intCat = 'Top Interests';
+  if (byCat[intCat]) {
+    var intEntries = Object.entries(byCat[intCat]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    var intPal = ['#2C7873','#1B3A5C','#C84B31','#B5773A','#52AB98','#2E6BA6','#E2703A','#6B4226'];
+    var maxInt = Math.max(...intEntries.map(e=>e[1]));
+    var minInt = Math.min(...intEntries.map(e=>e[1]));
+    var intHtml = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;margin-top:4px">' +
+      '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2C7873,#C84B31,#1B3A5C)"></div>' +
+      '<div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px">Top Interests</div>' +
+      intEntries.map(function([lbl,pct],i){
+        var w = ((pct-minInt+0.5)/(maxInt-minInt+0.5)*65+35).toFixed(1);
+        var col = intPal[i%intPal.length];
+        return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">' +
+          '<div style="font-size:10px;color:var(--muted);width:180px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right">'+lbl+'</div>' +
+          '<div style="flex:1;height:22px;background:var(--surface2);border-radius:4px;overflow:hidden">' +
+            '<div style="width:'+w+'%;height:100%;background:'+col+';border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .6s">' +
+              '<span style="font-size:10px;font-weight:500;color:#fff">'+pct.toFixed(1)+'%</span>' +
+            '</div>' +
+          '</div>' +
+          '</div>';
+      }).join('') +
+    '</div>';
+    // Inject sebelum audience grid
+    var gridEl = document.getElementById('audience-grid');
+    if (gridEl) {
+      var intContainer = document.getElementById('interests-bar-container');
+      if (!intContainer) {
+        intContainer = document.createElement('div');
+        intContainer.id = 'interests-bar-container';
+        gridEl.parentNode.insertBefore(intContainer, gridEl);
+      }
+      intContainer.innerHTML = intHtml;
+    }
+    // Hapus dari catOrder supaya tidak masuk donut
+    catOrder = catOrder.filter(k => k !== intCat);
+  }
 
   // Popup element
   if (!document.getElementById('aud-popup')) {
