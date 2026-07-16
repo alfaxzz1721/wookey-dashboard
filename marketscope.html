@@ -622,47 +622,47 @@
       </div>
 
       <!-- BRAND FUNNEL MINI di Brand Diagnosis -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-        <div class="section-title" style="margin:0;border:none;padding:0">
-          <span class="dot" style="background:#2C7873"></span>Brand Funnel
-          <span id="scope-funnel-date" style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <button id="sfb-today" onclick="setScopeFunnelDay('today')"
-            style="padding:4px 14px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500">
-            Per Hari
-          </button>
-          <button id="sfb-yesterday" onclick="setScopeFunnelDay('yesterday')"
-            style="padding:4px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">
-            Kemarin
-          </button>
-          <input type="date" id="sfb-date-input"
-            style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;padding:3px 8px;font-family:monospace">
-          <button onclick="applyScopeFunnelDate()"
-            style="padding:4px 12px;border-radius:6px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer">
-            Terapkan
-          </button>
-        </div>
+      <div class="section-title" style="margin-top:20px">
+        <span class="dot" style="background:#2C7873"></span>Brand Funnel
+        <span id="scope-funnel-date" style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px"></span>
       </div>
       <div class="funnel-card" id="scope-funnel-card" style="border-radius:12px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border)">
+        <div class="funnel-card-head" style="padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="funnel-toggle">
+            <button id="sfb-today" class="f-tp active" onclick="setScopeFunnelDay('today')">Per Hari</button>
+            <button id="sfb-yesterday" class="f-tp" onclick="setScopeFunnelDay('yesterday')">Kemarin</button>
+          </div>
+          <input type="date" id="sfb-date-input"
+            style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:4px 8px;font-family:'JetBrains Mono',monospace">
+          <button onclick="applyScopeFunnelDate()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+        </div>
         <div class="funnel-body" style="display:block;padding:16px">
           <div class="pyramid-wrap" id="pyramid-wrap">
-            <div class="pyramid-layer p-aware" style="width:100%;">
-              <div class="p-label">AWARENESS</div>
-              <div class="p-val" id="py-aware-num">—</div>
-              <div class="p-bench" id="py-aware-pct">—</div>
+            <div class="pyramid-layer p-aware" style="width:100%;text-align:center">
+              <div class="p-label" style="color:#085041">AWARENESS</div>
+              <div style="display:flex;align-items:baseline;justify-content:center;gap:8px">
+                <div class="p-val" id="py-aware-num" style="color:#0F6E56">—</div>
+                <span id="py-aware-chip" class="p-chip p-chip-r" style="display:none"></span>
+              </div>
+              <div class="p-bench" id="py-aware-pct" style="color:#1D9E75">—</div>
             </div>
             <div class="p-rate-row"><span class="p-rate-lbl">% Aware to Consider</span><span class="p-rate-val" id="pd-ac-rate">—</span></div>
-            <div class="pyramid-layer p-cons" style="width:80%">
-              <div class="p-label">CONSIDERATION</div>
-              <div class="p-val" id="py-cons-num">—</div>
-              <div class="p-bench" id="py-cons-pct">—</div>
+            <div class="pyramid-layer p-cons" style="width:80%;text-align:center">
+              <div class="p-label" style="color:#633806">CONSIDERATION</div>
+              <div style="display:flex;align-items:baseline;justify-content:center;gap:8px">
+                <div class="p-val" id="py-cons-num" style="color:#854F0B">—</div>
+                <span id="py-cons-chip" class="p-chip p-chip-w" style="display:none"></span>
+              </div>
+              <div class="p-bench" id="py-cons-pct" style="color:#BA7517">—</div>
             </div>
             <div class="p-rate-row"><span class="p-rate-lbl">% Consider to Convers</span><span class="p-rate-val" id="pd-cc-rate">—</span></div>
-            <div class="pyramid-layer p-conv" style="width:60%">
-              <div class="p-label">CONVERSION</div>
-              <div class="p-val" id="py-conv-num">—</div>
-              <div class="p-bench" id="py-conv-pct">—</div>
+            <div class="pyramid-layer p-conv" style="width:60%;text-align:center">
+              <div class="p-label" style="color:#04342C">CONVERSION</div>
+              <div style="display:flex;align-items:baseline;justify-content:center;gap:8px">
+                <div class="p-val" id="py-conv-num" style="color:#085041">—</div>
+                <span id="py-conv-chip" class="p-chip p-chip-w" style="display:none"></span>
+              </div>
+              <div class="p-bench" id="py-conv-pct" style="color:#1D9E75">—</div>
             </div>
           </div>
           <!-- Tombol Detail ke tab Brand Funnel -->
@@ -1551,11 +1551,14 @@ function renderPyramid(data) {
   var convPct  = convBm>0  ? (conv/convBm*100)   : 0;
 
   setText('py-aware-num', fmtFull(aware));
-  setText('py-aware-pct', awarePct.toFixed(0)+'% dari benchmark');
+  setText('py-aware-pct', awareBm>0 ? 'Bench: '+fmtFull(awareBm) : '');
+  setChip('py-aware-chip', awareBm>0 ? awarePct : null);
   setText('py-cons-num',  fmtFull(cons));
-  setText('py-cons-pct',  consPct.toFixed(0)+'% dari benchmark');
+  setText('py-cons-pct',  consBm>0 ? 'Bench: '+fmtFull(consBm) : '');
+  setChip('py-cons-chip', consBm>0 ? consPct : null);
   setText('py-conv-num',  fmtFull(conv));
-  setText('py-conv-pct',  convPct.toFixed(0)+'% dari benchmark');
+  setText('py-conv-pct',  convBm>0 ? 'Bench: '+fmtFull(convBm) : '');
+  setChip('py-conv-chip', convBm>0 ? convPct : null);
 
   var reach = Number(latest['diag_reach'])||0;
   var pen   = Number(latest['diag_awareness_penetration'])||0;
