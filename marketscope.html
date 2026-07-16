@@ -699,18 +699,21 @@
 
       <!-- PANEL: BRAND FUNNEL -->
       <div id="panel-funnel" class="main-content" style="display:none">
-      <div class="section-title"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
+
+      <div class="section-title">
+        <span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens
+        <span id="funnel-panel-date" style="font-size:10px;font-weight:400;color:var(--muted);margin-left:8px"></span>
+      </div>
+      <div class="toolbar" style="margin-bottom:12px">
+        <button id="sfb2-yesterday" class="toggle" onclick="setScopeFunnelDay2('yesterday')" style="--accent:#94a3b8">Kemarin</button>
+        <button id="sfb2-today" class="toggle active" onclick="setScopeFunnelDay2('today')">Per Hari</button>
+        <div style="width:1px;height:16px;background:var(--border);margin:0 2px"></div>
+        <input type="date" id="sfb2-date-input" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;font-family:'JetBrains Mono',monospace">
+        <button onclick="applyScopeFunnelDate2()" class="toggle active" style="--accent:var(--shopee)">Terapkan</button>
+      </div>
 
       <!-- Funnel Pyramid + Tab Detail -->
       <div class="funnel-card">
-        <div class="funnel-card-head">
-          <div class="section-title" style="margin:0;border:none;padding:0;"><span class="dot" style="background:var(--c-aware)"></span>Brand funnel — perjalanan audiens</div>
-          <div class="funnel-toggle">
-            <button class="f-tp active" onclick="setFunnelPeriod('latest',this)">Terbaru</button>
-            <button class="f-tp" onclick="setFunnelPeriod('7d',this)">7 Hari</button>
-            <button class="f-tp" onclick="setFunnelPeriod('30d',this)">30 Hari</button>
-          </div>
-        </div>
         <div class="funnel-body">
           <div class="pyramid-wrap" id="pyramid-wrap">
             <div class="pyramid-layer p-aware" style="width:100%;">
