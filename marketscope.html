@@ -599,6 +599,84 @@
         <div style="font-size:13px;color:var(--muted);line-height:1.7;" id="kpi-popup-body">—</div>
       </div>
 
+      <!-- BRAND FUNNEL MINI di Brand Diagnosis -->
+      <div class="funnel-card" id="scope-funnel-card">
+        <div class="funnel-card-head">
+          <div class="section-title" style="margin:0;border:none;padding:0;"><span class="dot" style="background:var(--c-aware)"></span>Brand Funnel — Perjalanan Audiens</div>
+          <div class="funnel-toggle">
+            <button class="f-tp active" onclick="setFunnelPeriod('latest',this)">Terbaru</button>
+            <button class="f-tp" onclick="setFunnelPeriod('7d',this)">7 Hari</button>
+            <button class="f-tp" onclick="setFunnelPeriod('30d',this)">30 Hari</button>
+          </div>
+        </div>
+        <div class="funnel-body">
+          <div class="pyramid-wrap" id="pyramid-wrap">
+            <div class="pyramid-layer p-aware" style="width:100%;">
+              <div class="p-label">AWARENESS</div>
+              <div class="p-val" id="py-aware-val">—</div>
+              <div class="p-bench" id="py-aware-bench">Bench: —</div>
+              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-aware-bar" style="width:0%"></div></div></div>
+              <span id="py-aware-chip"></span>
+            </div>
+            <div class="p-rate-row"><span class="p-rate-lbl">% Aware to Consider</span><span class="p-rate-val" id="py-ac-rate">—</span></div>
+            <div class="pyramid-layer p-cons" style="width:80%">
+              <div class="p-label">CONSIDERATION</div>
+              <div class="p-val" id="py-cons-val">—</div>
+              <div class="p-bench" id="py-cons-bench">Bench: —</div>
+              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-cons-bar" style="width:0%"></div></div></div>
+              <span id="py-cons-chip"></span>
+            </div>
+            <div class="p-rate-row"><span class="p-rate-lbl">% Consider to Convers</span><span class="p-rate-val" id="py-cc-rate">—</span></div>
+            <div class="pyramid-layer p-conv" style="width:60%">
+              <div class="p-label">CONVERSION</div>
+              <div class="p-val" id="py-conv-val">—</div>
+              <div class="p-bench" id="py-conv-bench">Bench: —</div>
+              <div style="margin-top:6px"><div class="fbar-bg"><div class="fbar" id="py-conv-bar" style="width:0%"></div></div></div>
+              <span id="py-conv-chip"></span>
+            </div>
+          </div>
+          <div class="funnel-detail" id="funnel-detail">
+            <div class="fdetail-tabs" id="fdetail-tabs">
+              <button class="fdt active" onclick="switchFDetail('aware',this)">Awareness</button>
+              <button class="fdt" onclick="switchFDetail('cons',this)">Consideration</button>
+              <button class="fdt" onclick="switchFDetail('conv',this)">Conversion</button>
+            </div>
+            <div id="fd-aware" class="fdetail-panel">
+              <div class="fhero"><div class="fhero-val" id="fd-aware-val">—</div><div class="fhero-bench" id="fd-aware-bench">Bench: —</div></div>
+              <div class="fdrows">
+                <div class="fdrow"><span class="fdkey">Rasio Awareness Wookey vs F&amp;B Tiktok</span><span class="fdval" id="fd-aware-ratio">—</span></div>
+                <div class="fdrow"><b>VIA IKLAN</b></div>
+                <div class="fdrow"><span class="fdkey">Awareness By Ads</span><span class="fdval" id="fd-aware-ads">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Awareness By Premium Reach</span><span class="fdval" id="fd-aware-premium">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Awareness By Massive Reach</span><span class="fdval" id="fd-aware-massive">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Uniqe Awareness By Ads</span><span class="fdval" id="fd-aware-uniq-ads">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Frekuensi View By Ads</span><span class="fdval" id="fd-aware-freq-ads">—</span></div>
+                <div class="fdrow"><b>VIA ORGANIK</b></div>
+                <div class="fdrow"><span class="fdkey">Awareness By Organik</span><span class="fdval" id="fd-aware-org">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Uniqe Awareness By Organik</span><span class="fdval" id="fd-aware-uniq-org">—</span></div>
+                <div class="fdrow"><span class="fdkey">↳ Frekuensi View By Organik</span><span class="fdval" id="fd-aware-freq-org">—</span></div>
+              </div>
+            </div>
+            <div id="fd-cons" class="fdetail-panel" style="display:none">
+              <div class="fhero"><div class="fhero-val" id="fd-cons-val">—</div><div class="fhero-bench" id="fd-cons-bench">Bench: —</div></div>
+              <div class="fdrows"><div class="fdrow"><span class="fdkey">% Aware to Consider</span><span class="fdval" id="fd-ac-rate">—</span></div></div>
+            </div>
+            <div id="fd-conv" class="fdetail-panel" style="display:none">
+              <div class="fhero"><div class="fhero-val" id="fd-conv-val">—</div><div class="fhero-bench" id="fd-conv-bench">Bench: —</div></div>
+              <div class="fdrows"><div class="fdrow"><span class="fdkey">% Consider to Convers</span><span class="fdval" id="fd-cc-rate">—</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:none">
+        <span id="py-aware-pct"></span><span id="py-cons-pct"></span><span id="py-conv-pct"></span>
+        <span id="pd-reach"></span><span id="pd-penetration"></span><span id="pd-ac-rate"></span><span id="pd-cc-rate"></span>
+        <span id="pd-cons-cost"></span><span id="pd-conv-cost"></span><span id="pd-engagements"></span>
+        <span id="bb-aware-w"></span><span id="bb-aware-wn"></span><span id="bb-aware-b"></span><span id="bb-aware-bn"></span>
+        <span id="bb-cons-w"></span><span id="bb-cons-wn"></span><span id="bb-cons-b"></span><span id="bb-cons-bn"></span>
+        <span id="bb-conv-w"></span><span id="bb-conv-wn"></span><span id="bb-conv-b"></span><span id="bb-conv-bn"></span>
+      </div>
+
       <!-- GRAFIK TREN HARIAN -->
       <div class="section-title"><span class="dot" style="background:var(--blue,#3b82f6)"></span>Grafik tren harian</div>
       <div class="chart-card" style="margin-bottom:20px;">
