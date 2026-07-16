@@ -876,11 +876,10 @@
       <!-- AWARENESS SECTION -->
       <div class="section-title"><span class="dot" style="background:#2C7873"></span>Awareness Overview</div>
 
-      <!-- Controls: Date Picker saja -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-        <span style="font-size:12px;color:var(--muted)">Tanggal:</span>
-        <input type="date" id="aud-date-input" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:4px 8px;font-family:monospace">
-        <button onclick="applyAudDate()" style="padding:5px 14px;border-radius:6px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer">Terapkan</button>
+      <!-- Controls: Toggle Per Hari / Kemarin -->
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button id="aud-btn-today" onclick="setAudDay('today')" style="padding:6px 18px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500">Per Hari</button>
+        <button id="aud-btn-yesterday" onclick="setAudDay('yesterday')" style="padding:6px 18px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer">Kemarin</button>
       </div>
 
       <!-- KPI Awareness -->
@@ -892,10 +891,12 @@
       <div class="chart-card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">Tren Awareness Harian</div>
-          <div style="display:flex;gap:6px">
-            <button onclick="setAwareChartRange(1)" id="acr-1" style="padding:4px 12px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500">Kemarin</button>
-            <button onclick="setAwareChartRange(7)" id="acr-7" style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">7 Hari</button>
-            <button onclick="setAwareChartRange(30)" id="acr-30" style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">30 Hari</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button onclick="setAwareChartRange(1)"   id="acr-1"   style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">Kemarin</button>
+            <button onclick="setAwareChartRange(7)"   id="acr-7"   style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">7 Hari</button>
+            <button onclick="setAwareChartRange(30)"  id="acr-30"  style="padding:4px 12px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500">30 Hari</button>
+            <button onclick="setAwareChartRange(90)"  id="acr-90"  style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">90 Hari</button>
+            <button onclick="setAwareChartRange(9999)" id="acr-all" style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">Semua</button>
           </div>
         </div>
         <div style="position:relative;height:220px"><canvas id="aware-chart" role="img" aria-label="Grafik tren awareness harian"></canvas></div>
@@ -1743,18 +1744,18 @@ function renderPersonas(audienceData) {
 var _awareChart   = null;
 var _audPeriod    = 'today';
 var _audDateOverride = null; // tanggal custom dari date picker
-var _awareRange   = 1; // default: kemarin (1 hari terakhir)
+var _awareRange   = 30; // default: 30 hari
 var _allTrendData = []; // cache sorted trend
 
-function setAudPeriod(p) {
+function setAudDay(p) {
   _audPeriod = p;
   _audDateOverride = null;
-  var btnT = document.getElementById('aud-toggle-today');
-  var btnY = document.getElementById('aud-toggle-yesterday');
-  var style_on  = 'padding:6px 16px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500';
-  var style_off = 'padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer';
-  if(btnT) btnT.style.cssText = p==='today' ? style_on : style_off;
-  if(btnY) btnY.style.cssText = p==='yesterday' ? style_on : style_off;
+  var on  = 'padding:6px 18px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:12px;cursor:pointer;font-weight:500';
+  var off = 'padding:6px 18px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer';
+  var btnT = document.getElementById('aud-btn-today');
+  var btnY = document.getElementById('aud-btn-yesterday');
+  if(btnT) btnT.style.cssText = p==='today' ? on : off;
+  if(btnY) btnY.style.cssText = p==='yesterday' ? on : off;
   if(_allTrendData.length) renderAwarenessSection(_allTrendData);
   if(allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
 }
@@ -1767,15 +1768,15 @@ function applyAudDate() {
   if(allAudienceData && allAudienceData.length) renderAudience(allAudienceData);
 }
 
+
 function setAwareChartRange(n) {
   _awareRange = n;
-  ['1','7','30'].forEach(function(x){
-    var btn = document.getElementById('acr-'+x);
+  var on  = 'padding:4px 12px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500';
+  var off = 'padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer';
+  [['1','1'],['7','7'],['30','30'],['90','90'],['9999','all']].forEach(function(pair){
+    var btn = document.getElementById('acr-'+pair[1]);
     if(!btn) return;
-    var active = String(n)===x;
-    btn.style.cssText = active
-      ? 'padding:4px 12px;border-radius:20px;border:1px solid #2C7873;background:#2C7873;color:#fff;font-size:11px;cursor:pointer;font-weight:500'
-      : 'padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer';
+    btn.style.cssText = (String(n)===pair[0]) ? on : off;
   });
   if(_allTrendData.length) _drawAwareChart(_allTrendData);
 }
@@ -1785,7 +1786,8 @@ function _drawAwareChart(sorted) {
   if(!canvas) return;
   if(_awareChart) { try{_awareChart.destroy();}catch(e){} }
 
-  var slice = _awareRange === 1 ? sorted.slice(-2) : (_awareRange===7 ? sorted.slice(-7) : sorted.slice(-30));
+  var slice = _awareRange >= 9999 ? sorted : sorted.slice(-_awareRange);
+  if(_awareRange === 1) slice = sorted.slice(-2); // kemarin = 2 titik
 
   var labels = slice.map(function(d){
     var p=(d['Tanggal']||'').split('-');
