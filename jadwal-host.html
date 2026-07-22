@@ -619,6 +619,15 @@ const CREDENTIALS = {
 // Akun yang bisa lihat semua host (tidak difilter by leader)
 const ADMIN_ACCOUNTS = ['Admin', 'Leader'];
 
+// Grup leader gabungan: anggota grup saling lihat & input host satu sama lain.
+const LEADER_GROUPS = {
+  'Surya': ['Surya', 'Ibra'],
+  'Ibra':  ['Surya', 'Ibra'],
+};
+function allowedLeaders(leader) {
+  return LEADER_GROUPS[leader] || [leader];
+}
+
 // ── STATE ─────────────────────────────────────────────────────
 let currentLeader = '';
 let weekOffset    = 0;
@@ -731,7 +740,7 @@ async function loadHosts() {
         // Filter by leader jika bukan akun admin
         if (ADMIN_ACCOUNTS.includes(currentLeader)) {
           hosts.push(h.nama);
-        } else if (h.leader === currentLeader) {
+        } else if (allowedLeaders(currentLeader).includes(h.leader)) {
           hosts.push(h.nama);
         }
       }
