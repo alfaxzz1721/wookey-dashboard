@@ -591,7 +591,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfqb75rY1XyfrUdYRr6Ne-ScyO1dQ6fMR3dGhARbL2i27UKKofGl02OqiDHGzrV1SQ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-rLL_wI5MWe8t24nIXN9ywuDQHhIK6sVsGADh98WvTLS3vjt2AHwNlJQtqtQoflBq7A/exec';
 const GMV_SHEET_ID    = '1AuIXCWDzaTdSclKA64qJHgllySc-uuW2ewTrfdnDgF8';
 
 const AKUN_LIST = [
@@ -1137,11 +1137,9 @@ function resetForm() {
 async function loadRiwayat() {
   const body = document.getElementById('riwayatBody');
   try {
-    const url  = `https://docs.google.com/spreadsheets/d/${GMV_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Formasi%20Jadwal%20Hostlive&headers=1&_cb=${Date.now()}`;
-    const res  = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
-    const rows = json.table?.rows || [];
+    const res  = await fetch(APPS_SCRIPT_URL);
+    const json = await res.json();
+    const rows = json.jadwal || [];
 
     if (rows.length === 0) {
       body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">Belum ada data</td></tr>';
@@ -1151,20 +1149,13 @@ async function loadRiwayat() {
     // Tampilkan 20 terakhir (reverse)
     const recent = rows.slice(-20).reverse();
     body.innerHTML = recent.map(r => {
-      // Format tanggal dari Date(2026,5,29) atau string biasa
-      const rawTgl = r.c?.[0]?.v || '–';
-      let tgl = rawTgl;
-      if (typeof rawTgl === 'string' && rawTgl.startsWith('Date(')) {
-        const parts = rawTgl.replace('Date(','').replace(')','').split(',');
-        const y = parts[0], m = String(parseInt(parts[1])+1).padStart(2,'0'), d = String(parts[2]).padStart(2,'0');
-        tgl = `${y}-${m}-${d}`;
-      }
-      const platform = r.c?.[1]?.v || '–';
-      const akun     = r.c?.[2]?.v || '–';
-      const shift    = r.c?.[3]?.v || '–';
-      const host     = r.c?.[4]?.v || '–';
-      const bersama  = r.c?.[5]?.v || '–';
-      const diinput  = r.c?.[7]?.v || '–';
+      const tgl      = r.tanggal || '–';
+      const platform = r.platform || '–';
+      const akun     = r.akun     || '–';
+      const shift    = r.shift    || '–';
+      const host     = r.host     || '–';
+      const bersama  = r.bersama  || '–';
+      const diinput  = r.diinput  || '–';
       const platClass = platform.toLowerCase();
       return `<tr>
         <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${tgl}</td>
@@ -1185,30 +1176,19 @@ async function loadRiwayat() {
 // ── LOAD JADWAL EXISTING ──────────────────────────────────────
 async function loadJadwalExisting() {
   try {
-    const url  = `https://docs.google.com/spreadsheets/d/${GMV_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Formasi%20Jadwal%20Hostlive&headers=1&_cb=${Date.now()}`;
-    const res  = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
-    const rows = json.table?.rows || [];
+    const res  = await fetch(APPS_SCRIPT_URL);
+    const json = await res.json();
+    const rows = json.jadwal || [];
 
-    console.log('[jadwal] Total rows dari sheet:', rows.length);
+    console.log('[jadwal] Total rows dari Apps Script:', rows.length);
     rows.forEach(r => {
-      const rawTgl = r.c?.[0]?.v || '';
-      let tgl = rawTgl;
-      if (typeof rawTgl === 'string' && rawTgl.startsWith('Date(')) {
-        const parts = rawTgl.replace('Date(','').replace(')','').split(',');
-        const y = parts[0], m = String(parseInt(parts[1])+1).padStart(2,'0'), d = String(parts[2]).padStart(2,'0');
-        tgl = `${y}-${m}-${d}`;
-      } else if (rawTgl instanceof Date || (typeof rawTgl === 'number')) {
-        const d = new Date(rawTgl);
-        tgl = d.toISOString().substring(0,10);
-      }
+      const tgl = r.tanggal || '';
       if (!tgl || tgl.length < 8) return;
 
-      const akun    = r.c?.[2]?.v || '';
-      const shift   = r.c?.[3]?.v || '';
-      const host    = r.c?.[4]?.v || '';
-      const bersama = r.c?.[5]?.v || '';
+      const akun    = r.akun    || '';
+      const shift   = r.shift   || '';
+      const host    = r.host    || '';
+      const bersama = r.bersama || '';
 
       if (!akun || !shift) return;
 
