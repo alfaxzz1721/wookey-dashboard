@@ -600,6 +600,7 @@ const AKUN_LIST = [
   { nama: 'wookey.official',      platform: 'TikTok' },
   { nama: 'wookeyofficial',       platform: 'TikTok' },
   { nama: 'wookeyweight',         platform: 'TikTok' },
+  { nama: 'wookeyhoney',          platform: 'TikTok' },
   { nama: 'wookeywight.official', platform: 'TikTok' },
   { nama: 'sohoney.jr',            platform: 'TikTok' },
 ];
@@ -827,7 +828,10 @@ function makeSelect(akun, shift, dateISO, type) {
         const conflictParts = conflictKey.split('||');
         const conflictAkun  = conflictParts[0];
         const conflictShift = conflictParts[1];
-        alert(`⚠️ ${newVal} sudah dijadwal di tanggal ini!\nAkun: ${conflictAkun} · Shift: ${conflictShift}\n\nSatu host hanya boleh 1 jadwal per hari.`);
+        // Pakai toast, JANGAN alert(): alert() memblokir seluruh halaman
+        // sampai dialog ditutup. Saat leader mengisi cepat dan menabrak aturan
+        // ini, tab ikut membeku dan isian berikutnya tidak bisa dilakukan.
+        showToast(`⚠️ ${newVal} sudah dijadwal ${conflictShift} di ${conflictAkun} pada tanggal ini — 1 host hanya boleh 1 jadwal per hari`, 'error');
         sel.value = jadwalState[key] || '–';
         return;
       }
@@ -907,7 +911,9 @@ function showKonfirmasiUbah(key, sel, editBtn) {
     });
     if (conflict) {
       const cp = conflict[0].split('||');
-      alert(`⚠️ ${newVal} sudah dijadwal di tanggal ini!\nAkun: ${cp[0]} · Shift: ${cp[1]}\n\nSatu host hanya boleh 1 jadwal per hari.`);
+      // Toast, bukan alert() — alert() membekukan halaman DAN menahan overlay
+      // konfirmasi tetap terbuka sehingga tampak seperti aplikasi hang.
+      showToast(`⚠️ ${newVal} sudah dijadwal ${cp[1]} di ${cp[0]} pada tanggal ini — 1 host hanya boleh 1 jadwal per hari`, 'error');
       return;
     }
 
@@ -1071,7 +1077,8 @@ async function saveJadwal() {
             shift:     shift.nama,
             host_live: host,
             bersama:   bersama !== '–' ? bersama : '',
-            minggu
+            minggu,
+            _key:      hostKey   // dipakai internal, dibuang sebelum dikirim
           });
         }
       });
@@ -1092,24 +1099,36 @@ async function saveJadwal() {
 
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
       const batch   = rows.slice(i, i + BATCH_SIZE);
-      const payload = encodeURIComponent(JSON.stringify({ rows: batch, leader: currentLeader }));
+      // _key hanya penanda internal — jangan ikut terkirim ke Apps Script
+      const kirim   = batch.map(({ _key, ...r }) => r);
+      const payload = encodeURIComponent(JSON.stringify({ rows: kirim, leader: currentLeader }));
       const url     = `${APPS_SCRIPT_URL}?action=save&data=${payload}`;
       const res     = await fetch(url);
       const json    = await res.json();
       if (json.status === 'ok') {
         totalSaved += json.count;
+        // Coret draft PER BATCH begitu batch itu sukses. Sebelumnya draft baru
+        // dibersihkan setelah SEMUA batch selesai, sehingga bila batch ke-2
+        // gagal lalu user menekan Simpan lagi, batch ke-1 ikut terkirim ulang
+        // dan berpotensi menjadi baris ganda di sheet.
+        batch.forEach(r => draftKeys.delete(r._key));
       } else {
         throw new Error(json.message || 'Unknown error');
       }
     }
 
-    draftKeys.clear(); // Reset draft setelah tersimpan
     renderGrid();      // Re-render grid untuk hilangkan styling kuning
     showToast(`✅ ${totalSaved} jadwal berhasil disimpan`, 'success');
     setTimeout(loadRiwayat, 1500); // Refresh riwayat
     setTimeout(loadRiwayat, 2000);
   } catch(e) {
-    showToast('❌ Gagal menyimpan, coba lagi', 'error');
+    // Sebagian mungkin sudah tersimpan; yang tersisa di draftKeys hanya yang
+    // BELUM masuk, jadi menekan Simpan lagi aman dan tidak menduplikasi.
+    const sisa = draftKeys.size;
+    renderGrid();
+    showToast(sisa
+      ? `❌ Gagal menyimpan — ${sisa} jadwal belum tersimpan, tekan Simpan lagi`
+      : '❌ Gagal menyimpan, coba lagi', 'error');
     console.error(e);
   }
 
